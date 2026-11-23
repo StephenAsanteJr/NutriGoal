@@ -13,6 +13,10 @@ export type SilhouetteShape = {
   head: { cx: number; cy: number; rx: number; ry: number };
   topY: number;
   heightPx: number;
+  /** Clothing shapes fitted to this body (drawn clipped to `body`). */
+  top: string;
+  shorts: string;
+  feet: { cx: number; cy: number; rx: number; ry: number }[];
 };
 
 function clamp01(v: number) {
@@ -112,7 +116,41 @@ export function silhouette(opts: {
     c,
   ]);
 
+  const toPx = (arr: Pt[]): Pt[] => arr.map(([x, y, c]) => [VIEW.centerX + x * H, topY + y * H, c]);
+  const mirror = (half: Pt[]): Pt[] => [...half, ...[...half].reverse().map(([x, y, c]) => [-x, y, c] as Pt)];
+
+  // Athletic tank top: scoop neck, shoulder straps, hem at the hips.
+  const topHalf: Pt[] = [
+    [0.0, 0.178, true],
+    [neck * 0.75, 0.16],
+    [neck + 0.006, 0.132, true],
+    [neck + 0.026, 0.14, true],
+    [chest - 0.022, 0.2],
+    [chest - 0.006, 0.247, true],
+    [chest + 0.002, 0.285],
+    [waist + 0.003, 0.39],
+    [hip + 0.002, 0.462, true],
+    [0.0, 0.466, true],
+  ];
+  // Shorts: waistband to mid-thigh, split between the legs.
+  const shortsHalf: Pt[] = [
+    [0.0, 0.452, true],
+    [hip * 0.985, 0.452, true],
+    [hip + 0.004, 0.49],
+    [thighOut + 0.006, 0.6, true],
+    [Math.max(0.004, thighIn) + 0.002, 0.606, true],
+    [0.0, 0.548, true],
+  ];
+
   return {
+    top: polygon(toPx(mirror(topHalf))),
+    shorts: polygon(toPx(mirror(shortsHalf))),
+    feet: [-1, 1].map((side) => ({
+      cx: VIEW.centerX + side * (ankleOut + 0.004) * H,
+      cy: topY + 0.992 * H,
+      rx: 0.034 * H,
+      ry: 0.014 * H,
+    })),
     body: catmullRom(pts),
     head: {
       cx: VIEW.centerX,
@@ -145,4 +183,22 @@ function catmullRom(p: Pt[]): string {
     d += ` C${f(c1[0])},${f(c1[1])} ${f(c2[0])},${f(c2[1])} ${f(p2[0])},${f(p2[1])}`;
   }
   return d;
+}
+
+/** Closed shape through points; corner points stay sharp, others are smoothed. */
+function polygon(p: Pt[]): string {
+  if (p.length < 3) return "";
+  const n = p.length;
+  const f = (v: number) => v.toFixed(1);
+  let d = `M${f(p[0][0])},${f(p[0][1])}`;
+  for (let i = 0; i < n; i++) {
+    const p0 = p[(i - 1 + n) % n];
+    const p1 = p[i];
+    const p2 = p[(i + 1) % n];
+    const p3 = p[(i + 2) % n];
+    const c1: Pt = p1[2] ? [p1[0], p1[1]] : [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2: Pt = p2[2] ? [p2[0], p2[1]] : [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${f(c1[0])},${f(c1[1])} ${f(c2[0])},${f(c2[1])} ${f(p2[0])},${f(p2[1])}`;
+  }
+  return d + " Z";
 }

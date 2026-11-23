@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { requireMember } from "@/lib/auth";
-import { getProfile, listReports } from "@/lib/data";
+import { getProfile, getSettings, listReports } from "@/lib/data";
 import { cmToFtIn, kgToLb } from "@/lib/biometrics";
 import type { Extraction } from "@/lib/report-extract";
 import { ProfileForm, type ProfileInitial } from "./ProfileForm";
@@ -78,7 +78,16 @@ export default async function ManualPage(props: PageProps<"/onboarding/manual">)
           </Link>
         )}
       </div>
-      <ProfileForm initial={initial} fromReport={fromReport} name={user.name} hasReport={!!report || reports.length > 0} />
+      <ProfileForm
+        initial={initial}
+        fromReport={fromReport}
+        name={user.name}
+        hasReport={!!report || reports.length > 0}
+        initialLook={(() => {
+          const st = getSettings(user.id);
+          return { skinTone: st.skin_tone, hairStyle: st.hair_style, hairColor: st.hair_color };
+        })()}
+      />
     </div>
   );
 }

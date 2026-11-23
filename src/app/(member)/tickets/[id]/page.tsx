@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { requireMember } from "@/lib/auth";
 import { getResponse, getTicket } from "@/lib/data";
 import { db, nowIso } from "@/lib/db";
-import { goalLabel, ticketNumber } from "@/lib/domain";
+import { goalLabel, money, ticketNumber } from "@/lib/domain";
 import { ResponseTicket } from "@/components/ResponseTicket";
 import { Alert, StatusPill, shortDate, timeAgo } from "@/components/ui";
 
@@ -18,6 +18,9 @@ export default async function TicketPage(props: PageProps<"/tickets/[id]">) {
   if (!ticket || ticket.user_id !== user.id) notFound();
   if (ticket.status === "awaiting_payment") redirect(`/tickets/new?draft=${ticket.id}`);
   const response = getResponse(ticket.id);
+  const payment = db()
+    .prepare("SELECT id, amount_cents, provider, card_brand, card_last4, created_at FROM payments WHERE ticket_id = ? AND user_id = ? ORDER BY created_at DESC LIMIT 1")
+    .get(ticket.id, user.id) as { id: string; amount_cents: number; provider: string; card_brand: string | null; card_last4: string | null; created_at: string } | undefined;
 
   if (response && !ticket.member_seen_at) {
     db().prepare("UPDATE tickets SET member_seen_at = ? WHERE id = ?").run(nowIso(), ticket.id);
@@ -51,7 +54,7 @@ export default async function TicketPage(props: PageProps<"/tickets/[id]">) {
         <StatusPill status={ticket.status} />
       </div>
 
-      <ol className="card grid gap-px overflow-hidden bg-line sm:grid-cols-4" aria-label="Ticket progress">
+      <ol className="card grid grid-cols-1 gap-px overflow-hidden bg-line sm:grid-cols-4" aria-label="Ticket progress">
         {steps.map((s, i) => (
           <li key={s.label} className="flex items-start gap-3 bg-white px-5 py-4">
             <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${s.done ? "bg-navy text-white" : "border border-line text-muted"}`}>
@@ -97,9 +100,28 @@ export default async function TicketPage(props: PageProps<"/tickets/[id]">) {
         </section>
       )}
 
+      <section className="card flex flex-wrap items-center justify-between gap-3 px-6 py-4">
+        <div className="flex items-center gap-3 text-sm">
+          <span className="pill bg-good-tint text-good">✓ Paid</span>
+          {payment ? (
+            <span className="text-slate">
+              {money(payment.amount_cents)} · {payment.card_brand ? `${payment.card_brand} ·· ${payment.card_last4}` : payment.provider === "stripe" ? "Card via Stripe" : "Card"} ·{" "}
+              {payment.provider === "stripe" ? "processed by Stripe" : "demo checkout"}
+            </span>
+          ) : (
+            <span className="text-slate">Covered by your membership&apos;s included ticket</span>
+          )}
+        </div>
+        {payment && (
+          <Link href={`/payments/${payment.id}`} className="link text-sm">
+            Proof of payment →
+          </Link>
+        )}
+      </section>
+
       <section className="card">
         <h2 className="border-b border-line px-6 py-3 text-sm font-bold">What you sent</h2>
-        <dl className="grid gap-px bg-line md:grid-cols-2">
+        <dl className="grid grid-cols-1 gap-px bg-line md:grid-cols-2">
           {[
             ["What I typically eat", ticket.typical_diet],
             ["Setbacks I face", ticket.setbacks],

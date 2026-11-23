@@ -6,13 +6,13 @@ import { CardFields } from "@/components/CardFields";
 import { Alert } from "@/components/ui";
 import { PRICES, money } from "@/lib/domain";
 
-export function JoinPanel() {
+export function JoinPanel({ stripe = false }: { stripe?: boolean }) {
   const [plan, setPlan] = useState<"monthly" | "yearly">("monthly");
   const [state, action, pending] = useActionState<PayState, FormData>(subscribeAndSubmit, undefined);
   const price = plan === "yearly" ? PRICES.subscriptionYearly : PRICES.subscriptionMonthly;
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {(["monthly", "yearly"] as const).map((p) => (
           <button
             key={p}
@@ -45,9 +45,9 @@ export function JoinPanel() {
         <input type="hidden" name="plan" value={plan} />
         <div className="font-bold">Checkout · {plan === "yearly" ? "Annual" : "Monthly"} membership</div>
         {state?.error && <Alert>{state.error}</Alert>}
-        <CardFields idPrefix="join" />
+        <CardFields idPrefix="join" stripe={stripe} />
         <button className="btn-primary w-full !py-3" disabled={pending}>
-          {pending ? "Processing…" : `Pay ${money(price)} and join`}
+          {pending ? (stripe ? "Opening Stripe…" : "Processing…") : stripe ? `Continue to secure checkout · ${money(price)}` : `Pay ${money(price)} and join`}
         </button>
       </form>
     </div>

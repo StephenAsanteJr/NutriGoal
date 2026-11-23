@@ -23,6 +23,7 @@
 
   --font-display: var(--font-bodoni), Georgia, "Times New Roman", serif;
   --font-sans: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --font-brand: var(--font-montserrat), "Helvetica Neue", Arial, sans-serif;
 }
 
 html {
@@ -44,7 +45,7 @@ body {
     @apply text-[11px] font-bold uppercase tracking-[0.14em] text-blue;
   }
   .card {
-    @apply rounded-[3px] border border-line bg-white;
+    @apply min-w-0 rounded-[3px] border border-line bg-white;
   }
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
@@ -85,4 +86,27 @@ body {
   .rule {
     @apply border-t border-line;
   }
+}
+
+/* Animated character idle motion */
+@keyframes ng-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.006, 1.01); }
+}
+@keyframes ng-blink {
+  0%, 94%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.08); }
+}
+.ng-breathe {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: ng-breathe 3.6s ease-in-out infinite;
+}
+.ng-blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ng-blink 5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ng-breathe, .ng-blink { animation: none; }
 }

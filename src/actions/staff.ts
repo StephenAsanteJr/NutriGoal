@@ -6,6 +6,7 @@ import { db, newId, nowIso } from "@/lib/db";
 import { requireStaff } from "@/lib/auth";
 import { getTicket, getUserById, notify, type Step } from "@/lib/data";
 import { ticketNumber } from "@/lib/domain";
+import { nudgeClinician } from "@/lib/nudges";
 
 export type ResponseFormState = { error?: string; fieldErrors?: Record<string, string> } | undefined;
 
@@ -105,4 +106,12 @@ export async function addStaffNote(fd: FormData) {
   }
   revalidatePath(back);
   redirect(back.startsWith("/staff") ? back : "/staff");
+}
+
+export async function managerNudge(fd: FormData) {
+  const user = await requireStaff(["manager"]);
+  const id = Number(fd.get("ticket_id"));
+  nudgeClinician({ ticketId: id, actor: user, source: "manager" });
+  revalidatePath(`/staff/tickets/${id}`);
+  revalidatePath("/staff");
 }

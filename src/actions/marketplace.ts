@@ -1,12 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { db, nowIso } from "@/lib/db";
 import { getCurrentUser, requireMember } from "@/lib/auth";
-import { getActiveSubscription, getAddon, notify } from "@/lib/data";
+import { getActiveSubscription, getAddon } from "@/lib/data";
+import { unlockAddonFor } from "@/lib/fulfillment";
+import { createCheckout, stripeEnabled } from "@/lib/stripe";
 import { cardFromForm, charge } from "@/lib/payments";
 
-export type UnlockState = { error?: string; ok?: boolean } | undefined;
+export type UnlockState = { error?: string; ok?: boolean; paymentId?: string } | undefined;
 
 export async function togglePartner(fd: FormData) {
   const user = await requireMember();
@@ -28,20 +31,33 @@ export async function unlockAddon(_: UnlockState, fd: FormData): Promise<UnlockS
   if (already) return { ok: true };
 
   const member = getActiveSubscription(user.id);
-  if (!(addon.included_with_membership && member)) {
-    const res = charge({
-      userId: user.id,
-      card: cardFromForm(fd),
-      amountCents: addon.price_cents,
-      kind: "addon",
-      description: `${addon.name}${addon.interval === "month" ? " · monthly" : ""}`,
-    });
-    if (!res.ok) return { error: res.error };
+  if (addon.included_with_membership && member) {
+    unlockAddonFor(user.id, addon.id);
+    return { ok: true };
   }
-  db().prepare("INSERT INTO user_addons (user_id, addon_id, unlocked_at) VALUES (?, ?, ?)").run(user.id, addon.id, nowIso());
-  notify(user.id, `${addon.name} unlocked`, addon.description, "/marketplace#addons");
-  revalidatePath("/marketplace");
-  return { ok: true };
+  const description = `${addon.name}${addon.interval === "month" ? " · monthly" : ""}`;
+  if (stripeEnabled()) {
+    let url: string;
+    try {
+      url = await createCheckout({
+        userId: user.id,
+        email: user.email,
+        kind: "addon",
+        description,
+        amountCents: addon.price_cents,
+        addonId: addon.id,
+        interval: addon.interval === "month" ? "month" : undefined,
+        cancelPath: "/marketplace?canceled=1#addons",
+      });
+    } catch {
+      return { error: "We couldn't start a secure Stripe checkout. Please try again." };
+    }
+    redirect(url);
+  }
+  const res = charge({ userId: user.id, card: cardFromForm(fd), amountCents: addon.price_cents, kind: "addon", description, addonId: addon.id });
+  if (!res.ok) return { error: res.error };
+  unlockAddonFor(user.id, addon.id);
+  return { ok: true, paymentId: res.paymentId };
 }
 
 export async function markAllNotificationsRead() {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { requireStaff } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { listClinicians, listTicketsForStaff, type TicketWithPeople } from "@/lib/data";
+import { listClinicians, listTicketsForStaff, nudgeCounts, type TicketWithPeople } from "@/lib/data";
 import { goalLabel, money, ticketNumber } from "@/lib/domain";
 import { PageHeader, StatusPill, hoursUntil, isoDaysAgo, timeAgo } from "@/components/ui";
 
@@ -38,7 +38,7 @@ export default async function StaffHome(props: PageProps<"/staff">) {
           : "Tickets routed to you by goal group. Review the member's build, then write a concise recommendation and 5–6 timed steps."}
       </PageHeader>
 
-      <div className="grid gap-px overflow-hidden rounded-[3px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-px overflow-hidden rounded-[3px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
         <Kpi label={manager ? "Open tickets" : "In my queue"} value={String(open.length)} />
         <Kpi label="Due within 12 hrs" value={String(dueSoon.length)} tone={dueSoon.length ? "warn" : undefined} />
         <Kpi label="Avg. time to response" value={responded.length ? `${avgHrs.toFixed(1)} hrs` : "—"} sub={responded.length ? `${Math.round(within48 * 100)}% within 48 hrs` : "No responses yet"} />
@@ -109,6 +109,7 @@ function Kpi({ label, value, sub, tone }: { label: string; value: string; sub?: 
 }
 
 function QueueTable({ tickets, showClinician }: { tickets: TicketWithPeople[]; showClinician: boolean }) {
+  const nudges = nudgeCounts();
   if (!tickets.length) return <p className="px-6 py-10 text-center text-sm text-slate">Nothing here right now.</p>;
   return (
     <table className="w-full min-w-[820px] text-sm">
@@ -142,7 +143,14 @@ function QueueTable({ tickets, showClinician }: { tickets: TicketWithPeople[]; s
                 {t.status === "responded" ? `Sent ${timeAgo(t.responded_at!)}` : t.due_at ? (overdue ? `Overdue ${timeAgo(t.due_at)}` : timeAgo(t.due_at)) : "—"}
               </td>
               <td className="px-6 py-3 text-right">
-                <StatusPill status={t.status} />
+                <div className="flex items-center justify-end gap-2">
+                  {t.status !== "responded" && nudges.get(t.id) && (
+                    <span className="pill bg-warn-tint text-warn" title={`Last nudge ${timeAgo(nudges.get(t.id)!.last)}`}>
+                      ⚑ Nudged ×{nudges.get(t.id)!.n}
+                    </span>
+                  )}
+                  <StatusPill status={t.status} />
+                </div>
               </td>
             </tr>
           );

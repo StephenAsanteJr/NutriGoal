@@ -7,6 +7,7 @@ import { togglePartner } from "@/actions/marketplace";
 import { PageHeader } from "@/components/ui";
 import { SubmitButton } from "@/components/SubmitButton";
 import { AddonCard } from "./AddonCard";
+import { stripeEnabled } from "@/lib/stripe";
 
 export const metadata: Metadata = { title: "Marketplace" };
 
@@ -18,12 +19,19 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
   const addons = listAddons(user.id);
   const member = !!getActiveSubscription(user.id);
   const myGoals = new Set(listTicketsForMember(user.id).map((t) => t.goal_type));
-  const shown = cat === "all" ? partners : partners.filter((p) => p.category === cat);
+  const national = partners.filter((p) => p.kind === "national");
+  const verified = partners.filter((p) => p.kind !== "national");
+  const shown = cat === "all" ? verified : verified.filter((p) => p.category === cat);
   const connected = partners.filter((p) => p.connected);
+  const nationalGroups = [
+    { id: "grocer", title: "Top 3 U.S. supermarket grocers" },
+    { id: "retailer", title: "Top 3 U.S. food retailers" },
+    { id: "pharmacy", title: "Top 3 U.S. retail pharmacies" },
+  ].filter((g) => cat === "all" || g.id === cat);
 
   return (
     <div className="space-y-10">
-      <PageHeader eyebrow="Verified partner marketplace" title="Grocers, retailers, pharmacies and coaches">
+      <PageHeader eyebrow="Marketplace" title="Grocers, retailers, pharmacies and coaches">
         Open to every member, with or without a ticket. We check each partner&apos;s license or certification before listing them, and
         your clinician can point to them in your plan.
       </PageHeader>
@@ -37,6 +45,58 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
         </div>
       )}
 
+      <section aria-labelledby="national-heading">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <div className="eyebrow">Biggest names across the U.S.</div>
+            <h2 id="national-heading" className="font-display mt-1 text-3xl">Shop where you already shop</h2>
+          </div>
+          <p className="max-w-md text-xs text-muted">
+            Ranked by U.S. sales and prescription revenue. These are public listings, not NutriGoal partners: no partnership, discount or
+            endorsement is implied. Saving one sets where your plan-built grocery lists point.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          {nationalGroups.map((g) => (
+            <div key={g.id} className="card">
+              <h3 className="border-b border-line px-5 py-3 text-sm font-bold">{g.title}</h3>
+              <ol>
+                {national
+                  .filter((p) => p.category === g.id)
+                  .map((p, i) => (
+                    <li key={p.id} id={p.id} className="flex scroll-mt-24 items-start gap-3 border-b border-line px-5 py-4 last:border-0">
+                      <span className="font-display w-6 text-2xl leading-none text-blue">{i + 1}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold">{p.name}</div>
+                        <div className="text-xs text-slate">{p.rank_note}</div>
+                        <div className="mt-1 text-xs text-muted">{p.tagline} · {p.location}</div>
+                        <div className="mt-2 flex flex-wrap items-center gap-3">
+                          {p.website && (
+                            <a href={p.website} target="_blank" rel="noopener noreferrer" className="link text-xs">
+                              Visit site ↗
+                            </a>
+                          )}
+                          <form action={togglePartner}>
+                            <input type="hidden" name="partner_id" value={p.id} />
+                            <SubmitButton className={p.connected ? "text-xs font-bold text-good" : "text-xs font-bold text-blue hover:underline"} pendingText="…">
+                              {p.connected ? "✓ Saved as my store" : g.id === "pharmacy" ? "Save as my pharmacy" : "Save as my store"}
+                            </SubmitButton>
+                          </form>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div>
+        <div className="eyebrow">Verified partners</div>
+        <h2 className="font-display mt-1 text-3xl">Checked and listed by NutriGoal</h2>
+      </div>
+
       <nav className="flex flex-wrap gap-2" aria-label="Partner categories">
         {[{ id: "all", label: "All partners" }, ...PARTNER_CATEGORIES].map((c) => (
           <Link
@@ -46,12 +106,12 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
             aria-current={cat === c.id ? "page" : undefined}
           >
             {c.label}
-            <span className="ml-2 text-xs opacity-60">{c.id === "all" ? partners.length : partners.filter((p) => p.category === c.id).length}</span>
+            <span className="ml-2 text-xs opacity-60">{c.id === "all" ? verified.length : verified.filter((p) => p.category === c.id).length}</span>
           </Link>
         ))}
       </nav>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {shown.map((p) => {
           const match = p.goal_types.filter((g) => myGoals.has(g));
           return (
@@ -98,9 +158,9 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
           <h2 className="font-display mt-1 text-3xl">Extra help between tickets</h2>
           <p className="mt-1 text-sm text-slate">Unlock any of these whether or not you&apos;ve bought a ticket.</p>
         </div>
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {addons.map((a) => (
-            <AddonCard key={a.id} addon={a} member={member} />
+            <AddonCard key={a.id} addon={a} member={member} stripe={stripeEnabled()} autoOpen={sp.unlock === a.id} />
           ))}
         </div>
       </section>

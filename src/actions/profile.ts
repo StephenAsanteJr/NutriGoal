@@ -19,7 +19,8 @@ import {
   type Sex,
 } from "@/lib/biometrics";
 import { extractFromPdf, type Extraction } from "@/lib/report-extract";
-import { MEDICATION_STAGES } from "@/lib/domain";
+import { HAIR_COLORS, HAIR_STYLES, MEDICATION_STAGES, SKIN_TONES, type HairStyleId, type SkinToneId } from "@/lib/domain";
+import { addWeighIn, getProfile, saveSettings } from "@/lib/data";
 
 export type ProfileFormState =
   | { error?: string; fieldErrors?: Record<string, string> }
@@ -149,6 +150,16 @@ export async function saveProfile(_: ProfileFormState, fd: FormData): Promise<Pr
     desiredWeightKg: row.desired_weight_kg, desiredBodyFatPct: desiredBf, timeframeWeeks: weeks,
   });
 
+  const previous = getProfile(user.id);
+  if (!previous?.weight_kg || Math.abs(previous.weight_kg - row.weight_kg) >= 0.1) {
+    addWeighIn(user.id, {
+      logged_on: new Date().toISOString().slice(0, 10),
+      weight_kg: row.weight_kg,
+      body_fat_pct: bodyFat,
+      note: previous?.weight_kg ? "Updated in profile" : "Starting weight",
+    });
+  }
+
   const cols = Object.keys(row);
   db()
     .prepare(
@@ -156,6 +167,16 @@ export async function saveProfile(_: ProfileFormState, fd: FormData): Promise<Pr
        ON CONFLICT(user_id) DO UPDATE SET ${cols.filter((c) => c !== "user_id").map((c) => `${c} = excluded.${c}`).join(", ")}`,
     )
     .run(row);
+  // Character look (skin tone + hair) lives in settings.
+  const tone = String(fd.get("skin_tone") ?? "");
+  const hairStyle = String(fd.get("hair_style") ?? "");
+  const hairColor = String(fd.get("hair_color") ?? "");
+  saveSettings(user.id, {
+    ...(SKIN_TONES.some((t) => t.id === tone) ? { skin_tone: tone as SkinToneId } : {}),
+    ...(HAIR_STYLES.some((h) => h.id === hairStyle) ? { hair_style: hairStyle as HairStyleId } : {}),
+    ...(HAIR_COLORS.some((c) => c.id === hairColor) ? { hair_color: hairColor } : {}),
+  });
+
   const firstTime = !user.onboarding_complete;
   db().prepare("UPDATE users SET onboarding_complete = 1 WHERE id = ?").run(user.id);
   revalidatePath("/dashboard");

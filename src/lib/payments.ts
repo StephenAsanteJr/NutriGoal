@@ -61,6 +61,7 @@ export function charge(opts: {
   kind: string;
   description: string;
   ticketId?: number | null;
+  addonId?: string | null;
 }): ChargeResult {
   const invalid = validateCard(opts.card);
   if (invalid) return { ok: false, error: invalid };
@@ -73,10 +74,10 @@ export function charge(opts: {
   const paymentId = newId();
   db()
     .prepare(
-      `INSERT INTO payments (id, user_id, kind, description, amount_cents, card_brand, card_last4, ticket_id, status, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'succeeded', ?)`,
+      `INSERT INTO payments (id, user_id, kind, description, amount_cents, card_brand, card_last4, ticket_id, addon_id, status, provider, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'succeeded', 'demo', ?)`,
     )
-    .run(paymentId, opts.userId, opts.kind, opts.description, opts.amountCents, brand, last4, opts.ticketId ?? null, nowIso());
+    .run(paymentId, opts.userId, opts.kind, opts.description, opts.amountCents, brand, last4, opts.ticketId ?? null, opts.addonId ?? null, nowIso());
   return { ok: true, paymentId, brand, last4 };
 }
 

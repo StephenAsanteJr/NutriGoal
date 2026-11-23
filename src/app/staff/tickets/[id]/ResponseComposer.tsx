@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { submitResponse, type ResponseFormState } from "@/actions/staff";
 import { TIMEFRAME_PRESETS } from "@/lib/domain";
 import { Alert } from "@/components/ui";
+import { MicButton, VoicePanel } from "@/components/Voice";
 
 type Row = { title: string; detail: string; timeframe: string };
 const blank = (): Row => ({ title: "", detail: "", timeframe: "" });
@@ -17,6 +18,24 @@ export function ResponseComposer({ ticketId, signer }: { ticketId: number; signe
   const update = (i: number, k: keyof Row, val: string) => setRows((r) => r.map((row, j) => (j === i ? { ...row, [k]: val } : row)));
   const complete = rows.filter((r) => r.title && r.detail && r.timeframe).length;
 
+  async function fromVoice(transcript: string) {
+    const res = await fetch("/api/voice", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind: "response", transcript, ticketId }),
+    });
+    const d = await res.json();
+    if (!res.ok) return d.error as string;
+    const draft = d.draft as { recommendation: string; steps: Row[] };
+    if (draft.recommendation) setRec(draft.recommendation.slice(0, 420));
+    const steps = draft.steps.slice(0, 6);
+    setRows([...steps, ...Array.from({ length: Math.max(0, 5 - steps.length) }, blank)]);
+    if (d.ai) setAi("wording");
+    return d.ai
+      ? "Formatted from your dictation. AI writing help is now disclosed as “wording only”. Review every step before signing."
+      : "Split with simple keyword rules (AI formatting isn't switched on). Review every step before signing.";
+  }
+
   return (
     <form action={action} className="card overflow-hidden">
       <input type="hidden" name="ticket_id" value={ticketId} />
@@ -26,8 +45,17 @@ export function ResponseComposer({ ticketId, signer }: { ticketId: number; signe
       </div>
       <div className="space-y-5 p-6">
         {state?.error && <Alert>{state.error}</Alert>}
+        <VoicePanel
+          title="Voice mode: dictate the whole response"
+          hint="Say your recommendation, then each step and when to do it (e.g. “First, … this week. Second, …”)."
+          onTranscript={fromVoice}
+          actionLabel="Format into recommendation + steps"
+        />
         <div>
-          <label htmlFor="recommendation" className="label">Concise recommendation</label>
+          <div className="mb-1.5 flex items-center justify-between">
+            <label htmlFor="recommendation" className="label !mb-0">Concise recommendation</label>
+            <MicButton label="the recommendation" onText={(t) => setRec((r) => (r ? `${r} ${t}` : t).slice(0, 420))} />
+          </div>
           <textarea
             id="recommendation"
             name="recommendation"

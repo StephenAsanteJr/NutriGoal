@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
-import { Bodoni_Moda } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { RegisterSW } from "@/components/RegisterSW";
+import { Bodoni_Moda, Montserrat } from "next/font/google";
 import "./globals.css";
 
 const bodoni = Bodoni_Moda({
@@ -8,19 +9,38 @@ const bodoni = Bodoni_Moda({
   display: "swap",
 });
 
+// Wordmark face, matching the NUTRI GOAL logo lettering.
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  weight: ["700", "800"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: {
-    default: "NutriGoal — Nutrition answers by the ticket",
+    default: "NutriGoal — Health · Balance · Success",
     template: "%s · NutriGoal",
   },
   description:
     "Send in one nutrition goal at a time and a real doctor or dietitian writes back a plan within 48 hours.",
+  appleWebApp: { capable: true, title: "NutriGoal", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#051c2c",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${bodoni.variable} h-full`}>
-      <body className="flex min-h-full flex-col bg-white text-navy">{children}</body>
+    <html lang="en" className={`${bodoni.variable} ${montserrat.variable} h-full`}>
+      <body className="flex min-h-full flex-col bg-white text-navy">
+        {children}
+        <RegisterSW />
+      </body>
     </html>
   );
 }

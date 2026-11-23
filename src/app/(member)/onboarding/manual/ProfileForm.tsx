@@ -17,7 +17,9 @@ import {
   type Sex,
 } from "@/lib/biometrics";
 import { MEDICATION_STAGES } from "@/lib/domain";
-import { BodyBuild } from "@/components/BodyBuild";
+import { AvatarBuild, type AvatarLook } from "@/components/AvatarBuild";
+import { LookPicker } from "@/components/LookPicker";
+import { PhotoScanButton } from "@/components/PhotoScan";
 import { Alert } from "@/components/ui";
 
 export type ProfileInitial = {
@@ -50,8 +52,20 @@ export type ProfileInitial = {
 
 const num = (s: string) => (s.trim() === "" ? null : Number(s));
 
-export function ProfileForm({ initial, fromReport, hasReport }: { initial: ProfileInitial; fromReport: string[]; name: string; hasReport: boolean }) {
+export function ProfileForm({
+  initial,
+  fromReport,
+  hasReport,
+  initialLook,
+}: {
+  initial: ProfileInitial;
+  fromReport: string[];
+  name: string;
+  hasReport: boolean;
+  initialLook: AvatarLook;
+}) {
   const [v, setV] = useState(initial);
+  const [look, setLook] = useState<AvatarLook>(initialLook);
   const [state, action, pending] = useActionState<ProfileFormState, FormData>(saveProfile, undefined);
   const fe = state?.fieldErrors ?? {};
   const metric = v.unit_system === "metric";
@@ -127,13 +141,13 @@ export function ProfileForm({ initial, fromReport, hasReport }: { initial: Profi
     rep(k) ? <span className="ml-2 rounded-full bg-cyan-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-navy">From report</span> : null;
 
   return (
-    <form action={action} className="grid gap-8 lg:grid-cols-[1fr_380px]" noValidate>
+    <form action={action} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]" noValidate>
       <input type="hidden" name="unit_system" value={v.unit_system} />
       <div className="space-y-6">
         {state?.error && <Alert>{state.error}</Alert>}
 
         <Section title="About you" step="1" right={<UnitToggle value={v.unit_system} onChange={switchUnits} />}>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div>
               <span className="label">Sex {fromBadge("sex")}</span>
               <div className="flex gap-2" role="radiogroup" aria-label="Sex">
@@ -192,8 +206,23 @@ export function ProfileForm({ initial, fromReport, hasReport }: { initial: Profi
           </div>
         </Section>
 
-        <Section title="Daily habits" step="2">
-          <div className="grid gap-5 sm:grid-cols-3">
+        <Section title="Your character" step="2" subtitle="Your build is shown as an animated character. Pick a look, or scan a photo to match your skin tone.">
+          <LookPicker
+            value={look}
+            onChange={setLook}
+            extra={
+              <PhotoScanButton
+                onResult={(r) => {
+                  if (r.skinTone) setLook((l) => ({ ...l, skinTone: r.skinTone! }));
+                  if (r.bodyFatPct && !v.body_fat_pct) setV((s) => ({ ...s, body_fat_pct: String(r.bodyFatPct) }));
+                }}
+              />
+            }
+          />
+        </Section>
+
+        <Section title="Daily habits" step="3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
             <div>
               <label htmlFor="meals_per_day" className="label">Meals a day</label>
               <select id="meals_per_day" name="meals_per_day" className="input" value={v.meals_per_day} onChange={set("meals_per_day")}>
@@ -222,8 +251,8 @@ export function ProfileForm({ initial, fromReport, hasReport }: { initial: Profi
           </div>
         </Section>
 
-        <Section title="Your goal" step="3">
-          <div className="grid gap-5 sm:grid-cols-2">
+        <Section title="Your goal" step="4">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div>
               <label htmlFor="desired_weight" className="label">Goal weight</label>
               <div className="relative">
@@ -287,8 +316,8 @@ export function ProfileForm({ initial, fromReport, hasReport }: { initial: Profi
           </div>
         </Section>
 
-        <Section title="Labs and vitals" step="4" subtitle={hasReport ? "Pre-filled from your report where we could read it." : "Optional. Add these if you have a recent checkup."}>
-          <div className="grid gap-4 sm:grid-cols-3">
+        <Section title="Labs and vitals" step="5" subtitle={hasReport ? "Pre-filled from your report where we could read it." : "Optional. Add these if you have a recent checkup."}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <LabInput k="systolic" label="Blood pressure (top)" unit="mmHg" v={v} set={set} cls={inputCls} badge={fromBadge} err={err} />
             <LabInput k="diastolic" label="Blood pressure (bottom)" unit="mmHg" v={v} set={set} cls={inputCls} badge={fromBadge} err={err} />
             <LabInput k="a1c" label="A1C" unit="%" v={v} set={set} cls={inputCls} badge={fromBadge} err={err} />
@@ -318,20 +347,22 @@ export function ProfileForm({ initial, fromReport, hasReport }: { initial: Profi
         <div className="card overflow-hidden">
           <div className="bg-navy px-5 py-3 text-white">
             <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan">Live preview</div>
-            <div className="text-sm text-white/80">Your physical build updates as you type</div>
+            <div className="text-sm text-white/80">Your animated build updates as you type</div>
           </div>
           {live ? (
             <div className="p-5">
-              <BodyBuild
-                className="mx-auto w-full max-w-[220px]"
+              <AvatarBuild
+                className="mx-auto w-full max-w-[260px]"
                 sex={live.sex}
                 heightCm={live.heightCm}
                 weightKg={live.weightKg}
                 bodyFatPct={live.build.bodyFatPct}
                 goalWeightKg={live.build.goalWeightKg}
                 goalBodyFatPct={live.build.goalBodyFatPct}
+                weeks={live.build.effectiveWeeks}
                 units={v.unit_system}
                 heightLabel={formatHeight(live.heightCm, v.unit_system)}
+                look={look}
               />
               <dl className="mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-[2px] bg-line text-sm">
                 {[

@@ -2,6 +2,7 @@ import "server-only";
 import { db, newId, nowIso } from "./db";
 import type { BuildInput, Sex } from "./biometrics";
 import type { User } from "./auth";
+import { DEFAULT_SETTINGS, type Settings } from "./domain";
 
 // ---------- Profiles ----------
 export type ProfileRow = {
@@ -291,13 +292,17 @@ export type PartnerRow = {
   rating: number | null;
   goal_types: string[];
   connected: boolean;
+  kind: "partner" | "national";
+  website: string | null;
+  rank_note: string | null;
+  sort_rank: number;
 };
 
 export function listPartners(userId: string) {
   const rows = db()
     .prepare(
       `SELECT p.*, EXISTS(SELECT 1 FROM partner_connections c WHERE c.partner_id = p.id AND c.user_id = ?) AS connected
-       FROM partners p ORDER BY p.category, p.rating DESC`,
+       FROM partners p ORDER BY p.category, p.sort_rank, p.rating DESC`,
     )
     .all(userId) as (Omit<PartnerRow, "tags" | "goal_types" | "connected"> & { tags: string; goal_types: string; connected: number })[];
   return rows.map((r) => ({
@@ -332,4 +337,84 @@ export function listAddons(userId: string) {
 
 export function getAddon(id: string) {
   return (db().prepare("SELECT * FROM addons WHERE id = ?").get(id) as Omit<AddonRow, "unlocked" | "partner_name"> | undefined) ?? null;
+}
+
+// ---------- Settings ----------
+const BOOL_KEYS = [
+  "nudges_enabled",
+  "channel_push",
+  "channel_email",
+  "channel_sms",
+  "share_progress_with_clinician",
+  "insights_opt_in",
+  "voice_mode",
+  "assistant_enabled",
+] as const;
+
+export function getSettings(userId: string): Settings {
+  const row = db().prepare("SELECT * FROM user_settings WHERE user_id = ?").get(userId) as Record<string, unknown> | undefined;
+  if (!row) return { ...DEFAULT_SETTINGS };
+  const out: Record<string, unknown> = { ...DEFAULT_SETTINGS };
+  for (const k of Object.keys(DEFAULT_SETTINGS)) if (row[k] !== undefined && row[k] !== null) out[k] = row[k];
+  out.calorie_goal_override = (row.calorie_goal_override as number | null) ?? null;
+  for (const k of BOOL_KEYS) out[k] = !!row[k];
+  try {
+    out.meal_names = JSON.parse(String(row.meal_names));
+  } catch {
+    out.meal_names = DEFAULT_SETTINGS.meal_names;
+  }
+  return out as Settings;
+}
+
+export function saveSettings(userId: string, patch: Partial<Settings>) {
+  const merged = { ...getSettings(userId), ...patch };
+  const row: Record<string, unknown> = { ...merged, user_id: userId, updated_at: nowIso() };
+  for (const k of BOOL_KEYS) row[k] = merged[k] ? 1 : 0;
+  row.meal_names = JSON.stringify(merged.meal_names);
+  const cols = Object.keys(row);
+  db()
+    .prepare(
+      `INSERT INTO user_settings (${cols.join(", ")}) VALUES (${cols.map((c) => "@" + c).join(", ")})
+       ON CONFLICT(user_id) DO UPDATE SET ${cols.filter((c) => c !== "user_id").map((c) => `${c} = excluded.${c}`).join(", ")}`,
+    )
+    .run(row);
+  return merged;
+}
+
+// ---------- Progress ----------
+export type WeighIn = {
+  id: string;
+  user_id: string;
+  logged_on: string;
+  weight_kg: number;
+  body_fat_pct: number | null;
+  waist_cm: number | null;
+  note: string | null;
+  created_at: string;
+};
+
+export function listWeighIns(userId: string) {
+  return db()
+    .prepare("SELECT * FROM weigh_ins WHERE user_id = ? ORDER BY logged_on ASC, created_at ASC")
+    .all(userId) as WeighIn[];
+}
+
+export function addWeighIn(userId: string, w: { logged_on: string; weight_kg: number; body_fat_pct?: number | null; waist_cm?: number | null; note?: string | null }) {
+  db()
+    .prepare("INSERT INTO weigh_ins (id, user_id, logged_on, weight_kg, body_fat_pct, waist_cm, note, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+    .run(newId(), userId, w.logged_on, w.weight_kg, w.body_fat_pct ?? null, w.waist_cm ?? null, w.note ?? null, nowIso());
+}
+
+// ---------- Nudges ----------
+export function listNudges(ticketId: number) {
+  return db()
+    .prepare("SELECT * FROM nudges WHERE ticket_id = ? ORDER BY created_at DESC")
+    .all(ticketId) as { id: string; source: string; message: string | null; created_at: string }[];
+}
+
+export function nudgeCounts() {
+  const rows = db()
+    .prepare("SELECT ticket_id, COUNT(*) AS n, MAX(created_at) AS last FROM nudges GROUP BY ticket_id")
+    .all() as { ticket_id: number; n: number; last: string }[];
+  return new Map(rows.map((r) => [r.ticket_id, r]));
 }

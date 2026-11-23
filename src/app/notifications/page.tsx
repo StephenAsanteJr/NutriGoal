@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { listNotifications } from "@/lib/data";
 import { markAllNotificationsRead } from "@/actions/marketplace";
 import { TopNav } from "@/components/TopNav";
+import { MobileNav } from "@/components/MobileNav";
 import { PageHeader, timeAgo } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Notifications" };
@@ -16,7 +17,7 @@ export default async function NotificationsPage() {
   return (
     <div className="flex min-h-screen flex-col bg-mist/60">
       <TopNav user={user} />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-28 pt-6 sm:px-6 md:pb-10 md:pt-10">
         <PageHeader
           title="Notifications"
           actions={
@@ -43,6 +44,7 @@ export default async function NotificationsPage() {
           ))}
         </ul>
       </main>
+      <MobileNav role={user.role} />
     </div>
   );
 }

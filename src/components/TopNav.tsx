@@ -27,10 +27,10 @@ export function TopNav({ user }: { user: User }) {
 
   return (
     <header className={staff ? "bg-navy text-white" : "border-b border-line bg-white"}>
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-8 px-6">
+      <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:h-16 sm:gap-8 sm:px-6">
         <Logo href={staff ? "/staff" : "/dashboard"} tone={staff ? "light" : "dark"} suffix={staff ? "Clinician portal" : undefined} />
         <NavLinks links={links} tone={staff ? "light" : "dark"} />
-        <div className="ml-auto flex items-center gap-4 text-sm">
+        <div className="ml-auto flex items-center gap-3 text-sm sm:gap-4">
           <Link
             href="/notifications"
             className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full ${staff ? "hover:bg-white/10" : "hover:bg-mist"}`}

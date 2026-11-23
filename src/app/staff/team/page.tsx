@@ -15,7 +15,7 @@ export default async function TeamPage() {
         Physicians take tickets with GLP-1 stage + side-effect or blood-sugar goals, and any ticket with a high-risk lab flag. Dietitians take
         the rest. Within a type, a matching specialty and the shortest queue wins.
       </PageHeader>
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {clinicians.map((c) => (
           <article key={c.id} className="card p-6">
             <div className="flex items-start justify-between">

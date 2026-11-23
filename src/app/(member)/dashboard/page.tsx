@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { requireMember } from "@/lib/auth";
-import { getActiveSubscription, getProfile, listPartners, listReports, listTicketsForMember, toBuildInput } from "@/lib/data";
-import { BuildPanel, memberCode } from "@/components/BuildPanel";
+import { getActiveSubscription, getProfile, listPartners, listReports, listTicketsForMember, toBuildInput, getSettings } from "@/lib/data";
+import { BuildPanel, lookFrom, memberCode } from "@/components/BuildPanel";
 import { Alert, PageHeader, StatusPill, timeAgo } from "@/components/ui";
 import { MEMBERSHIP, PARTNER_CATEGORIES, PRICES, goalLabel, money, ticketNumber } from "@/lib/domain";
 
@@ -19,6 +19,7 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
   const reports = listReports(user.id);
   const goalTypes = new Set(tickets.map((t) => t.goal_type));
   const partners = listPartners(user.id)
+    .filter((p) => p.kind !== "national")
     .map((p) => ({ p, score: p.goal_types.filter((g) => goalTypes.has(g)).length + (p.connected ? -5 : 0) }))
     .sort((a, b) => b.score - a.score || (b.p.rating ?? 0) - (a.p.rating ?? 0))
     .slice(0, 3)
@@ -55,6 +56,7 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
           medicationStage={profile!.medication_stage}
           source={profile!.source}
           updatedAt={profile!.updated_at}
+          look={lookFrom(getSettings(user.id))}
         />
       ) : (
         <Alert tone="warn">
@@ -62,7 +64,7 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
         </Alert>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.5fr_1fr]">
         <section className="card">
           <div className="flex items-center justify-between border-b border-line px-6 py-4">
             <h2 className="text-lg font-bold">Your goal tickets</h2>
@@ -158,7 +160,7 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
           </div>
           <Link href="/marketplace" className="link text-sm">Explore the marketplace →</Link>
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {partners.map((p) => (
             <Link key={p.id} href={`/marketplace?category=${p.category}#${p.id}`} className="card block p-5 hover:border-blue">
               <div className="flex items-center justify-between">

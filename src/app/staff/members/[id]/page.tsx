@@ -2,9 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { requireStaff } from "@/lib/auth";
-import { getActiveSubscription, getProfile, getUserById, listReports, listStaffNotes, listTicketsForMember, toBuildInput } from "@/lib/data";
+import { getActiveSubscription, getProfile, getUserById, listReports, listStaffNotes, listTicketsForMember, toBuildInput, getSettings } from "@/lib/data";
 import { goalLabel, ticketNumber } from "@/lib/domain";
-import { BuildPanel, memberCode } from "@/components/BuildPanel";
+import { BuildPanel, lookFrom, memberCode } from "@/components/BuildPanel";
 import { NotesCard } from "@/components/NotesCard";
 import { Alert, StatusPill, shortDate, timeAgo } from "@/components/ui";
 
@@ -35,7 +35,7 @@ export default async function MemberDetail(props: PageProps<"/staff/members/[id]
       </div>
 
       {input ? (
-        <BuildPanel name={member.name} memberId={memberCode(id)} input={input} units={profile!.unit_system} medicationStage={profile!.medication_stage} source={profile!.source} updatedAt={profile!.updated_at} />
+        <BuildPanel name={member.name} memberId={memberCode(id)} input={input} units={profile!.unit_system} medicationStage={profile!.medication_stage} source={profile!.source} updatedAt={profile!.updated_at} look={lookFrom(getSettings(id))} />
       ) : (
         <Alert tone="warn">This member hasn&apos;t completed their build yet.</Alert>
       )}
@@ -46,7 +46,7 @@ export default async function MemberDetail(props: PageProps<"/staff/members/[id]
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section className="card">
           <h2 className="border-b border-line px-6 py-3 text-sm font-bold">Ticket history</h2>
           {tickets.length === 0 ? (

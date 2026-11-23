@@ -1,8 +1,8 @@
-import { Logo } from "@/components/Logo";
+import { Logo, LogoLockup } from "@/components/Logo";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid min-h-screen lg:grid-cols-[1fr_1.1fr]">
+    <div className="grid grid-cols-1 min-h-screen lg:grid-cols-[1fr_1.1fr]">
       <aside className="relative hidden overflow-hidden bg-navy p-12 text-white lg:flex lg:flex-col">
         <Logo tone="light" />
         <div className="mt-auto max-w-md">
@@ -19,8 +19,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </aside>
       <main className="flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-md">
-          <div className="mb-10 lg:hidden">
-            <Logo />
+          <div className="mb-8">
+            <LogoLockup width={190} />
           </div>
           {children}
         </div>

@@ -1,3 +1,5 @@
+<p align="center"><img src="public/brand/nutrigoal-logo.png" alt="NutriGoal — Health · Balance · Success" width="260"></p>
+
 # NutriGoal
 
 **Nutrition answers, by the ticket.** Members build a health profile, send one nutrition goal at a time, and a licensed physician (MD) or registered dietitian (RD) writes back a response ticket: a concise recommendation followed by 5–6 actionable steps, each with a timeframe, within 48 hours.
@@ -6,60 +8,59 @@ Product strategy, market sizing and pricing research live in [`Ticket-Based Nutr
 
 ---
 
-## What's built (v0.1)
+## What's built
 
 ### Member experience
-| Step | What happens |
+| Area | What it does |
 | --- | --- |
-| **Sign up** | Email + password account, consent to clinician review. |
-| **Build your profile: choose one of two paths** | **1. Enter health data:** age, sex, height, weight, body fat % (or estimated), meals/day, estimated calories, workout minutes/day, goal weight, goal body fat, and a timeframe. A live preview of the build updates as you type. **2. Upload a checkup report:** PDF/JPG/PNG/WEBP. Text PDFs are read on the server with pattern matching (A1C, lipids, glucose, vitamin D, BP, height, weight, body fat, age, sex), shown back to the member, then pre-filled into the manual form for confirmation and extra details. |
-| **Platform guardrails** | Goal weight must be ≥ BMI 18.5; goal body fat ≥ 8% (male) / 15% (female). Timeframe must be at least the safe minimum (≤ 1% body weight/week loss, ≤ 0.35%/week gain, ≤ 0.5 body-fat points/week); the form offers "fastest safe" and "recommended" buttons. |
-| **Physical build + biometric card** | A mock body silhouette shaped by height, lean mass (FFMI) and body fat, with a dotted outline of the goal body. Next to it, a biometric card: BMI, body fat, lean/fat mass, BMR (Katch-McArdle or Mifflin-St Jeor), TDEE, daily calorie target, protein, water, per-meal calories, intake gap, timeline, labs, and clinician flags. |
-| **Goal ticket** | Goal type, nutritional goal, what they typically eat, setbacks, specific target, extra context. |
-| **Split-screen submit** | Same screen, two options side by side: **Option 1:** one-time ticket **$19.99**. **Option 2:** NutriGoal Membership **$29.99/month** or **$300/year** (1 ticket/month + Daily Support Pack + $14.99 extra tickets). Members see "use your included ticket" instead. |
-| **Response ticket** | Pushed to the member as an in-app notification; the ticket page shows a progress timeline and the signed response. |
-| **Verified marketplace** | Grocers, retailers, pharmacies and fitness coaches with verification badges, offers and "Connect"; unlockable add-ons (Daily Support Pack, Plan-to-Cart lists, coach bundle, lab panel, maintenance check-ins). Available with or without a ticket. |
+| **Sign up & two onboarding paths** | **1. Enter health data:** age, sex, height, weight, body fat % (or estimated), meals/day, estimated calories, workout minutes/day, goal weight, goal body fat and a timeframe the platform checks is safe. **2. Upload a checkup report** (PDF/photo): text PDFs are read on the server, values are shown back, then pre-filled for confirmation and extra details. |
+| **Animated character build** | The physical build is a cartoon character shaped by height, lean mass and body fat, in the member's chosen **skin tone** and hair. It breathes and blinks; a **Today ↔ Goal** toggle, slider and "Play transformation" morph it toward the goal body, with a dotted outline and a side-by-side Today vs Goal comparison. |
+| **Photo body scan (optional)** | Take a photo with the camera or upload one. Skin tone is sampled **in the browser** (tap your cheek or forearm). With consent, the photo can be sent once to Claude for a rough body-fat range; it is never saved. |
+| **Biometric card** | BMI, body fat, lean/fat mass, BMR, TDEE, calorie target, protein, water, per-meal calories, timeline, labs and clinician flags. |
+| **Goal tickets + voice mode** | Goal type, goal, typical diet, setbacks, target. **Voice mode:** speak the whole ticket and it's sorted into the fields (Claude when configured, keyword rules otherwise), or tap the mic on any single field. |
+| **Split-screen submit** | Option 1: one-time ticket **$19.99**. Option 2: Membership **$29.99/month** or **$300/year** (1 ticket/month + Daily Support Pack + $14.99 extra tickets). |
+| **Payments: Stripe + proof of payment** | With Stripe keys set, every purchase goes through **Stripe Checkout** (one-time and subscriptions) and returns to a **proof-of-payment receipt** with the Stripe payment ID and a link to Stripe's own receipt. Without keys, a demo checkout runs the same flow. |
+| **Membership tab** | **Overview:** plan, the member's build, daily calorie and macro targets, payments and receipts. **Progress:** weigh-in log, weight chart vs. the safe path to goal (hover for details), stats and history. **Settings (MyFitnessPal-style):** character, goals and weekly rate, custom calories, macro split, units (lb/kg, kcal/kJ, oz/ml), meal names, weigh-in reminders, nudges and quiet hours, notification channels, privacy, assistant and voice toggles. |
+| **Marketplace** | **Top 3 U.S. supermarket grocers** (Kroger, Albertsons, Publix), **food retailers** (Walmart, Costco, Amazon Fresh & Whole Foods) and **retail pharmacies** (CVS, Walgreens, Walmart Pharmacy) as public listings, clearly marked as not NutriGoal partners. Plus verified partners (grocers, retailers, pharmacies, fitness coaches) and unlockable add-ons. Available with or without a ticket. |
+| **NutriGoal Assistant (AI)** | A chat widget on every member page. It searches the marketplace, saves stores, lists and unlocks add-ons (paid ones always go through the member's own checkout), checks ticket status and **nudges the assigned clinician** (rate-limited to once per 6 hours per ticket). It never gives medical advice; it points members to goal tickets instead. |
+| **Mobile version** | Responsive on phones with a bottom tab bar, a floating assistant button, and an installable app (web manifest, home-screen icons, offline screen). |
 
 ### Staff experience (clinicians and managers)
-- **Routing by plain rules (no AI):** goal group = medication stage × goal type. Physicians take high-risk lab flags and GLP-1 stage + side-effect/blood-sugar goals; dietitians take the rest. Within a type, the clinician with a matching specialty and the shortest open queue wins. The reason is recorded on every ticket.
-- **Clinician queue:** KPIs, due-soon flags, 48-hour SLA.
-- **Ticket review:** the member's ticket, routing reason, full build + biometric card, uploaded reports, care-team notes, and a **response composer** (recommendation + 5–6 steps with timeframe presets + AI-assist disclosure + signature preview). Only the assigned clinician can sign.
-- **Manager operations:** open tickets, SLA, revenue (simulated), clinician load, reassignment, roster, and every member's build.
-
----
-
-## Design system
-McKinsey & Company-inspired: deep navy `#051C2C`, electric blue `#2251FF`, cyan `#00A9F4`, white space, thin rules, square corners, a Bodoni-style serif for display type (Bodoni Moda) and Arial for body text. Tokens live in [`src/app/globals.css`](src/app/globals.css).
-
-## Pricing and plan settings
-All prices and membership rules are in [`src/lib/domain.ts`](src/lib/domain.ts) (`PRICES`, `MEMBERSHIP`).
+- **Routing by plain rules (no AI):** goal group = medication stage × goal type → physician or dietitian, then specialty match and shortest queue.
+- **Queue** with 48-hour SLA, due-soon flags and **⚑ Nudged ×N** badges.
+- **Ticket review:** member ticket, routing reason, the member's animated build + biometric card, reports, care-team notes, nudge history.
+- **Response composer with voice mode:** dictate the whole response and it's formatted into a recommendation + 5–6 timed steps for the clinician to review and sign. When Claude does the formatting, the "AI writing help: wording only" disclosure is set automatically. Only the assigned clinician can sign.
+- **Manager operations:** KPIs, clinician load, reassignment, **send a nudge**, roster.
 
 ---
 
 ## Run it locally
 
-Requires Node.js 20+ (this machine has Node 22 installed at `~/.local/bin`; add it to your PATH first if `node -v` fails):
-
 ```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-```bash
+export PATH="$HOME/.local/bin:$PATH"   # Node 22 installed for this project
 npm install
-```
-
-```bash
 npm run dev
 ```
 
-Open http://localhost:3000. The SQLite database (`data/nutrigoal.db`) and uploads (`data/uploads/`) are created and seeded automatically on first run. To start over, run `npm run db:reset` and restart.
+Open http://localhost:3000. The SQLite database and uploads are created in `data/` and seeded on first run; schema migrations apply automatically. `npm run db:reset` starts fresh.
+
+### Turn on the integrations (optional)
+Copy `.env.example` to `.env.local`, fill in what you need, and restart `npm run dev`.
+
+| Key | Enables |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | AI assistant, voice-mode formatting, photo body-fat estimates. Uses **Claude Opus 5.5** (`claude-opus-5-5`) through the Messages API with server-side refusal fallbacks (`fallbacks: "default"`). Without it, the assistant and voice mode use keyword rules. |
+| `STRIPE_SECRET_KEY` | Real Stripe Checkout for tickets, memberships and add-ons, with proof-of-payment receipts. Use a **test-mode** key (`sk_test_…`). |
+| `STRIPE_WEBHOOK_SECRET` | Webhook fulfilment and membership renewals. Locally: `stripe listen --forward-to localhost:3000/api/stripe/webhook`. |
+
+Stripe test card: `4242 4242 4242 4242`, any future expiry, any CVC.
 
 ### Demo accounts (local seed data only)
 Every seeded account uses the password **`NutriGoal-demo-2026`** (see [`src/lib/seed.ts`](src/lib/seed.ts)).
 
 | Role | Email |
 | --- | --- |
-| Member (has a responded ticket) | `member@nutrigoal.test` |
+| Member (responded ticket, progress history) | `member@nutrigoal.test` |
 | Member (subscriber, type 2 diabetes) | `priya.shah@nutrigoal.test` |
 | Physician, obesity medicine | `dr.okafor@nutrigoal.test` |
 | Physician, internal medicine | `dr.grant@nutrigoal.test` |
@@ -67,33 +68,33 @@ Every seeded account uses the password **`NutriGoal-demo-2026`** (see [`src/lib/
 | Dietitian, RD CDCES | `elena.ruiz@nutrigoal.test` |
 | Operations manager | `manager@nutrigoal.test` |
 
-**Checkout is simulated.** Use test card `4242 4242 4242 4242` (any future expiry, CVC, ZIP); `4000 0000 0000 0002` simulates a decline. Only the last 4 digits are stored.
-
-A fictional sample checkup PDF for the upload path is at [`public/samples/sample-checkup-report.pdf`](public/samples/sample-checkup-report.pdf) (regenerate with `npm run sample:report`).
+Demo checkout (no Stripe key): `4242 4242 4242 4242` succeeds, `4000 0000 0000 0002` declines.
 
 ---
 
 ## Tech stack
-- **Next.js 16** (App Router, Server Actions, Turbopack) + **React 19** + **TypeScript**
-- **Tailwind CSS 4**
-- **SQLite** via `better-sqlite3` behind a small data layer (`src/lib/data.ts`), ready to move to Postgres
-- Auth: bcrypt password hashes + signed HTTP-only JWT session cookie (`jose`)
-- PDF text extraction: `unpdf`
+- **Next.js 16** (App Router, Server Actions, Turbopack) · **React 19** · **TypeScript** · **Tailwind CSS 4**
+- **SQLite** (`better-sqlite3`) with versioned migrations (`src/lib/migrations.ts`)
+- **Claude** via `@anthropic-ai/sdk` (tool runner for the assistant; structured outputs for voice and scans)
+- **Stripe** via the official `stripe` SDK (Checkout Sessions, webhooks)
+- Auth: bcrypt + signed HTTP-only JWT cookie (`jose`) · PDF text: `unpdf`
 
 ```
 src/
-  actions/        Server actions: auth, profile + report upload, tickets + checkout, staff, marketplace
-  app/            Routes: landing, (auth), (member) dashboard/onboarding/tickets/marketplace/membership, staff/*, api/reports
-  components/     BodyBuild (SVG silhouette), BiometricCard, BuildPanel, ResponseTicket, CardFields, UI primitives
-  lib/            biometrics (formulas), silhouette (shape generator), routing rules, report extraction, payments (mock), db + seed
+  actions/     auth, profile + report upload, tickets + checkout, settings + weigh-ins, staff, marketplace
+  app/         landing, (auth), (member) dashboard/onboarding/tickets/marketplace/membership/payments, staff/*,
+               api/{assistant,voice,scan,reports,stripe/webhook}, payments/complete, manifest
+  components/  AvatarBuild (animated character), BiometricCard, BuildPanel, PhotoScan, Voice, Assistant,
+               ProgressChart, MobileNav, ResponseTicket, LookPicker, Logo
+  lib/         biometrics, silhouette, routing, nudges, ai, agent, stripe, fulfillment, payments (demo),
+               report-extract, voice-fallback, migrations, db + seed
 ```
 
 ---
 
 ## Not production-ready yet: next steps
-1. **Payments:** swap `src/lib/payments.ts` for Stripe Checkout / PaymentIntents and webhooks; real subscription renewals and cancellation.
-2. **Compliance:** HIPAA-eligible hosting and a BAA, encryption at rest for `data/uploads`, audit logs, MFA for staff, staff invitation flow instead of seeded accounts.
-3. **Reports:** OCR for photographed reports; patient-portal / records-network import (see deck slide 22).
-4. **Notifications:** email/SMS delivery for response tickets; Daily Support Pack nudges.
-5. **Ticket follow-up:** the one included follow-up question per ticket and "suggest goal 2" (deck slides 8 and 25).
-6. **Marketplace:** real partner onboarding and verification workflow, affiliate tracking with disclosure.
+1. **Compliance:** HIPAA-eligible hosting and BAAs (including any AI vendor you use with PHI), encryption at rest for `data/uploads`, audit log review, MFA for staff, staff invitations instead of seeded accounts.
+2. **Stripe:** customer portal for cancelling or updating cards; tie subscription status to Stripe events beyond renewals.
+3. **Notifications:** deliver nudges, reminders and response tickets by email/SMS/push (settings are stored; sending isn't wired).
+4. **Marketplace:** real partner onboarding, verification workflow, and affiliate tracking with disclosure; store-specific cart building for saved stores.
+5. **Ticket follow-up:** the included follow-up question and "suggest goal 2" (deck slides 8 and 25).

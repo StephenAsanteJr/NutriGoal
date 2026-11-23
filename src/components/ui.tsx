@@ -3,10 +3,10 @@ import { TICKET_STATUS, type TicketStatus } from "@/lib/domain";
 
 export function PageHeader({ eyebrow, title, children, actions }: { eyebrow?: string; title: string; children?: ReactNode; actions?: ReactNode }) {
   return (
-    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-4 sm:mb-8">
       <div className="max-w-3xl">
         {eyebrow && <div className="eyebrow mb-2">{eyebrow}</div>}
-        <h1 className="font-display text-4xl leading-tight text-navy">{title}</h1>
+        <h1 className="font-display text-3xl leading-tight text-navy sm:text-4xl">{title}</h1>
         {children && <div className="mt-2 text-[15px] text-slate">{children}</div>}
       </div>
       {actions && <div className="flex gap-3">{actions}</div>}

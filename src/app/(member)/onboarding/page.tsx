@@ -15,7 +15,7 @@ export default async function OnboardingChoice() {
         Your answers become a physical build and biometric card that your clinician reviews with every ticket. You can update it any time.
       </p>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-2">
+      <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
         <ChoiceCard
           href="/onboarding/manual"
           tag="About 3 minutes"

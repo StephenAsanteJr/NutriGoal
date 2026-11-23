@@ -3,6 +3,7 @@ import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
 import { seedIfEmpty } from "./seed";
+import { runMigrations } from "./migrations";
 
 export const DATA_DIR = path.join(process.cwd(), "data");
 export const UPLOAD_DIR = path.join(DATA_DIR, "uploads");
@@ -190,7 +191,11 @@ type GlobalWithDb = typeof globalThis & { __nutrigoalDb?: Database.Database };
 
 export function db(): Database.Database {
   const g = globalThis as GlobalWithDb;
-  if (g.__nutrigoalDb) return g.__nutrigoalDb;
+  if (g.__nutrigoalDb) {
+    // In development the connection survives hot reloads; apply any new migrations.
+    if (process.env.NODE_ENV !== "production") runMigrations(g.__nutrigoalDb);
+    return g.__nutrigoalDb;
+  }
   fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
   const conn = new Database(DB_PATH);
@@ -198,6 +203,7 @@ export function db(): Database.Database {
   conn.pragma("foreign_keys = ON");
   conn.exec(SCHEMA);
   seedIfEmpty(conn);
+  runMigrations(conn);
   g.__nutrigoalDb = conn;
   return conn;
 }

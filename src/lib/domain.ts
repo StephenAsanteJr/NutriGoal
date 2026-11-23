@@ -80,3 +80,115 @@ export function money(cents: number) {
 export function ticketNumber(id: number) {
   return `NG-${1000 + id}`;
 }
+
+// ---------- Avatar (animated character) ----------
+export const SKIN_TONES = [
+  { id: "tone1", label: "Light", hex: "#f6dccb", shade: "#e6c0a8" },
+  { id: "tone2", label: "Light-medium", hex: "#eec3a0", shade: "#dca883" },
+  { id: "tone3", label: "Medium", hex: "#d8a27c", shade: "#c28862" },
+  { id: "tone4", label: "Tan", hex: "#ba7f56", shade: "#a26a43" },
+  { id: "tone5", label: "Brown", hex: "#8d5a39", shade: "#76482b" },
+  { id: "tone6", label: "Dark brown", hex: "#63402a", shade: "#51321f" },
+  { id: "tone7", label: "Deep", hex: "#432a1b", shade: "#331f13" },
+] as const;
+export type SkinToneId = (typeof SKIN_TONES)[number]["id"];
+
+export const HAIR_STYLES = [
+  { id: "short", label: "Short" },
+  { id: "long", label: "Long" },
+  { id: "curly", label: "Curly" },
+  { id: "bun", label: "Bun" },
+  { id: "buzz", label: "Buzz / none" },
+] as const;
+export type HairStyleId = (typeof HAIR_STYLES)[number]["id"];
+
+export const HAIR_COLORS = [
+  { id: "#120c0a", label: "Black" },
+  { id: "#2b1b12", label: "Dark brown" },
+  { id: "#5a3825", label: "Brown" },
+  { id: "#7a3b1e", label: "Auburn" },
+  { id: "#c9a45c", label: "Blonde" },
+  { id: "#9a9a9a", label: "Gray" },
+] as const;
+
+export function skinTone(id: string | null | undefined) {
+  return SKIN_TONES.find((t) => t.id === id) ?? SKIN_TONES[2];
+}
+
+/** Nearest palette tone to an RGB colour sampled from a photo. */
+export function nearestSkinTone(r: number, g: number, b: number) {
+  let best: (typeof SKIN_TONES)[number] = SKIN_TONES[2];
+  let bestD = Infinity;
+  for (const t of SKIN_TONES) {
+    const tr = parseInt(t.hex.slice(1, 3), 16);
+    const tg = parseInt(t.hex.slice(3, 5), 16);
+    const tb = parseInt(t.hex.slice(5, 7), 16);
+    // Weighted RGB distance (perceptual approximation)
+    const d = 2 * (r - tr) ** 2 + 4 * (g - tg) ** 2 + 3 * (b - tb) ** 2;
+    if (d < bestD) {
+      bestD = d;
+      best = t;
+    }
+  }
+  return best;
+}
+
+// ---------- Settings (MyFitnessPal-style) ----------
+export type Settings = {
+  skin_tone: SkinToneId;
+  hair_style: HairStyleId;
+  hair_color: string;
+  energy_unit: "kcal" | "kJ";
+  water_unit: "oz" | "ml";
+  calorie_goal_override: number | null;
+  macro_carbs: number;
+  macro_protein: number;
+  macro_fat: number;
+  meal_names: string[];
+  weigh_in_reminder: "off" | "daily" | "weekly";
+  reminder_time: string;
+  nudges_enabled: boolean;
+  nudges_per_day: number;
+  quiet_start: string;
+  quiet_end: string;
+  channel_push: boolean;
+  channel_email: boolean;
+  channel_sms: boolean;
+  share_progress_with_clinician: boolean;
+  insights_opt_in: boolean;
+  voice_mode: boolean;
+  assistant_enabled: boolean;
+};
+
+export const DEFAULT_SETTINGS: Settings = {
+  skin_tone: "tone3",
+  hair_style: "short",
+  hair_color: "#2b1b12",
+  energy_unit: "kcal",
+  water_unit: "oz",
+  calorie_goal_override: null,
+  macro_carbs: 40,
+  macro_protein: 30,
+  macro_fat: 30,
+  meal_names: ["Breakfast", "Lunch", "Dinner", "Snacks"],
+  weigh_in_reminder: "weekly",
+  reminder_time: "08:00",
+  nudges_enabled: true,
+  nudges_per_day: 3,
+  quiet_start: "21:00",
+  quiet_end: "08:00",
+  channel_push: true,
+  channel_email: true,
+  channel_sms: false,
+  share_progress_with_clinician: true,
+  insights_opt_in: false,
+  voice_mode: true,
+  assistant_enabled: true,
+};
+
+/** MyFitnessPal-style weekly goal options (lb per week; negative = lose). */
+export const WEEKLY_RATES_LB = [-2, -1.5, -1, -0.5, 0, 0.25, 0.5] as const;
+
+export function energy(kcal: number, unit: "kcal" | "kJ") {
+  return unit === "kJ" ? `${Math.round(kcal * 4.184).toLocaleString()} kJ` : `${Math.round(kcal).toLocaleString()} kcal`;
+}

@@ -1,22 +1,48 @@
+import Image from "next/image";
 import Link from "next/link";
 
-export function Logo({ href = "/", tone = "dark", suffix }: { href?: string; tone?: "dark" | "light"; suffix?: string }) {
-  const color = tone === "dark" ? "text-navy" : "text-white";
+/**
+ * NutriGoal logo: the brand mark plus the "NUTRI GOAL" wordmark.
+ * On dark backgrounds the wordmark switches to white + a brighter blue for contrast.
+ */
+export function Logo({
+  href = "/",
+  tone = "dark",
+  suffix,
+  size = "md",
+}: {
+  href?: string;
+  tone?: "dark" | "light";
+  suffix?: string;
+  size?: "md" | "lg";
+}) {
+  const mark = size === "lg" ? 48 : 34;
   return (
-    <Link href={href} className={`group inline-flex items-baseline gap-2 ${color}`} aria-label="NutriGoal home">
-      <span className="relative inline-flex h-7 w-7 items-center justify-center self-center" aria-hidden>
-        <svg viewBox="0 0 28 28" className="h-7 w-7">
-          <circle cx="14" cy="14" r="12.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <circle cx="14" cy="14" r="7" fill="none" stroke="#2251FF" strokeWidth="1.5" />
-          <circle cx="14" cy="14" r="2.6" fill="#00A9F4" />
-        </svg>
+    <Link href={href} className="group inline-flex items-center gap-2.5" aria-label="NutriGoal home">
+      <Image src="/brand/nutrigoal-mark.png" alt="" width={mark} height={mark} priority className="shrink-0" />
+      <span className={`font-brand font-extrabold leading-none tracking-[0.02em] ${size === "lg" ? "text-[28px]" : "text-[19px]"}`}>
+        <span className={tone === "dark" ? "text-navy" : "text-white"}>NUTRI</span>{" "}
+        <span className={tone === "dark" ? "text-blue" : "text-[#5B83FF]"}>GOAL</span>
       </span>
-      <span className="font-display text-[22px] font-semibold leading-none">NutriGoal</span>
       {suffix && (
-        <span className={`ml-1 text-[11px] font-bold uppercase tracking-[0.14em] ${tone === "dark" ? "text-muted" : "text-cyan"}`}>
+        <span className={`ml-1 hidden text-[11px] font-bold uppercase tracking-[0.14em] sm:inline ${tone === "dark" ? "text-muted" : "text-cyan"}`}>
           {suffix}
         </span>
       )}
     </Link>
+  );
+}
+
+/** The full original lockup (mark, wordmark and "Health • Balance • Success" tagline). Light backgrounds only. */
+export function LogoLockup({ width = 280, className = "" }: { width?: number; className?: string }) {
+  return (
+    <Image
+      src="/brand/nutrigoal-logo.png"
+      alt="NutriGoal — Health, Balance, Success"
+      width={width}
+      height={Math.round((width * 512) / 671)}
+      className={className}
+      priority
+    />
   );
 }

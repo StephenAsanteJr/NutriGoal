@@ -2,13 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { requireStaff } from "@/lib/auth";
-import { getProfile, getResponse, getTicket, getUserById, listClinicians, listReports, listStaffNotes, toBuildInput } from "@/lib/data";
+import { getProfile, getResponse, getTicket, getUserById, listClinicians, listNudges, listReports, listStaffNotes, toBuildInput, getSettings } from "@/lib/data";
 import { goalLabel, stageLabel, ticketNumber } from "@/lib/domain";
-import { BuildPanel, memberCode } from "@/components/BuildPanel";
+import { BuildPanel, lookFrom, memberCode } from "@/components/BuildPanel";
 import { ResponseTicket } from "@/components/ResponseTicket";
 import { Alert, StatusPill, shortDate, timeAgo } from "@/components/ui";
 import { SubmitButton } from "@/components/SubmitButton";
-import { reassignTicket, startReview } from "@/actions/staff";
+import { managerNudge, reassignTicket, startReview } from "@/actions/staff";
 import { NotesCard } from "@/components/NotesCard";
 import { ResponseComposer } from "./ResponseComposer";
 
@@ -30,6 +30,7 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
   const response = getResponse(t.id);
   const clinicians = manager ? listClinicians() : [];
   const canWrite = mine && t.status !== "responded";
+  const nudges = listNudges(t.id);
 
   return (
     <div className="space-y-6">
@@ -57,7 +58,17 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
+      {t.status !== "responded" && nudges.length > 0 && (
+        <div className="card flex flex-wrap items-center gap-3 border-warn/40 bg-warn-tint/50 px-5 py-3 text-sm">
+          <span className="font-bold text-warn">⚑ Nudged {nudges.length}×</span>
+          <span className="text-slate">
+            Latest {timeAgo(nudges[0].created_at)} via {nudges[0].source === "assistant" ? "NutriGoal Assistant" : nudges[0].source}
+            {nudges[0].message ? ` · “${nudges[0].message}”` : ""}
+          </span>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_1fr]">
         {/* Ticket detail */}
         <section className="card">
           <h2 className="border-b border-line px-6 py-3 text-sm font-bold">Member&apos;s ticket</h2>
@@ -98,6 +109,16 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
                 </select>
               </div>
               <SubmitButton className="btn-outline" pendingText="Moving…">Reassign</SubmitButton>
+            </form>
+          )}
+          {manager && t.status !== "responded" && (
+            <form action={managerNudge} className="card flex flex-wrap items-center justify-between gap-3 p-5">
+              <input type="hidden" name="ticket_id" value={t.id} />
+              <div className="text-sm">
+                <div className="font-bold">Nudge {t.clinician_name}</div>
+                <div className="text-xs text-slate">Sends an in-app reminder to review this ticket.</div>
+              </div>
+              <SubmitButton className="btn-dark" pendingText="Sending…">Send nudge</SubmitButton>
             </form>
           )}
 
@@ -142,13 +163,13 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
           <Link href={`/staff/members/${member.id}`} className="link text-sm">Full profile →</Link>
         </div>
         {input ? (
-          <BuildPanel name={member.name} memberId={memberCode(member.id)} input={input} units={profile!.unit_system} medicationStage={profile!.medication_stage} source={profile!.source} updatedAt={profile!.updated_at} />
+          <BuildPanel name={member.name} memberId={memberCode(member.id)} input={input} units={profile!.unit_system} medicationStage={profile!.medication_stage} source={profile!.source} updatedAt={profile!.updated_at} look={lookFrom(getSettings(member.id))} />
         ) : (
           <Alert tone="warn">This member hasn&apos;t completed their build.</Alert>
         )}
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section className="card">
           <h2 className="border-b border-line px-6 py-3 text-sm font-bold">Medical reports</h2>
           {reports.length === 0 ? (

@@ -2,11 +2,13 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { requireMember } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { getActiveSubscription, getProfile, type TicketRow } from "@/lib/data";
+import { getActiveSubscription, getProfile, getSettings, type TicketRow } from "@/lib/data";
 import { goalLabel, ticketNumber } from "@/lib/domain";
 import { TicketForm } from "./TicketForm";
 import { PaymentOptions } from "./PaymentOptions";
 import { discardDraft } from "@/actions/tickets";
+import { stripeEnabled } from "@/lib/stripe";
+import { Alert } from "@/components/ui";
 
 export const metadata: Metadata = { title: "New goal ticket" };
 
@@ -52,6 +54,7 @@ export default async function NewTicketPage(props: PageProps<"/tickets/new">) {
               : null
           }
           onGlp1={stage !== "none" && stage !== "considering"}
+          voice={getSettings(user.id).voice_mode}
         />
       ) : (
         <div className="space-y-6">
@@ -70,7 +73,7 @@ export default async function NewTicketPage(props: PageProps<"/tickets/new">) {
                 </form>
               </div>
             </div>
-            <dl className="grid gap-px bg-line md:grid-cols-4">
+            <dl className="grid grid-cols-1 gap-px bg-line md:grid-cols-4">
               <SummaryItem label="Goal" value={`${goalLabel(draft.goal_type)} — ${draft.goal_statement}`} />
               <SummaryItem label="What I typically eat" value={draft.typical_diet} />
               <SummaryItem label="Setbacks" value={draft.setbacks} />
@@ -78,7 +81,9 @@ export default async function NewTicketPage(props: PageProps<"/tickets/new">) {
             </dl>
           </section>
 
+          {sp.canceled && <Alert tone="warn">Checkout was canceled. Your ticket is saved; pick an option when you&apos;re ready.</Alert>}
           <PaymentOptions
+            stripe={stripeEnabled()}
             ticketId={draft.id}
             membership={sub ? { plan: sub.plan, credits: sub.ticket_credits, nextCredit: sub.credits_reset_at } : null}
           />

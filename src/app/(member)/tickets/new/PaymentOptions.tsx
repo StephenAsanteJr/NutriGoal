@@ -9,26 +9,26 @@ import { MEMBERSHIP, PRICES, money } from "@/lib/domain";
 type Membership = { plan: "monthly" | "yearly"; credits: number; nextCredit: string } | null;
 
 /** Split view: option 1 (one-time ticket) on the left, option 2 (membership) on the right. */
-export function PaymentOptions({ ticketId, membership }: { ticketId: number; membership: Membership }) {
+export function PaymentOptions({ ticketId, membership, stripe = false }: { ticketId: number; membership: Membership; stripe?: boolean }) {
   const [open, setOpen] = useState<"one" | "member" | null>(null);
   return (
-    <div className="relative grid gap-6 lg:grid-cols-2 lg:gap-0">
+    <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-0">
       <div className="pointer-events-none absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-line lg:block" aria-hidden />
       <span className="pointer-events-none absolute left-1/2 top-24 z-10 hidden -translate-x-1/2 rounded-full border border-line bg-white px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted lg:block">
         or
       </span>
       <div className="lg:pr-10">
         {membership ? (
-          <MemberExtraOption ticketId={ticketId} open={open === "one"} onOpen={() => setOpen("one")} hasCredit={membership.credits > 0} />
+          <MemberExtraOption ticketId={ticketId} open={open === "one"} onOpen={() => setOpen("one")} hasCredit={membership.credits > 0} stripe={stripe} />
         ) : (
-          <OneTimeOption ticketId={ticketId} open={open === "one"} onOpen={() => setOpen("one")} />
+          <OneTimeOption ticketId={ticketId} open={open === "one"} onOpen={() => setOpen("one")} stripe={stripe} />
         )}
       </div>
       <div className="lg:pl-10">
         {membership ? (
           <IncludedTicketOption ticketId={ticketId} membership={membership} />
         ) : (
-          <MembershipOption ticketId={ticketId} open={open === "member"} onOpen={() => setOpen("member")} />
+          <MembershipOption ticketId={ticketId} open={open === "member"} onOpen={() => setOpen("member")} stripe={stripe} />
         )}
       </div>
     </div>
@@ -65,7 +65,7 @@ function Bullets({ items }: { items: string[] }) {
   );
 }
 
-function OneTimeOption({ ticketId, open, onOpen }: { ticketId: number; open: boolean; onOpen: () => void }) {
+function OneTimeOption({ ticketId, open, onOpen, stripe }: { ticketId: number; open: boolean; onOpen: () => void; stripe: boolean }) {
   const [state, action, pending] = useActionState<PayState, FormData>(payTicketOnce, undefined);
   return (
     <OptionShell n="1" title="Submit this ticket" price={money(PRICES.ticketOneTime)} unit="one-time fee">
@@ -78,9 +78,9 @@ function OneTimeOption({ ticketId, open, onOpen }: { ticketId: number; open: boo
         <form action={action} className="mt-7 space-y-4 border-t border-line pt-6">
           <input type="hidden" name="ticket_id" value={ticketId} />
           {state?.error && <Alert>{state.error}</Alert>}
-          <CardFields idPrefix="one" />
+          <CardFields idPrefix="one" stripe={stripe} />
           <button className="btn-primary w-full !py-3" disabled={pending}>
-            {pending ? "Processing…" : `Pay ${money(PRICES.ticketOneTime)} and submit ticket`}
+            {pending ? (stripe ? "Opening Stripe…" : "Processing…") : stripe ? `Continue to secure checkout · ${money(PRICES.ticketOneTime)}` : `Pay ${money(PRICES.ticketOneTime)} and submit ticket`}
           </button>
         </form>
       )}
@@ -88,7 +88,7 @@ function OneTimeOption({ ticketId, open, onOpen }: { ticketId: number; open: boo
   );
 }
 
-function MembershipOption({ ticketId, open, onOpen }: { ticketId: number; open: boolean; onOpen: () => void }) {
+function MembershipOption({ ticketId, open, onOpen, stripe }: { ticketId: number; open: boolean; onOpen: () => void; stripe: boolean }) {
   const [plan, setPlan] = useState<"monthly" | "yearly">("monthly");
   const [state, action, pending] = useActionState<PayState, FormData>(subscribeAndSubmit, undefined);
   const price = plan === "yearly" ? PRICES.subscriptionYearly : PRICES.subscriptionMonthly;
@@ -120,9 +120,9 @@ function MembershipOption({ ticketId, open, onOpen }: { ticketId: number; open: 
           <input type="hidden" name="ticket_id" value={ticketId} />
           <input type="hidden" name="plan" value={plan} />
           {state?.error && <Alert>{state.error}</Alert>}
-          <CardFields idPrefix="member" />
+          <CardFields idPrefix="member" stripe={stripe} />
           <button className="btn-primary w-full !py-3" disabled={pending}>
-            {pending ? "Processing…" : `Pay ${money(price)} — join and submit`}
+            {pending ? (stripe ? "Opening Stripe…" : "Processing…") : stripe ? `Continue to secure checkout · ${money(price)}` : `Pay ${money(price)} — join and submit`}
           </button>
           <p className="text-center text-xs text-muted">Renews {plan === "yearly" ? "yearly" : "monthly"} until you cancel.</p>
         </form>
@@ -156,7 +156,7 @@ function IncludedTicketOption({ ticketId, membership }: { ticketId: number; memb
   );
 }
 
-function MemberExtraOption({ ticketId, open, onOpen, hasCredit }: { ticketId: number; open: boolean; onOpen: () => void; hasCredit: boolean }) {
+function MemberExtraOption({ ticketId, open, onOpen, hasCredit, stripe }: { ticketId: number; open: boolean; onOpen: () => void; hasCredit: boolean; stripe: boolean }) {
   const [state, action, pending] = useActionState<PayState, FormData>(payExtraTicket, undefined);
   return (
     <OptionShell n="1" title="Buy an extra ticket" price={money(PRICES.extraTicketMember)} unit="member price">
@@ -175,9 +175,9 @@ function MemberExtraOption({ ticketId, open, onOpen, hasCredit }: { ticketId: nu
         <form action={action} className="mt-7 space-y-4 border-t border-line pt-6">
           <input type="hidden" name="ticket_id" value={ticketId} />
           {state?.error && <Alert>{state.error}</Alert>}
-          <CardFields idPrefix="extra" />
+          <CardFields idPrefix="extra" stripe={stripe} />
           <button className="btn-primary w-full !py-3" disabled={pending}>
-            {pending ? "Processing…" : `Pay ${money(PRICES.extraTicketMember)} and submit ticket`}
+            {pending ? (stripe ? "Opening Stripe…" : "Processing…") : stripe ? `Continue to secure checkout · ${money(PRICES.extraTicketMember)}` : `Pay ${money(PRICES.extraTicketMember)} and submit ticket`}
           </button>
         </form>
       )}

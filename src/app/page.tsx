@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Logo } from "@/components/Logo";
+import { Logo, LogoLockup } from "@/components/Logo";
 import { getCurrentUser, homeFor } from "@/lib/auth";
 import { PRICES, money } from "@/lib/domain";
 
@@ -38,7 +38,7 @@ export default async function Landing() {
             <circle key={r} cx="200" cy="200" r={r} fill="none" stroke={i % 2 ? "#00A9F4" : "#2251FF"} strokeWidth="1" />
           ))}
         </svg>
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[1.2fr_1fr]">
+        <div className="relative mx-auto grid grid-cols-1 max-w-7xl gap-12 px-6 lg:grid-cols-[1.2fr_1fr]">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">Nutrition, answered by people</div>
             <h1 className="font-display mt-5 text-5xl leading-[1.05] sm:text-6xl">
@@ -78,7 +78,7 @@ export default async function Landing() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="eyebrow">How a goal ticket works</div>
           <h2 className="font-display mt-3 max-w-3xl text-4xl leading-tight">One goal, one plan, written by a clinician who knows that kind of goal</h2>
-          <ol className="mt-12 grid gap-px overflow-hidden rounded-[3px] bg-line md:grid-cols-5">
+          <ol className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-[3px] bg-line md:grid-cols-5">
             {STEPS.map((s) => (
               <li key={s.n} className="bg-white p-6">
                 <div className="font-display text-3xl text-blue">{s.n}</div>
@@ -92,7 +92,7 @@ export default async function Landing() {
 
       {/* Two ways in */}
       <section className="bg-mist py-20">
-        <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[1fr_1.4fr]">
+        <div className="mx-auto grid grid-cols-1 max-w-7xl gap-10 px-6 lg:grid-cols-[1fr_1.4fr]">
           <div>
             <div className="eyebrow">Your build</div>
             <h2 className="font-display mt-3 text-4xl leading-tight">Two ways to give your clinician the full picture</h2>
@@ -101,7 +101,7 @@ export default async function Landing() {
               safe timeline to your goal. Doctors, dietitians and care managers see the same view when they review your ticket.
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="card p-6">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-tint text-blue" aria-hidden>✎</div>
               <h3 className="mt-4 text-lg font-bold">Enter it yourself</h3>
@@ -121,7 +121,7 @@ export default async function Landing() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="eyebrow">Pricing</div>
           <h2 className="font-display mt-3 text-4xl">Pay per ticket, or join for a ticket every month</h2>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
             <PriceCard
               name="Single ticket"
               price={money(PRICES.ticketOneTime)}
@@ -147,7 +147,7 @@ export default async function Landing() {
 
       {/* Partners */}
       <section id="partners" className="bg-navy py-20 text-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-2">
+        <div className="mx-auto grid grid-cols-1 max-w-7xl gap-10 px-6 lg:grid-cols-2">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">Verified partner marketplace</div>
             <h2 className="font-display mt-3 text-4xl leading-tight">Grocers, retailers, pharmacies and coaches that fit your plan</h2>
@@ -174,7 +174,7 @@ export default async function Landing() {
 
       <footer className="border-t border-line py-10">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 text-xs text-muted">
-          <Logo />
+          <LogoLockup width={150} />
           <p className="max-w-xl">
             NutriGoal provides general nutrition guidance from licensed clinicians. It is not emergency care and does not replace your own
             doctor. Demo build: payments are simulated.

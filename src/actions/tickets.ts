@@ -1,12 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { db, newId, nowIso } from "@/lib/db";
+import { db, nowIso } from "@/lib/db";
+import { fulfill, nextUrlAfter, submitPaidTicket, type PurchaseKind } from "@/lib/fulfillment";
+import { createCheckout, stripeEnabled } from "@/lib/stripe";
 import { requireMember } from "@/lib/auth";
-import { getActiveSubscription, notify } from "@/lib/data";
-import { routeTicket } from "@/lib/routing";
+import { getActiveSubscription } from "@/lib/data";
 import { cardFromForm, charge } from "@/lib/payments";
 import { GOAL_TYPES, PRICES, money, ticketNumber } from "@/lib/domain";
 
@@ -68,80 +68,58 @@ function loadDraft(userId: string, ticketId: number) {
     .get(ticketId, userId) as { id: number; goal_statement: string } | undefined;
 }
 
-function submitPaidTicket(userId: string, ticketId: number, method: string) {
-  db().prepare("UPDATE tickets SET paid_at = ?, payment_method = ? WHERE id = ?").run(nowIso(), method, ticketId);
-  const clinician = routeTicket(ticketId);
-  notify(
-    userId,
-    `Ticket ${ticketNumber(ticketId)} submitted`,
-    `${clinician.name}, ${clinician.credential} will send your response ticket within 48 hours.`,
-    `/tickets/${ticketId}`,
-  );
-  revalidatePath("/dashboard");
-  revalidatePath("/tickets");
+/**
+ * Take payment for a purchase: Stripe Checkout when configured (redirects away),
+ * otherwise the demo card form. On success, fulfils and redirects to proof of payment.
+ */
+async function takePayment(
+  user: { id: string; email: string },
+  fd: FormData,
+  p: { kind: PurchaseKind; amountCents: number; description: string; ticketId?: number | null; cancelPath: string },
+): Promise<PayState> {
+  if (stripeEnabled()) {
+    let url: string;
+    try {
+      url = await createCheckout({ userId: user.id, email: user.email, ...p });
+    } catch {
+      return { error: "We couldn't start a secure Stripe checkout. Please try again." };
+    }
+    redirect(url);
+  }
+  const res = charge({ userId: user.id, card: cardFromForm(fd), amountCents: p.amountCents, kind: p.kind, description: p.description, ticketId: p.ticketId ?? null });
+  if (!res.ok) return { error: res.error };
+  fulfill({ userId: user.id, kind: p.kind, amountCents: p.amountCents, ticketId: p.ticketId });
+  redirect(nextUrlAfter(p, res.paymentId));
 }
 
 /** Option 1: one-time $19.99 ticket. */
 export async function payTicketOnce(_: PayState, fd: FormData): Promise<PayState> {
   const user = await requireMember();
   const ticketId = Number(fd.get("ticket_id"));
-  const draft = loadDraft(user.id, ticketId);
-  if (!draft) return { error: "This ticket was already submitted or can't be found." };
-  const res = charge({
-    userId: user.id,
-    card: cardFromForm(fd),
-    amountCents: PRICES.ticketOneTime,
+  if (!loadDraft(user.id, ticketId)) return { error: "This ticket was already submitted or can't be found." };
+  return takePayment(user, fd, {
     kind: "ticket",
-    description: `Goal ticket ${ticketNumber(ticketId)}`,
+    amountCents: PRICES.ticketOneTime,
+    description: `NutriGoal goal ticket ${ticketNumber(ticketId)}`,
     ticketId,
+    cancelPath: `/tickets/new?draft=${ticketId}&canceled=1`,
   });
-  if (!res.ok) return { error: res.error };
-  submitPaidTicket(user.id, ticketId, "one_time");
-  redirect(`/tickets/${ticketId}?submitted=1`);
 }
 
-/** Option 2: join the membership (monthly or yearly); this ticket uses the included monthly ticket. */
+/** Option 2: join the membership (monthly or yearly); a draft ticket uses this month's included ticket. */
 export async function subscribeAndSubmit(_: PayState, fd: FormData): Promise<PayState> {
   const user = await requireMember();
   const ticketId = Number(fd.get("ticket_id") || 0);
   const plan = fd.get("plan") === "yearly" ? "yearly" : "monthly";
   if (getActiveSubscription(user.id)) return { error: "You're already a member. Use your included ticket instead." };
-  const draft = ticketId ? loadDraft(user.id, ticketId) : null;
-  if (ticketId && !draft) return { error: "This ticket was already submitted or can't be found." };
-
-  const price = plan === "yearly" ? PRICES.subscriptionYearly : PRICES.subscriptionMonthly;
-  const res = charge({
-    userId: user.id,
-    card: cardFromForm(fd),
-    amountCents: price,
+  if (ticketId && !loadDraft(user.id, ticketId)) return { error: "This ticket was already submitted or can't be found." };
+  return takePayment(user, fd, {
     kind: plan === "yearly" ? "subscription_yearly" : "subscription_monthly",
+    amountCents: plan === "yearly" ? PRICES.subscriptionYearly : PRICES.subscriptionMonthly,
     description: `NutriGoal Membership · ${plan}`,
     ticketId: ticketId || null,
+    cancelPath: ticketId ? `/tickets/new?draft=${ticketId}&canceled=1` : "/membership?canceled=1",
   });
-  if (!res.ok) return { error: res.error };
-
-  const now = new Date();
-  const renews = new Date(now);
-  if (plan === "yearly") renews.setFullYear(renews.getFullYear() + 1);
-  else renews.setMonth(renews.getMonth() + 1);
-  const creditsReset = new Date(now);
-  creditsReset.setMonth(creditsReset.getMonth() + 1);
-  db()
-    .prepare(
-      `INSERT INTO subscriptions (id, user_id, plan, status, price_cents, started_at, renews_at, ticket_credits, credits_reset_at)
-       VALUES (?, ?, ?, 'active', ?, ?, ?, ?, ?)`,
-    )
-    .run(newId(), user.id, plan, price, now.toISOString(), renews.toISOString(), draft ? 0 : 1, creditsReset.toISOString());
-  // Membership includes the Daily Support Pack.
-  db().prepare("INSERT OR IGNORE INTO user_addons (user_id, addon_id, unlocked_at) VALUES (?, 'support_pack', ?)").run(user.id, nowIso());
-  notify(user.id, "Welcome to NutriGoal Membership", `Your ${plan} plan is active: 1 ticket a month plus the Daily Support Pack.`, "/membership");
-
-  if (draft) {
-    submitPaidTicket(user.id, ticketId, "subscription");
-    redirect(`/tickets/${ticketId}?submitted=1&member=1`);
-  }
-  revalidatePath("/membership");
-  redirect("/membership?welcome=1");
 }
 
 /** Members: use the included monthly ticket. */
@@ -163,17 +141,13 @@ export async function payExtraTicket(_: PayState, fd: FormData): Promise<PayStat
   const ticketId = Number(fd.get("ticket_id"));
   if (!loadDraft(user.id, ticketId)) return { error: "This ticket was already submitted or can't be found." };
   if (!getActiveSubscription(user.id)) return { error: "Member pricing needs an active membership." };
-  const res = charge({
-    userId: user.id,
-    card: cardFromForm(fd),
-    amountCents: PRICES.extraTicketMember,
+  return takePayment(user, fd, {
     kind: "ticket_member_extra",
+    amountCents: PRICES.extraTicketMember,
     description: `Extra goal ticket ${ticketNumber(ticketId)} (member price ${money(PRICES.extraTicketMember)})`,
     ticketId,
+    cancelPath: `/tickets/new?draft=${ticketId}&canceled=1`,
   });
-  if (!res.ok) return { error: res.error };
-  submitPaidTicket(user.id, ticketId, "member_extra");
-  redirect(`/tickets/${ticketId}?submitted=1`);
 }
 
 export async function discardDraft(fd: FormData) {

@@ -3,7 +3,24 @@
 import { useState } from "react";
 
 /** Mock checkout card fields. Nothing here is ever charged. */
-export function CardFields({ idPrefix = "card" }: { idPrefix?: string }) {
+export function CardFields({ idPrefix = "card", stripe = false }: { idPrefix?: string; stripe?: boolean }) {
+  if (stripe) return <StripeNote />;
+  return <DemoCardFields idPrefix={idPrefix} />;
+}
+
+function StripeNote() {
+  return (
+    <div className="flex items-start gap-3 rounded-[2px] border border-line bg-mist px-4 py-3 text-xs text-slate">
+      <span className="rounded-[3px] bg-[#635bff] px-1.5 py-0.5 text-[11px] font-bold text-white">stripe</span>
+      <span>
+        You&apos;ll enter your card on Stripe&apos;s secure checkout page, then come straight back here with your proof of payment.
+        NutriGoal never sees your full card number.
+      </span>
+    </div>
+  );
+}
+
+function DemoCardFields({ idPrefix }: { idPrefix: string }) {
   // Every field is controlled so values survive React's form reset after a failed (e.g. declined) attempt.
   const [name, setName] = useState("");
   const [num, setNum] = useState("");
