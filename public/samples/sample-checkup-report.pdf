@@ -1,0 +1,63 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Length 1800 >>
+stream
+BT 0.02 0.11 0.17 rg /F2 18 Tf 56 750 Td (Riverside Family Health) Tj ET
+BT 0.1 0.1 0.1 rg /F1 10 Tf 56 723 Td (Annual Physical Summary  -  SAMPLE REPORT \(fictional patient, for demo use only\)) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 698 Td (Patient: Sam Rivera) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 678 Td (Sex: Male) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 658 Td (Age: 41) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 638 Td (Date of service: 10/14/2026) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 618 Td (Provider: Dr. A. Patel, MD) Tj ET
+BT 0.13 0.32 1 rg /F2 13 Tf 56 592 Td (Vitals) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 570 Td (Height: 5 ft 10 in) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 550 Td (Weight: 212 lb) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 530 Td (BMI: 30.4) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 510 Td (Body fat: 29.5%) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 490 Td (Blood pressure: 134/86 mmHg) Tj ET
+BT 0.13 0.32 1 rg /F2 13 Tf 56 464 Td (Laboratory results) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 442 Td (Hemoglobin A1c: 5.8 %          \(ref < 5.7\)) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 422 Td (Glucose, fasting: 106 mg/dL    \(ref 70-99\)) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 402 Td (Total cholesterol: 221 mg/dL   \(ref < 200\)) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 382 Td (LDL cholesterol: 146 mg/dL     \(ref < 100\)) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 362 Td (HDL cholesterol: 39 mg/dL      \(ref > 40\)) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 342 Td (Triglycerides: 190 mg/dL       \(ref < 150\)) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 322 Td (Vitamin D, 25-Hydroxy: 22 ng/mL \(ref 30-100\)) Tj ET
+BT 0.13 0.32 1 rg /F2 13 Tf 56 296 Td (Assessment) Tj ET
+BT 0.1 0.1 0.1 rg /F1 11 Tf 56 274 Td (Overweight with elevated A1c and LDL. Recommend nutrition counseling and repeat labs in 3 months.) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Title (Sample checkup report - fictional) /Producer (NutriGoal) >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000257 00000 n 
+0000000354 00000 n 
+0000000456 00000 n 
+0000002307 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R /Info 7 0 R >>
+startxref
+2393
+%%EOF
