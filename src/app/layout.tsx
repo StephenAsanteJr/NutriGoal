@@ -34,10 +34,18 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+// Public demo notice. Hide it with NUTRIGOAL_DEMO_BANNER=off once the app holds real member data.
+const showDemoBanner = process.env.NUTRIGOAL_DEMO_BANNER !== "off";
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${bodoni.variable} ${montserrat.variable} h-full`}>
       <body className="flex min-h-full flex-col bg-white text-navy">
+        {showDemoBanner && (
+          <div role="note" className="bg-amber-100 px-4 py-2 text-center text-sm text-navy">
+            Demo site: please don&rsquo;t enter real health information. Demo logins are in the project README.
+          </div>
+        )}
         {children}
         <RegisterSW />
       </body>
