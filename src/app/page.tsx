@@ -17,7 +17,7 @@ export default async function Landing() {
   if (user) redirect(homeFor(user));
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen flex-col">
       <header className="absolute inset-x-0 top-0 z-10">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
           <Logo tone="light" />
