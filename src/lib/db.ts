@@ -5,7 +5,11 @@ import path from "node:path";
 import { seedIfEmpty } from "./seed";
 import { runMigrations } from "./migrations";
 
-export const DATA_DIR = path.join(process.cwd(), "data");
+// Where the database, uploaded reports and session secret live. Point NUTRIGOAL_DATA_DIR
+// at a persistent volume when hosting (for example /data on Railway) so they survive redeploys.
+export const DATA_DIR = process.env.NUTRIGOAL_DATA_DIR
+  ? path.resolve(process.env.NUTRIGOAL_DATA_DIR)
+  : path.join(process.cwd(), "data");
 export const UPLOAD_DIR = path.join(DATA_DIR, "uploads");
 const DB_PATH = process.env.NUTRIGOAL_DB ?? path.join(DATA_DIR, "nutrigoal.db");
 
