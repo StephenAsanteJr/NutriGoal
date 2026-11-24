@@ -4,9 +4,10 @@ import { Platform } from "react-native";
 
 /**
  * API base URL:
- *  1. EXPO_PUBLIC_API_URL or app.json "extra.apiUrl" if set (e.g. your deployed site)
- *  2. in development on a phone: the same computer that serves the Expo bundle, port 3000
- *  3. web / simulator: http://localhost:3000
+ *  1. EXPO_PUBLIC_API_URL (e.g. EXPO_PUBLIC_API_URL=http://localhost:3000 to test against your local web app)
+ *  2. app.json "extra.apiUrl": the live site, so Expo Go works on any network
+ *  3. in development on a phone: the same computer that serves the Expo bundle, port 3000
+ *  4. web / simulator: http://localhost:3000
  */
 export function apiBase() {
   const fromEnv = process.env.EXPO_PUBLIC_API_URL;

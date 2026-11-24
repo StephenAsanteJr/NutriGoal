@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Expo Go QR code for your local network (regenerate per network)
+expo-go-qr.png

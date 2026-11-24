@@ -36,7 +36,16 @@
       "typedRoutes": false
     },
     "extra": {
-      "apiUrl": ""
-    }
+      "apiUrl": "https://nutrigoal-production.up.railway.app",
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "35e29227-857d-4224-b384-b86aab890fc9"
+      }
+    },
+    "owner": "21isasavage"
   }
 }
