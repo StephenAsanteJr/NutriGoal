@@ -2,6 +2,8 @@
 
 # NutriGoal
 
+**Real words from real people. Proven methods. No AI slop.** NutriGoal deliberately doesn't rely on AI-generated advice: every plan is written and signed by a physician, dietitian or nutritionist, using methods they've proven and tested before passing them on. It's built for people short on time or energy but ready to invest in their nutritional health: self-healthcare with expert direction. (Software handles logistics such as routing, reminders and finding stores, never the advice.)
+
 **Nutrition answers, by the ticket.** Members build a health profile, send one nutrition goal at a time, and a licensed physician (MD) or registered dietitian (RD) writes back a response ticket: a concise recommendation followed by 5–6 actionable steps, each with a timeframe, within 48 hours.
 
 Product strategy, market sizing and pricing research live in [`Ticket-Based Nutrition App.pptx`](./Ticket-Based%20Nutrition%20App.pptx).
@@ -21,9 +23,11 @@ Product strategy, market sizing and pricing research live in [`Ticket-Based Nutr
 | **Split-screen submit** | Option 1: one-time ticket **$19.99**. Option 2: Membership **$29.99/month** or **$300/year** (1 ticket/month + Daily Support Pack + $14.99 extra tickets). |
 | **Payments: Stripe + proof of payment** | With Stripe keys set, every purchase goes through **Stripe Checkout** (one-time and subscriptions) and returns to a **proof-of-payment receipt** with the Stripe payment ID and a link to Stripe's own receipt. Without keys, a demo checkout runs the same flow. |
 | **Membership tab** | **Overview:** plan, the member's build, daily calorie and macro targets, payments and receipts. **Progress:** weigh-in log, weight chart vs. the safe path to goal (hover for details), stats and history. **Settings (MyFitnessPal-style):** character, goals and weekly rate, custom calories, macro split, units (lb/kg, kcal/kJ, oz/ml), meal names, weigh-in reminders, nudges and quiet hours, notification channels, privacy, assistant and voice toggles. |
-| **Marketplace** | **Top 3 U.S. supermarket grocers** (Kroger, Albertsons, Publix), **food retailers** (Walmart, Costco, Amazon Fresh & Whole Foods) and **retail pharmacies** (CVS, Walgreens, Walmart Pharmacy) as public listings, clearly marked as not NutriGoal partners. Plus verified partners (grocers, retailers, pharmacies, fitness coaches) and unlockable add-ons. Available with or without a ticket. |
+| **Marketplace (paywall)** | Open to **any paying customer** (a paid ticket or an active membership); others see a locked preview. **Certified trainers within 5 or 10 miles** (ZIP code or "use my location"; sample verified trainers in 16 launch metros, plus optional Google Maps results). **Food-tracking app picks** (MyFitnessPal, Cronometer, MacroFactor, FatSecret, Lose It!), ranked by fit with the member's goals. Then the **top 3 U.S. supermarket grocers** (Kroger, Albertsons, Publix), **food retailers** (Walmart, Costco, Amazon Fresh & Whole Foods) and **retail pharmacies** (CVS, Walgreens, Walmart Pharmacy) as public listings, clearly marked as not NutriGoal partners. Plus verified partners (grocers, retailers, pharmacies, fitness coaches) and unlockable add-ons. Available with or without a ticket. |
+| **Health data & integrations** | **Data** page: nutrition **trends** (calories and protein vs. targets, fiber, sodium, macro split, lab history) with rule-based insights. **Connect:** Epic MyChart via SMART on FHIR, FHIR JSON / C-CDA XML record exports, MyChart "Share Everywhere" codes, and CSV exports from MyFitnessPal, Cronometer, MacroFactor, FatSecret and Lose It!. **Share:** expiring, revocable read-only report links for the member's own doctor or trainer. **API:** personal tokens plus `POST /api/v1/nutrition`, `POST /api/v1/health-records` (FHIR R4 / LOINC) and `GET /api/v1/trends` (docs at `/developers`). Clinicians see connected data on ticket and member pages. |
 | **NutriGoal Assistant (AI)** | A chat widget on every member page. It searches the marketplace, saves stores, lists and unlocks add-ons (paid ones always go through the member's own checkout), checks ticket status and **nudges the assigned clinician** (rate-limited to once per 6 hours per ticket). It never gives medical advice; it points members to goal tickets instead. |
-| **Mobile version** | Responsive on phones with a bottom tab bar, a floating assistant button, and an installable app (web manifest, home-screen icons, offline screen). |
+| **Mobile app (Expo)** | A native iOS/Android app in [`mobile/`](mobile) with a **bubble-button** interface for all three roles. **Members:** character + targets, new ticket, tickets, build, log weight, marketplace, assistant, alerts. **Clinicians:** queue, respond next (full composer), due soon, nudged, alerts. **Managers:** open tickets, due soon, clinician load, revenue, nudges. Payments open web checkout through a one-time signed-in link. |
+| **Mobile web** | Responsive on phones with a bottom tab bar, a floating assistant button, and an installable app (web manifest, home-screen icons, offline screen). |
 
 ### Staff experience (clinicians and managers)
 - **Routing by plain rules (no AI):** goal group = medication stage × goal type → physician or dietitian, then specialty match and shortest queue.
@@ -44,6 +48,15 @@ npm run dev
 
 Open http://localhost:3000. The SQLite database and uploads are created in `data/` and seeded on first run; schema migrations apply automatically. `npm run db:reset` starts fresh.
 
+### Run the mobile app
+With the web app running (`npm run dev`):
+
+```bash
+cd mobile && npm install && npx expo start
+```
+
+Scan the QR code with **Expo Go** (free on the App Store / Google Play); your phone must be on the same Wi-Fi as this Mac. The app finds the web API on this Mac automatically (port 3000). Press `w` to open it in a browser instead. Sign in with any demo account below. To point the app at a deployed site, set `EXPO_PUBLIC_API_URL`.
+
 ### Turn on the integrations (optional)
 Copy `.env.example` to `.env.local`, fill in what you need, and restart `npm run dev`.
 
@@ -51,6 +64,8 @@ Copy `.env.example` to `.env.local`, fill in what you need, and restart `npm run
 | --- | --- |
 | `ANTHROPIC_API_KEY` | AI assistant, voice-mode formatting, photo body-fat estimates. Uses **Claude Opus 5.5** (`claude-opus-5-5`) through the Messages API with server-side refusal fallbacks (`fallbacks: "default"`). Without it, the assistant and voice mode use keyword rules. |
 | `STRIPE_SECRET_KEY` | Real Stripe Checkout for tickets, memberships and add-ons, with proof-of-payment receipts. Use a **test-mode** key (`sk_test_…`). |
+| `EPIC_CLIENT_ID` | "Connect MyChart" (SMART on FHIR). Register a free app at fhir.epic.com; the default endpoint is Epic's sandbox. |
+| `GOOGLE_PLACES_API_KEY` | Adds unverified Google Maps trainers to the 5–10 mile search. |
 | `STRIPE_WEBHOOK_SECRET` | Webhook fulfilment and membership renewals. Locally: `stripe listen --forward-to localhost:3000/api/stripe/webhook`. |
 
 Stripe test card: `4242 4242 4242 4242`, any future expiry, any CVC.
@@ -91,13 +106,15 @@ A "demo site" banner shows by default; set `NUTRIGOAL_DEMO_BANNER=off` to hide i
 - Auth: bcrypt + signed HTTP-only JWT cookie (`jose`) · PDF text: `unpdf`
 
 ```
+mobile/        Expo (React Native) bubble-button app: src/app (Expo Router screens), src/components, src/lib (API client, session)
 src/
   actions/     auth, profile + report upload, tickets + checkout, settings + weigh-ins, staff, marketplace
   app/         landing, (auth), (member) dashboard/onboarding/tickets/marketplace/membership/payments, staff/*,
                api/{assistant,voice,scan,reports,stripe/webhook}, payments/complete, manifest
   components/  AvatarBuild (animated character), BiometricCard, BuildPanel, PhotoScan, Voice, Assistant,
                ProgressChart, MobileNav, ResponseTicket, LookPicker, Logo
-  lib/         biometrics, silhouette, routing, nudges, ai, agent, stripe, fulfillment, payments (demo),
+  lib/integrations/  csv, nutrition (tracker exports), fhir (FHIR + C-CDA, LOINC), epic (SMART on FHIR), tokens, trends + share links
+  lib/         access (paywall), trainers + geo-data, responses, biometrics, silhouette, routing, nudges, ai, agent, stripe, fulfillment, payments (demo),
                report-extract, voice-fallback, migrations, db + seed
 ```
 

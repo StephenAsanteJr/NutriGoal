@@ -8,12 +8,17 @@ import { PageHeader } from "@/components/ui";
 import { SubmitButton } from "@/components/SubmitButton";
 import { AddonCard } from "./AddonCard";
 import { stripeEnabled } from "@/lib/stripe";
+import { hasMarketplaceAccess } from "@/lib/access";
+import { Paywall } from "./Paywall";
+import { TrainersNearYou } from "./TrainersNearYou";
+import { TrackingApps } from "./TrackingApps";
 
 export const metadata: Metadata = { title: "Marketplace" };
 
 export default async function Marketplace(props: PageProps<"/marketplace">) {
   const user = await requireMember();
   const sp = await props.searchParams;
+  if (!hasMarketplaceAccess(user.id)) return <Paywall />;
   const cat = typeof sp.category === "string" ? sp.category : "all";
   const partners = listPartners(user.id);
   const addons = listAddons(user.id);
@@ -31,10 +36,14 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
 
   return (
     <div className="space-y-10">
-      <PageHeader eyebrow="Marketplace" title="Grocers, retailers, pharmacies and coaches">
-        Open to every member, with or without a ticket. We check each partner&apos;s license or certification before listing them, and
-        your clinician can point to them in your plan.
+      <PageHeader eyebrow="Marketplace · for members & ticket holders" title="Trainers, apps, grocers and pharmacies">
+        Everything that helps your plan stick: certified trainers near you, the tracking app that fits your goal, and the stores and
+        pharmacies you already use. Verified partners are checked before we list them; your clinician can point to them in your plan.
       </PageHeader>
+
+      <TrainersNearYou userId={user.id} />
+
+      <TrackingApps goals={[...myGoals]} />
 
       {connected.length > 0 && (
         <div className="card flex flex-wrap items-center gap-3 px-5 py-3 text-sm">

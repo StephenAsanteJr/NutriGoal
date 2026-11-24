@@ -6,6 +6,7 @@ import { getActiveSubscription, getProfile, getUserById, listReports, listStaffN
 import { goalLabel, ticketNumber } from "@/lib/domain";
 import { BuildPanel, lookFrom, memberCode } from "@/components/BuildPanel";
 import { NotesCard } from "@/components/NotesCard";
+import { StaffDataPanel } from "@/components/StaffDataPanel";
 import { Alert, StatusPill, shortDate, timeAgo } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Member build" };
@@ -88,6 +89,7 @@ export default async function MemberDetail(props: PageProps<"/staff/members/[id]
           )}
         </section>
       </div>
+      <StaffDataPanel memberId={id} />
       <NotesCard memberId={id} back={`/staff/members/${id}`} notes={listStaffNotes(id)} />
     </div>
   );

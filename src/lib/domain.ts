@@ -192,3 +192,53 @@ export const WEEKLY_RATES_LB = [-2, -1.5, -1, -0.5, 0, 0.25, 0.5] as const;
 export function energy(kcal: number, unit: "kcal" | "kJ") {
   return unit === "kJ" ? `${Math.round(kcal * 4.184).toLocaleString()} kJ` : `${Math.round(kcal).toLocaleString()} kcal`;
 }
+
+// ---------- Food-tracking app recommendations (independent; not sponsored) ----------
+export const TRACKING_APPS = [
+  {
+    id: "myfitnesspal",
+    name: "MyFitnessPal",
+    bestFor: "Beginners: the biggest food database and barcode scanning make logging quick.",
+    price: "Free; Premium $19.99/mo or $79.99/yr",
+    export: "Premium → Settings → Export data. Upload the Nutrition CSV here.",
+    url: "https://www.myfitnesspal.com",
+    goals: ["fat_loss", "budget_meals", "keep_weight_off"],
+  },
+  {
+    id: "cronometer",
+    name: "Cronometer",
+    bestFor: "Lab-driven goals: tracks micronutrients like fiber, sodium, iron and vitamin D in detail.",
+    price: "Free; Gold $8.49/mo or $54.99/yr",
+    export: "Web app → Settings → Account → Export Data → Daily Nutrition. Upload dailysummary.csv.",
+    url: "https://cronometer.com",
+    goals: ["blood_sugar", "heart_health", "glp1_side_effects", "protein"],
+  },
+  {
+    id: "macrofactor",
+    name: "MacroFactor",
+    bestFor: "Body recomposition: targets adjust automatically to your weigh-ins and intake.",
+    price: "Subscription with free trial",
+    export: "More → Data Management → Data Export. Upload the nutrition CSV.",
+    url: "https://macrofactorapp.com",
+    goals: ["muscle_gain", "fat_loss", "protein"],
+  },
+  {
+    id: "fatsecret",
+    name: "FatSecret",
+    bestFor: "Budget-friendly: a full-featured free tracker with a large food database.",
+    price: "Free; Premium available",
+    export: "Export your food diary to CSV, or send days to NutriGoal through our API.",
+    url: "https://www.fatsecret.com",
+    goals: ["budget_meals", "fat_loss"],
+  },
+  {
+    id: "loseit",
+    name: "Lose It!",
+    bestFor: "Simplicity: a daily calorie budget, streaks and a clean interface.",
+    price: "Free; Premium $79.99/yr",
+    export: "Premium → Export data to CSV, then upload it here.",
+    url: "https://www.loseit.com",
+    goals: ["fat_loss", "keep_weight_off"],
+  },
+] as const;
+export type TrackingAppId = (typeof TRACKING_APPS)[number]["id"];

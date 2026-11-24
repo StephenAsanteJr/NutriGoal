@@ -22,6 +22,7 @@ export default async function Landing() {
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
           <Logo tone="light" />
           <nav className="flex items-center gap-6 text-sm font-bold text-white">
+            <a href="#why" className="hidden hover:text-cyan sm:inline">Why NutriGoal</a>
             <a href="#how" className="hidden hover:text-cyan sm:inline">How it works</a>
             <a href="#pricing" className="hidden hover:text-cyan sm:inline">Pricing</a>
             <a href="#partners" className="hidden hover:text-cyan sm:inline">Partners</a>
@@ -40,15 +41,15 @@ export default async function Landing() {
         </svg>
         <div className="relative mx-auto grid grid-cols-1 max-w-7xl gap-12 px-6 lg:grid-cols-[1.2fr_1fr]">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">Nutrition, answered by people</div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">Real people. Proven methods. No AI slop.</div>
             <h1 className="font-display mt-5 text-5xl leading-[1.05] sm:text-6xl">
               Nutrition answers,
               <br />
               by the ticket.
             </h1>
             <p className="mt-6 max-w-xl text-lg text-white/80">
-              Send in one nutrition goal at a time. A licensed physician or registered dietitian reads it and writes back a plan
-              within 48 hours, with 5–6 steps you can start today.
+              Send in one nutrition goal at a time. A licensed physician, dietitian or nutritionist reads it and writes back a plan in
+              their own words, using methods they&apos;ve already proven in practice, within 48 hours.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link href="/signup" className="btn-primary !px-7 !py-3 text-base">Create your free account</Link>
@@ -62,11 +63,42 @@ export default async function Landing() {
               ["48 hrs", "to a written plan from a real clinician"],
               ["5–6", "actionable steps, each with a timeframe"],
               [money(PRICES.ticketOneTime), "per ticket vs. $75–150 for a dietitian visit"],
-              ["0", "AI-written answers: people review every ticket"],
+              ["0", "AI-written plans: a credentialed person writes and signs every one"],
             ].map(([k, v]) => (
               <div key={k} className="bg-navy/80 p-6">
                 <div className="font-display text-4xl text-white">{k}</div>
                 <div className="mt-2 text-sm text-white/70">{v}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Value proposition */}
+      <section id="why" className="border-b border-line bg-white py-20">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 lg:grid-cols-[1fr_1.5fr]">
+          <div>
+            <div className="eyebrow">Why NutriGoal</div>
+            <h2 className="font-display mt-3 text-4xl leading-tight">Real words from real people who know what they&apos;re doing</h2>
+            <p className="mt-4 text-slate">
+              The internet is full of AI-generated meal plans and recycled advice. We deliberately don&apos;t rely on it. Every plan comes from a
+              physician, dietitian or nutritionist, and every method they recommend has been proven and tested before it&apos;s passed on to
+              you.
+            </p>
+            <p className="mt-4 text-sm text-slate">
+              Where we use software, it handles logistics (sorting your ticket, reminders, finding a store), never the advice. If a clinician
+              uses a tool to tidy their wording, the plan says so.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-px overflow-hidden rounded-[3px] border border-line bg-line sm:grid-cols-3">
+            {[
+              ["Written by credentialed people", "MDs, registered dietitians and nutritionists read your goal and write your plan in their own words, then sign it with their name and credential."],
+              ["Proven before it's passed on", "Recommendations come from methods our clinicians have used, tested and seen work in practice, backed by evidence, not trends or a chatbot's guess."],
+              ["Built for busy people who invest in themselves", "For people short on time or energy but ready to invest in their nutritional health. This is self-healthcare: expert direction without weeks of research or appointments."],
+            ].map(([t, b]) => (
+              <div key={t} className="bg-white p-6">
+                <div className="font-display text-2xl leading-snug text-navy">{t}</div>
+                <p className="mt-3 text-sm text-slate">{b}</p>
               </div>
             ))}
           </div>
@@ -152,8 +184,8 @@ export default async function Landing() {
             <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">Verified partner marketplace</div>
             <h2 className="font-display mt-3 text-4xl leading-tight">Grocers, retailers, pharmacies and coaches that fit your plan</h2>
             <p className="mt-4 text-white/75">
-              Open to every member, with or without a ticket. Each partner&apos;s license or certification is checked before they&apos;re listed, and
-              add-ons like the Daily Support Pack and lab panels can be unlocked any time.
+              Included for members and ticket holders: certified trainers within 5–10 miles, independent tracking-app picks, and the stores and
+              pharmacies you already use. Each verified partner&apos;s license or certification is checked before they&apos;re listed.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[3px] bg-white/15">
@@ -161,7 +193,7 @@ export default async function Landing() {
               ["Grocers", "Plan-built carts and budget staples"],
               ["Retailers", "Tested protein, scales and prep gear"],
               ["Pharmacies", "Refill sync and walk-in lab panels"],
-              ["Fitness coaches", "Strength and habit coaching"],
+              ["Trainers near you", "Certified trainers within 5–10 miles"],
             ].map(([k, v]) => (
               <div key={k} className="bg-navy p-6">
                 <div className="font-bold">{k}</div>

@@ -25,6 +25,8 @@ import { nudgeClinician } from "./nudges";
 import { unlockAddonFor } from "./fulfillment";
 import { PARTNER_CATEGORIES, goalLabel, money, ticketNumber } from "./domain";
 import type { User } from "./auth";
+import { hasMarketplaceAccess } from "./access";
+import { getLocation, trainersNear } from "./trainers";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 export type AgentAction = { type: "link"; label: string; href: string };
@@ -48,6 +50,8 @@ const PAGES: Record<string, string> = {
 const SYSTEM = `You are NutriGoal Assistant, the in-app support agent for NutriGoal, a nutrition platform where members send one goal at a time as a "goal ticket" and a licensed physician (MD) or registered dietitian (RD) writes back a response ticket within 48 hours.
 
 What you can do, using your tools:
+- The marketplace (trainers, apps, stores, add-ons) is for paying customers; if a tool says LOCKED, explain how to unlock it.
+- Find certified trainers within 5-10 miles of the member (find_trainers).
 - Search the marketplace: verified partners (grocers, retailers, pharmacies, fitness coaches) and the top national grocers, food retailers and pharmacies. National brands are public listings, NOT NutriGoal partners; never imply a partnership, discount or endorsement for them.
 - Save or remove a partner or store for the member (save_partner).
 - List add-ons and unlock ones that are free for the member. Paid add-ons always need the member to pay in checkout themselves: give them the checkout link; never ask for card details in chat.
@@ -78,9 +82,39 @@ function partnerSummary(p: PartnerRow) {
   };
 }
 
+const LOCKED =
+  "LOCKED: the marketplace (trainers, stores, pharmacies, apps, add-ons) opens after the member's first paid goal ticket or a membership. Tell them that and offer the new_ticket or membership page.";
+
 function buildTools(user: User, actions: AgentAction[]) {
   const categories = PARTNER_CATEGORIES.map((c) => c.id) as [string, ...string[]];
+  const access = hasMarketplaceAccess(user.id);
+  const gate = <T,>(fn: (input: T) => Promise<string>) => async (input: T) => {
+    if (!access) {
+      actions.push({ type: "link", label: "Send a goal ticket", href: "/tickets/new" });
+      return LOCKED;
+    }
+    return fn(input);
+  };
   return [
+    betaZodTool({
+      name: "find_trainers",
+      description: "Certified personal trainers within the member's chosen radius (5 or 10 miles) of their saved location.",
+      inputSchema: z.object({}),
+      run: gate(async () => {
+        const loc = getLocation(user.id);
+        if (!loc) {
+          actions.push({ type: "link", label: "Set my location", href: "/marketplace#trainers" });
+          return "The member hasn't set a location yet; a button to set it has been added.";
+        }
+        const r = await trainersNear(user.id, loc);
+        actions.push({ type: "link", label: "See trainers near me", href: "/marketplace#trainers" });
+        return JSON.stringify({
+          radius_miles: loc.radius,
+          near: loc.label,
+          trainers: [...r.verified, ...r.google].slice(0, 6).map((t) => ({ name: t.name, certification: t.certification, specialty: t.specialty, miles: Math.round(t.miles * 10) / 10, verified_by_nutrigoal: t.source === "nutrigoal" })),
+        });
+      }),
+    }),
     betaZodTool({
       name: "search_marketplace",
       description: "Search marketplace partners and national stores. Filter by category and/or a free-text query (name, product, need).",
@@ -88,7 +122,7 @@ function buildTools(user: User, actions: AgentAction[]) {
         category: z.enum(categories).optional().describe("grocer, retailer (food retailers and gear), pharmacy, or coach"),
         query: z.string().optional().describe("Free text such as 'protein powder', 'GLP-1 refills', 'Walmart'"),
       }),
-      run: async ({ category, query }) => {
+      run: gate(async ({ category, query }) => {
         const q = (query ?? "").toLowerCase();
         const words = q.split(/\s+/).filter((w) => w.length > 2);
         const list = listPartners(user.id).filter((p) => {
@@ -99,13 +133,13 @@ function buildTools(user: User, actions: AgentAction[]) {
         });
         if (list.length) actions.push({ type: "link", label: category ? `Open ${PARTNER_CATEGORIES.find((c) => c.id === category)?.label}` : "Open marketplace", href: category ? `/marketplace?category=${category}` : "/marketplace" });
         return JSON.stringify(list.slice(0, 8).map(partnerSummary));
-      },
+      }),
     }),
     betaZodTool({
       name: "save_partner",
       description: "Save (connect) or remove a marketplace partner or national store for the member. Use the id from search_marketplace.",
       inputSchema: z.object({ partner_id: z.string(), save: z.boolean() }),
-      run: async ({ partner_id, save }) => {
+      run: gate(async ({ partner_id, save }) => {
         const p = listPartners(user.id).find((x) => x.id === partner_id);
         if (!p) return "No partner with that id.";
         if (save && !p.connected) db().prepare("INSERT OR IGNORE INTO partner_connections (user_id, partner_id, connected_at) VALUES (?, ?, ?)").run(user.id, p.id, nowIso());
@@ -114,13 +148,13 @@ function buildTools(user: User, actions: AgentAction[]) {
         audit(user.id, "save_partner", { partner_id, save }, msg);
         actions.push({ type: "link", label: `View ${p.name}`, href: `/marketplace?category=${p.category}#${p.id}` });
         return msg;
-      },
+      }),
     }),
     betaZodTool({
       name: "list_addons",
       description: "List add-ons the member can unlock, with price and whether each is already unlocked or included with membership.",
       inputSchema: z.object({}),
-      run: async () => {
+      run: gate(async () => {
         const member = !!getActiveSubscription(user.id);
         return JSON.stringify(
           listAddons(user.id).map((a) => ({
@@ -133,13 +167,13 @@ function buildTools(user: User, actions: AgentAction[]) {
             description: a.description,
           })),
         );
-      },
+      }),
     }),
     betaZodTool({
       name: "unlock_addon",
       description: "Unlock an add-on. Free/included add-ons unlock immediately; paid ones return a checkout link the member must complete themselves.",
       inputSchema: z.object({ addon_id: z.string() }),
-      run: async ({ addon_id }) => {
+      run: gate(async ({ addon_id }) => {
         const a = getAddon(addon_id);
         if (!a) return "No add-on with that id.";
         const unlocked = db().prepare("SELECT 1 FROM user_addons WHERE user_id = ? AND addon_id = ?").get(user.id, a.id);
@@ -151,7 +185,7 @@ function buildTools(user: User, actions: AgentAction[]) {
         }
         actions.push({ type: "link", label: `Checkout: ${a.name} (${money(a.price_cents)})`, href: `/marketplace?unlock=${a.id}#addon-${a.id}` });
         return `${a.name} costs ${money(a.price_cents)}${a.interval === "month" ? " a month" : ""}. The member must confirm and pay in checkout; a checkout button has been added under your reply.`;
-      },
+      }),
     }),
     betaZodTool({
       name: "get_my_tickets",
@@ -255,7 +289,7 @@ export async function runAgent(user: User, history: ChatMessage[]): Promise<Agen
       .trim();
     return { reply: text || "Done.", actions: dedupe(actions), ai: true };
   } catch (e) {
-    const fb = fallbackAgent(user, clean[clean.length - 1].content);
+    const fb = await fallbackAgent(user, clean[clean.length - 1].content);
     const why = e instanceof Anthropic.RateLimitError ? "busy" : "unavailable";
     return { ...fb, reply: `${fb.reply}\n\n(The AI assistant is ${why} right now, so I used quick answers.)` };
   }
@@ -267,7 +301,7 @@ function dedupe(a: AgentAction[]) {
 }
 
 // ---------- Keyword fallback (no AI configured) ----------
-function fallbackAgent(user: User, text: string): AgentReply {
+async function fallbackAgent(user: User, text: string): Promise<AgentReply> {
   const t = text.toLowerCase();
   const open = listTicketsForMember(user.id).filter((x) => x.status === "assigned" || x.status === "in_review");
 
@@ -286,6 +320,29 @@ function fallbackAgent(user: User, text: string): AgentReply {
     return { reply: `Here's where your tickets stand:\n${lines.join("\n")}\nSay "nudge my clinician" if one is taking a while.`, actions: [{ type: "link", label: "Your tickets", href: "/tickets" }], ai: false };
   }
 
+  const marketIntent = /pharmac|refill|prescription|coach|trainer|workout|grocer|grocery|supermarket|food|retail|store|shop|gear|supplement|add-?ons?|unlock|support pack|lab panel|bundle/.test(t);
+  if (marketIntent && !hasMarketplaceAccess(user.id))
+    return {
+      reply: "The marketplace opens with your first goal ticket or a membership. Once you're in, I can find trainers near you, stores, pharmacies and add-ons.",
+      actions: [
+        { type: "link", label: "Send a goal ticket", href: "/tickets/new" },
+        { type: "link", label: "See membership", href: "/membership" },
+      ],
+      ai: false,
+    };
+  if (/trainer|coach near|near me|personal train/.test(t)) {
+    const loc = getLocation(user.id);
+    if (!loc) return { reply: "Set your ZIP code or location and I'll show certified trainers within 5–10 miles.", actions: [{ type: "link", label: "Set my location", href: "/marketplace#trainers" }], ai: false };
+    const r = await trainersNear(user.id, loc);
+    const list = r.verified.slice(0, 4);
+    return {
+      reply: list.length
+        ? `Certified trainers within ${loc.radius} miles:\n${list.map((x) => `• ${x.name} (${x.certification}) · ${x.miles.toFixed(1)} mi · ${x.specialty}`).join("\n")}`
+        : `No verified trainers within ${loc.radius} miles yet.`,
+      actions: [{ type: "link", label: "See trainers near me", href: "/marketplace#trainers" }],
+      ai: false,
+    };
+  }
   const cat = /pharmac|refill|prescription/.test(t) ? "pharmacy" : /coach|trainer|workout/.test(t) ? "coach" : /grocer|grocery|supermarket|food/.test(t) ? "grocer" : /retail|store|shop|gear|supplement|protein powder/.test(t) ? "retailer" : null;
   const partners = listPartners(user.id);
   const named = partners.find((p) => t.includes(p.name.toLowerCase().split(/[ ,]/)[0]) && p.name.length > 3);

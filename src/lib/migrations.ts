@@ -1,6 +1,7 @@
 // Versioned schema migrations, tracked with SQLite's PRAGMA user_version.
 // Each step runs once, in order, inside a transaction.
 import type Database from "better-sqlite3";
+import { METROS } from "./geo-data";
 
 type Migration = (conn: Database.Database) => void;
 
@@ -173,6 +174,109 @@ const migrations: Migration[] = [
       );
     `);
   },
+
+  // v3: location + nearby trainers, data integrations (labs, nutrition days, sources),
+  //     API/mobile tokens and shareable reports.
+  (conn) => {
+    const cols = (conn.prepare("PRAGMA table_info(user_settings)").all() as { name: string }[]).map((c) => c.name);
+    const add = (name: string, type: string) => {
+      if (!cols.includes(name)) conn.exec(`ALTER TABLE user_settings ADD COLUMN ${name} ${type}`);
+    };
+    add("home_lat", "REAL");
+    add("home_lng", "REAL");
+    add("home_label", "TEXT");
+    add("trainer_radius", "INTEGER NOT NULL DEFAULT 10");
+    conn.exec(`
+      CREATE TABLE IF NOT EXISTS trainers (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        certification TEXT NOT NULL,
+        specialty TEXT NOT NULL,
+        studio TEXT NOT NULL,
+        metro TEXT NOT NULL,
+        lat REAL NOT NULL,
+        lng REAL NOT NULL,
+        price_cents INTEGER NOT NULL,
+        modes TEXT NOT NULL,
+        goal_types TEXT NOT NULL,
+        rating REAL,
+        verified_on TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS trainer_saves (
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        trainer_id TEXT NOT NULL,
+        source TEXT NOT NULL DEFAULT 'nutrigoal',
+        label TEXT,
+        saved_at TEXT NOT NULL DEFAULT (datetime('now')),
+        PRIMARY KEY (user_id, trainer_id)
+      );
+      CREATE TABLE IF NOT EXISTS lab_results (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        code TEXT NOT NULL,
+        loinc TEXT,
+        value REAL NOT NULL,
+        unit TEXT NOT NULL,
+        observed_on TEXT NOT NULL,
+        source TEXT NOT NULL,
+        source_id TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE (user_id, code, observed_on, value)
+      );
+      CREATE INDEX IF NOT EXISTS idx_lab_results_user ON lab_results(user_id, code, observed_on);
+      CREATE TABLE IF NOT EXISTS nutrition_days (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        day TEXT NOT NULL,
+        source TEXT NOT NULL,
+        calories REAL,
+        protein_g REAL,
+        carbs_g REAL,
+        fat_g REAL,
+        fiber_g REAL,
+        sugar_g REAL,
+        sodium_mg REAL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE (user_id, day, source)
+      );
+      CREATE INDEX IF NOT EXISTS idx_nutrition_days_user ON nutrition_days(user_id, day);
+      CREATE TABLE IF NOT EXISTS data_sources (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        kind TEXT NOT NULL,
+        label TEXT NOT NULL,
+        url TEXT,
+        details TEXT,
+        records INTEGER NOT NULL DEFAULT 0,
+        last_sync_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS api_tokens (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        scope TEXT NOT NULL,
+        token_hash TEXT NOT NULL UNIQUE,
+        prefix TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        last_used_at TEXT,
+        revoked_at TEXT
+      );
+      CREATE TABLE IF NOT EXISTS share_links (
+        token TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        label TEXT NOT NULL,
+        include_json TEXT NOT NULL,
+        days INTEGER NOT NULL,
+        expires_at TEXT NOT NULL,
+        revoked_at TEXT,
+        views INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+    `);
+    seedTrainers(conn);
+    seedIntegrationDemo(conn);
+  },
 ];
 
 export function runMigrations(conn: Database.Database) {
@@ -183,4 +287,84 @@ export function runMigrations(conn: Database.Database) {
       conn.pragma(`user_version = ${v + 1}`);
     })();
   }
+}
+
+// ---------- v3 seed helpers ----------
+
+function seedTrainers(conn: Database.Database) {
+  if ((conn.prepare("SELECT COUNT(*) AS n FROM trainers").get() as { n: number }).n > 0) return;
+  const first = ["Maya", "Andre", "Leila", "Sam", "Priya", "Marcus", "Elena", "Tomas", "Grace", "Devon", "Rosa", "Kenji", "Aisha", "Luca", "Nina", "Omar"];
+  const last = ["Chen", "Wallace", "Haddad", "Ortiz", "Raman", "Brooks", "Kowalski", "Nguyen", "Kim", "Price", "Alvarez", "Sato", "Bello", "Rossi", "Patel", "Farah"];
+  const certs = ["NASM-CPT", "ACE-CPT", "NSCA-CSCS", "ACSM-EP", "NASM-CPT, CNC"];
+  const specs = [
+    { s: "Strength training for GLP-1 users", g: ["glp1_side_effects", "muscle_gain", "keep_weight_off"] },
+    { s: "Beginner strength and confidence", g: ["fat_loss", "muscle_gain"] },
+    { s: "Fat loss and conditioning", g: ["fat_loss", "keep_weight_off"] },
+    { s: "Low-impact training and mobility", g: ["heart_health", "blood_sugar", "keep_weight_off"] },
+  ];
+  const studios = ["Strength Lab", "Training Studio", "Performance Club", "Fitness Collective"];
+  const ins = conn.prepare(`INSERT INTO trainers (id, name, certification, specialty, studio, metro, lat, lng, price_cents, modes, goal_types, rating, verified_on)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+  const miles = [1.6, 3.8, 6.4, 9.1, 13.5];
+  METROS.forEach((m, mi) => {
+    miles.forEach((d, i) => {
+      const bearing = ((mi * 47 + i * 83) % 360) * (Math.PI / 180);
+      const dLat = (d / 69) * Math.cos(bearing);
+      const dLng = (d / (69 * Math.cos((m.lat * Math.PI) / 180))) * Math.sin(bearing);
+      const k = mi * 5 + i;
+      const spec = specs[k % specs.length];
+      ins.run(
+        `t_${m.id}_${i}`,
+        `${first[k % first.length]} ${last[(k * 7 + 3) % last.length]}`,
+        certs[k % certs.length],
+        spec.s,
+        `${m.neighborhoods[i % m.neighborhoods.length]} ${studios[k % studios.length]}`,
+        m.id,
+        Math.round((m.lat + dLat) * 10000) / 10000,
+        Math.round((m.lng + dLng) * 10000) / 10000,
+        5500 + ((k * 900) % 4500),
+        i % 3 === 2 ? "In person + virtual" : "In person",
+        JSON.stringify(spec.g),
+        Math.round((4.5 + ((k * 13) % 5) / 10) * 10) / 10,
+        "2026-11-01",
+      );
+    });
+  });
+}
+
+function seedIntegrationDemo(conn: Database.Database) {
+  if (!conn.prepare("SELECT 1 FROM users WHERE id = 'u_member_jordan'").get()) return;
+  if (conn.prepare("SELECT 1 FROM nutrition_days WHERE user_id = 'u_member_jordan'").get()) return;
+  const ins = conn.prepare(`INSERT OR IGNORE INTO nutrition_days (id, user_id, day, source, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg)
+    VALUES (?, 'u_member_jordan', ?, 'cronometer', ?, ?, ?, ?, ?, ?, ?)`);
+  for (let i = 27; i >= 0; i--) {
+    if (i % 9 === 4) continue; // a few unlogged days
+    const t = (27 - i) / 27;
+    const wob = Math.sin(i * 1.9);
+    ins.run(
+      `nd_demo_${i}`,
+      daysAgo(i),
+      Math.round(2450 - 420 * t + wob * 160),
+      Math.round(95 + 32 * t + wob * 12),
+      Math.round(270 - 70 * t + wob * 20),
+      Math.round(88 - 16 * t + wob * 8),
+      Math.round(16 + 9 * t + wob * 3),
+      Math.round(70 - 25 * t + wob * 8),
+      Math.round(3100 - 500 * t + wob * 200),
+    );
+  }
+  conn.prepare(`INSERT OR IGNORE INTO data_sources (id, user_id, kind, label, details, records, last_sync_at)
+    VALUES ('ds_demo_cron', 'u_member_jordan', 'cronometer', 'Cronometer daily summary export', 'dailysummary.csv', 25, ?)`).run(new Date().toISOString());
+  const lab = conn.prepare(`INSERT OR IGNORE INTO lab_results (id, user_id, code, loinc, value, unit, observed_on, source)
+    VALUES (?, 'u_member_jordan', ?, ?, ?, ?, ?, ?)`);
+  const labs: [string, string, number, string, number][] = [
+    ["a1c", "4548-4", 6.1, "%", 200], ["a1c", "4548-4", 5.9, "%", 40],
+    ["ldl", "13457-7", 151, "mg/dL", 200], ["ldl", "13457-7", 142, "mg/dL", 40],
+    ["hdl", "2085-9", 38, "mg/dL", 200], ["hdl", "2085-9", 41, "mg/dL", 40],
+    ["triglycerides", "2571-8", 205, "mg/dL", 200], ["triglycerides", "2571-8", 180, "mg/dL", 40],
+    ["vitamin_d", "1989-3", 19, "ng/mL", 200], ["vitamin_d", "1989-3", 24, "ng/mL", 40],
+  ];
+  labs.forEach(([code, loinc, v, u, ago], i) => lab.run(`lr_demo_${i}`, code, loinc, v, u, daysAgo(ago), "epic_fhir"));
+  conn.prepare(`INSERT OR IGNORE INTO data_sources (id, user_id, kind, label, details, records, last_sync_at)
+    VALUES ('ds_demo_epic', 'u_member_jordan', 'epic', 'Epic MyChart (sample import)', 'FHIR R4 Observations', 10, ?)`).run(new Date().toISOString());
 }

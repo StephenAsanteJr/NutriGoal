@@ -9,6 +9,7 @@ const MEMBER_LINKS = [
   { href: "/dashboard", label: "My build" },
   { href: "/tickets", label: "Tickets" },
   { href: "/marketplace", label: "Marketplace" },
+  { href: "/data", label: "Data" },
   { href: "/membership", label: "Membership" },
 ];
 

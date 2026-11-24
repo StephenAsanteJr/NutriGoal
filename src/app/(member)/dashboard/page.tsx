@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { requireMember } from "@/lib/auth";
 import { getActiveSubscription, getProfile, listPartners, listReports, listTicketsForMember, toBuildInput, getSettings } from "@/lib/data";
 import { BuildPanel, lookFrom, memberCode } from "@/components/BuildPanel";
+import { hasMarketplaceAccess } from "@/lib/access";
 import { Alert, PageHeader, StatusPill, timeAgo } from "@/components/ui";
 import { MEMBERSHIP, PARTNER_CATEGORIES, PRICES, goalLabel, money, ticketNumber } from "@/lib/domain";
 
@@ -152,6 +153,15 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
         </div>
       </div>
 
+      {!hasMarketplaceAccess(user.id) ? (
+        <section className="card flex flex-wrap items-center justify-between gap-4 p-6">
+          <div>
+            <div className="eyebrow">Marketplace · locked</div>
+            <p className="mt-1 text-sm text-slate">Trainers within 5–10 miles, tracking-app picks, grocers, pharmacies and add-ons open with your first goal ticket.</p>
+          </div>
+          <Link href="/tickets/new" className="btn-primary">Send a goal ticket</Link>
+        </section>
+      ) : (
       <section>
         <div className="mb-4 flex items-end justify-between">
           <div>
@@ -176,6 +186,7 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
           ))}
         </div>
       </section>
+      )}
     </div>
   );
 }

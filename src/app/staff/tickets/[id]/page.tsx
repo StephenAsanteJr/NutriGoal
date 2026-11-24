@@ -10,6 +10,7 @@ import { Alert, StatusPill, shortDate, timeAgo } from "@/components/ui";
 import { SubmitButton } from "@/components/SubmitButton";
 import { managerNudge, reassignTicket, startReview } from "@/actions/staff";
 import { NotesCard } from "@/components/NotesCard";
+import { StaffDataPanel } from "@/components/StaffDataPanel";
 import { ResponseComposer } from "./ResponseComposer";
 
 export const metadata: Metadata = { title: "Review ticket" };
@@ -168,6 +169,8 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
           <Alert tone="warn">This member hasn&apos;t completed their build.</Alert>
         )}
       </section>
+
+      <StaffDataPanel memberId={member.id} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section className="card">
