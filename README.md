@@ -72,6 +72,17 @@ Demo checkout (no Stripe key): `4242 4242 4242 4242` succeeds, `4000 0000 0000 0
 
 ---
 
+## Host a public demo (Railway)
+
+NutriGoal needs a running Node server and a disk for its SQLite database, so it can't run on GitHub Pages.
+
+1. In Railway: **New Project → Deploy from GitHub repo → StephenAsanteJr/NutriGoal**. It builds with `npm run build` and starts with `npm start` (Node 22, from `.nvmrc`).
+2. Add a **Volume** to the service, mounted at `/data`.
+3. Add the variable `NUTRIGOAL_DATA_DIR=/data` so the database, uploaded reports and session secret survive redeploys. Optional: `APP_URL` (your public URL, for Stripe redirects), Stripe test-mode keys, and `ANTHROPIC_API_KEY` (leave it unset on a public demo unless you accept the usage cost; without it the assistant and voice mode use keyword rules).
+4. **Settings → Networking → Generate Domain** to get the shareable link.
+
+A "demo site" banner shows by default; set `NUTRIGOAL_DEMO_BANNER=off` to hide it. The seeded demo logins below also work on a hosted copy, so anyone with the link can sign in as staff: never enter real health information in a public demo.
+
 ## Tech stack
 - **Next.js 16** (App Router, Server Actions, Turbopack) · **React 19** · **TypeScript** · **Tailwind CSS 4**
 - **SQLite** (`better-sqlite3`) with versioned migrations (`src/lib/migrations.ts`)
