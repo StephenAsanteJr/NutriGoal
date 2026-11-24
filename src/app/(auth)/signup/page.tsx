@@ -3,23 +3,70 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getCurrentUser, homeFor } from "@/lib/auth";
 import { SignupForm } from "./SignupForm";
+import { ClinicianSignupForm, ManagerSignupForm } from "./StaffSignupForms";
 
 export const metadata: Metadata = { title: "Create your account" };
 
-export default async function SignupPage() {
+const ROLES = [
+  { id: "member", label: "Member", sub: "Get plans for your goals" },
+  { id: "clinician", label: "Clinician", sub: "MD, DO, RD or nutritionist" },
+  { id: "manager", label: "Care manager", sub: "Run the care team" },
+] as const;
+
+export default async function SignupPage(props: PageProps<"/signup">) {
   const user = await getCurrentUser();
   if (user) redirect(homeFor(user));
+  const sp = await props.searchParams;
+  const role = ROLES.some((r) => r.id === sp.role) ? (sp.role as (typeof ROLES)[number]["id"]) : "member";
+
   return (
     <>
-      <div className="eyebrow mb-2">Step 1 of 3 · Account</div>
       <h1 className="font-display text-4xl">Create your account</h1>
       <p className="mt-2 text-sm text-slate">
-        Free to join. Next you&apos;ll build your profile, then send your first goal ticket when you&apos;re ready. Already have an account?{" "}
+        Choose how you&apos;ll use NutriGoal. Already have an account?{" "}
         <Link href="/login" className="link">
           Sign in
         </Link>
       </p>
-      <SignupForm />
+
+      <nav className="mt-6 grid grid-cols-3 gap-2" aria-label="Account type">
+        {ROLES.map((r) => (
+          <Link
+            key={r.id}
+            href={`/signup?role=${r.id}`}
+            aria-current={role === r.id ? "page" : undefined}
+            className={`rounded-[3px] border px-3 py-3 text-center transition ${role === r.id ? "border-blue bg-blue-tint" : "border-line hover:border-navy"}`}
+          >
+            <div className={`text-sm font-bold ${role === r.id ? "text-blue" : "text-navy"}`}>{r.label}</div>
+            <div className="mt-0.5 text-[11px] leading-tight text-muted">{r.sub}</div>
+          </Link>
+        ))}
+      </nav>
+
+      {role === "member" && (
+        <>
+          <p className="mt-6 text-sm text-slate">Free to join. Next you&apos;ll build your profile, then send your first goal ticket when you&apos;re ready.</p>
+          <SignupForm />
+        </>
+      )}
+      {role === "clinician" && (
+        <>
+          <p className="mt-6 text-sm text-slate">
+            Write and sign response tickets for members in your specialty. We verify your license before your account opens; you&apos;ll see
+            no member information until a NutriGoal manager approves you.
+          </p>
+          <ClinicianSignupForm />
+        </>
+      )}
+      {role === "manager" && (
+        <>
+          <p className="mt-6 text-sm text-slate">
+            Oversee ticket routing, clinician load and the 48-hour promise. Care manager accounts are approved by an existing NutriGoal
+            manager before they open.
+          </p>
+          <ManagerSignupForm />
+        </>
+      )}
     </>
   );
 }

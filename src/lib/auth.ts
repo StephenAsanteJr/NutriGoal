@@ -21,6 +21,7 @@ export type User = {
   bio: string | null;
   onboarding_complete: number;
   created_at: string;
+  staff_status: "active" | "pending" | "rejected";
 };
 
 const COOKIE = "ng_session";
@@ -68,7 +69,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     if (!payload.sub) return null;
     const user = db()
       .prepare(
-        `SELECT id, email, name, role, clinician_type, credential, specialties, bio, onboarding_complete, created_at
+        `SELECT id, email, name, role, clinician_type, credential, specialties, bio, onboarding_complete, created_at, staff_status
          FROM users WHERE id = ?`,
       )
       .get(payload.sub) as User | undefined;
@@ -91,11 +92,12 @@ export async function requireMember(opts: { allowIncompleteOnboarding?: boolean 
 export async function requireStaff(roles: Role[] = ["clinician", "manager"]) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (user.role !== "member" && user.staff_status !== "active") redirect("/pending");
   if (!roles.includes(user.role)) redirect(user.role === "member" ? "/dashboard" : "/staff");
   return user;
 }
 
-export function homeFor(user: Pick<User, "role" | "onboarding_complete">) {
-  if (user.role !== "member") return "/staff";
+export function homeFor(user: Pick<User, "role" | "onboarding_complete"> & { staff_status?: string }) {
+  if (user.role !== "member") return user.staff_status && user.staff_status !== "active" ? "/pending" : "/staff";
   return user.onboarding_complete ? "/dashboard" : "/onboarding";
 }

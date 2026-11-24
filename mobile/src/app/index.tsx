@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Platform, Pressable, Text, View } from "react-native";
+import * as WebBrowser from "expo-web-browser";
+import { apiBase } from "@/lib/api";
 import { useRouter } from "expo-router";
 import { useSession } from "@/lib/session";
 import { useData } from "@/lib/useData";
@@ -13,6 +15,12 @@ export default function Home() {
   const { token, ready } = useSession();
   if (!ready) return <Loading />;
   return token ? <RoleHome /> : <SignIn />;
+}
+
+function openSignup(role: "member" | "clinician" | "manager") {
+  const url = `${apiBase()}/signup?role=${role}`;
+  if (Platform.OS === "web") globalThis.open?.(url, "_blank");
+  else WebBrowser.openBrowserAsync(url);
 }
 
 function SignIn() {
@@ -50,8 +58,15 @@ function SignIn() {
             }
           }}
         />
-        <Body muted>Members, clinicians and managers all sign in here. New members: create your account and build your profile on the website first.</Body>
+        <Body muted>Members, clinicians and managers all sign in here.</Body>
       </Card>
+      <Text style={{ color: C.navy, fontWeight: "800", textAlign: "center", marginTop: 10 }}>New to NutriGoal? Sign up as a…</Text>
+      <BubbleCluster>
+        <Bubble size={104} label="Member" icon="🙋" color={C.blue} onPress={() => openSignup("member")} />
+        <Bubble size={104} label="Clinician" icon="🩺" color={C.navy} onPress={() => openSignup("clinician")} />
+        <Bubble size={104} label="Care manager" icon="📋" color={C.cyan} textColor={C.navy} onPress={() => openSignup("manager")} />
+      </BubbleCluster>
+      <Body muted>Sign-up opens on the website. Clinician and care manager accounts are approved by NutriGoal before they open.</Body>
       <Body muted>Real words from real people. Plans are written and signed by physicians, dietitians and nutritionists, never by AI.</Body>
     </Screen>
   );

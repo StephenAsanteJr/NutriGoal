@@ -153,11 +153,12 @@ export async function POST(req: Request, ctx: Ctx) {
 
   if (path === "login") {
     const email = String(body.email ?? "").trim().toLowerCase();
-    const row = db().prepare("SELECT id, password_hash, role, name, onboarding_complete FROM users WHERE email = ?").get(email) as
-      | { id: string; password_hash: string; role: string; name: string; onboarding_complete: number }
+    const row = db().prepare("SELECT id, password_hash, role, name, onboarding_complete, staff_status FROM users WHERE email = ?").get(email) as
+      | { id: string; password_hash: string; role: string; name: string; onboarding_complete: number; staff_status: string }
       | undefined;
     if (!row || !(await bcrypt.compare(String(body.password ?? ""), row.password_hash))) return json({ error: "That email and password don't match an account." }, 401);
     if (row.role === "member" && !row.onboarding_complete) return json({ error: "Finish building your profile on the website first, then sign in here." }, 403);
+    if (row.role !== "member" && row.staff_status !== "active") return json({ error: "Your account is waiting for approval by a NutriGoal manager." }, 403);
     return json({ token: createToken(row.id, "NutriGoal mobile app", "mobile"), user: { name: row.name, role: row.role } });
   }
 

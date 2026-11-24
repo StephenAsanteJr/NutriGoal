@@ -2,7 +2,7 @@ import "server-only";
 import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
-import { seedIfEmpty } from "./seed";
+import { seedIfEmpty, syncDemoPassword } from "./seed";
 import { runMigrations } from "./migrations";
 
 // Where the database, uploaded reports and session secret live. Point NUTRIGOAL_DATA_DIR
@@ -208,6 +208,7 @@ export function db(): Database.Database {
   conn.exec(SCHEMA);
   seedIfEmpty(conn);
   runMigrations(conn);
+  syncDemoPassword(conn);
   g.__nutrigoalDb = conn;
   return conn;
 }

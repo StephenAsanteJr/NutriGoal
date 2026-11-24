@@ -25,11 +25,12 @@ export function userFromRequest(req: Request, scope: TokenScope): User | null {
   if (!m) return null;
   const row = db()
     .prepare(
-      `SELECT t.id AS token_id, u.id, u.email, u.name, u.role, u.clinician_type, u.credential, u.specialties, u.bio, u.onboarding_complete, u.created_at
+      `SELECT t.id AS token_id, u.id, u.email, u.name, u.role, u.clinician_type, u.credential, u.specialties, u.bio, u.onboarding_complete, u.created_at, u.staff_status
        FROM api_tokens t JOIN users u ON u.id = t.user_id WHERE t.token_hash = ? AND t.scope = ? AND t.revoked_at IS NULL`,
     )
     .get(hash(m[1]), scope) as (User & { token_id: string }) | undefined;
   if (!row) return null;
+  if (row.role !== "member" && row.staff_status !== "active") return null;
   db().prepare("UPDATE api_tokens SET last_used_at = ? WHERE id = ?").run(nowIso(), row.token_id);
   const { token_id: _ignored, ...user } = row;
   void _ignored;

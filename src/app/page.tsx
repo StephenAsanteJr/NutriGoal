@@ -25,6 +25,7 @@ export default async function Landing() {
             <a href="#why" className="hidden hover:text-cyan sm:inline">Why NutriGoal</a>
             <a href="#how" className="hidden hover:text-cyan sm:inline">How it works</a>
             <a href="#pricing" className="hidden hover:text-cyan sm:inline">Pricing</a>
+            <a href="#join" className="hidden hover:text-cyan sm:inline">Join</a>
             <a href="#partners" className="hidden hover:text-cyan sm:inline">Partners</a>
             <Link href="/login" className="hover:text-cyan">Sign in</Link>
             <Link href="/signup" className="btn-primary !py-2">Get started</Link>
@@ -102,6 +103,28 @@ export default async function Landing() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Join as */}
+      <section id="join" className="border-b border-line bg-mist py-16">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="eyebrow">Join NutriGoal</div>
+          <h2 className="font-display mt-3 text-4xl">Sign up the way you&apos;ll use it</h2>
+          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {[
+              ["member", "For members", "Get a written plan for one goal at a time from a physician or dietitian.", "Sign up as a member"],
+              ["clinician", "For clinicians", "MDs, DOs, registered dietitians and nutritionists: answer tickets in your specialty, on your schedule.", "Apply as a clinician"],
+              ["manager", "For care managers", "Run routing, clinician load and the 48-hour promise for your team.", "Apply as a care manager"],
+            ].map(([role, title, body, cta]) => (
+              <div key={role} className="card flex flex-col p-6">
+                <div className="font-bold">{title}</div>
+                <p className="mt-2 flex-1 text-sm text-slate">{body}</p>
+                <Link href={`/signup?role=${role}`} className={`mt-5 ${role === "member" ? "btn-primary" : "btn-outline"}`}>{cta}</Link>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-xs text-muted">Clinician and care manager accounts are verified and approved before they can see any member information.</p>
         </div>
       </section>
 

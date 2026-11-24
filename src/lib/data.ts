@@ -216,7 +216,7 @@ export function listClinicians() {
     .prepare(
       `SELECT u.*, (SELECT COUNT(*) FROM tickets t WHERE t.assigned_clinician_id = u.id AND t.status IN ('assigned','in_review')) AS open_count,
               (SELECT COUNT(*) FROM tickets t WHERE t.assigned_clinician_id = u.id AND t.status = 'responded') AS done_count
-       FROM users u WHERE u.role = 'clinician' ORDER BY u.name`,
+       FROM users u WHERE u.role = 'clinician' AND u.staff_status = 'active' ORDER BY u.name`,
     )
     .all() as (User & { open_count: number; done_count: number })[];
 }
@@ -246,7 +246,7 @@ export function listMembersWithProfiles() {
 export function getUserById(id: string) {
   return (db()
     .prepare(
-      "SELECT id, email, name, role, clinician_type, credential, specialties, bio, onboarding_complete, created_at FROM users WHERE id = ?",
+      "SELECT id, email, name, role, clinician_type, credential, specialties, bio, onboarding_complete, created_at, staff_status FROM users WHERE id = ?",
     )
     .get(id) as User | undefined) ?? null;
 }

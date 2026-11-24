@@ -270,3 +270,20 @@ export function seedIfEmpty(conn: Database.Database) {
   });
   tx();
 }
+
+/**
+ * Hosted copies: if NUTRIGOAL_DEMO_PASSWORD is set but the demo accounts still use the
+ * public local password (e.g. the database was seeded before the variable existed),
+ * switch them to the private one. Runs once per server start; cheap after the first time.
+ */
+export function syncDemoPassword(conn: Database.Database) {
+  const pw = process.env.NUTRIGOAL_DEMO_PASSWORD;
+  if (!pw || pw === "NutriGoal-demo-2026") return;
+  const probe = conn.prepare("SELECT password_hash FROM users WHERE email = ?").get(DEMO_ACCOUNTS.manager) as { password_hash: string } | undefined;
+  if (!probe || !bcrypt.compareSync("NutriGoal-demo-2026", probe.password_hash)) return;
+  const hash = bcrypt.hashSync(pw, 10);
+  const upd = conn.prepare("UPDATE users SET password_hash = ? WHERE email = ?");
+  conn.transaction(() => {
+    for (const email of Object.values(DEMO_ACCOUNTS)) upd.run(hash, email);
+  })();
+}

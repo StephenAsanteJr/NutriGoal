@@ -22,6 +22,14 @@ export default async function LoginPage(props: PageProps<"/login">) {
         </Link>
       </p>
       <LoginForm next={next} />
+      <div className="mt-8 border-t border-line pt-6">
+        <div className="text-xs font-bold uppercase tracking-wider text-muted">New to NutriGoal?</div>
+        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <Link href="/signup?role=member" className="btn-outline !px-3 !py-2 text-xs">Sign up as a member</Link>
+          <Link href="/signup?role=clinician" className="btn-outline !px-3 !py-2 text-xs">Join as a clinician</Link>
+          <Link href="/signup?role=manager" className="btn-outline !px-3 !py-2 text-xs">Join as a care manager</Link>
+        </div>
+      </div>
     </>
   );
 }

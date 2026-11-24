@@ -74,3 +74,20 @@ export async function managerNudge(fd: FormData) {
   revalidatePath(`/staff/tickets/${id}`);
   revalidatePath("/staff");
 }
+
+/** Managers approve or decline clinician / care-manager applications. */
+export async function reviewApplication(fd: FormData) {
+  const manager = await requireStaff(["manager"]);
+  const id = String(fd.get("user_id") ?? "");
+  const decision = fd.get("decision") === "approve" ? "active" : "rejected";
+  const applicant = db().prepare("SELECT id, name, role, staff_status FROM users WHERE id = ? AND role != 'member'").get(id) as { id: string; name: string; role: string; staff_status: string } | undefined;
+  if (!applicant || applicant.staff_status !== "pending") redirect("/staff/team");
+  db().prepare("UPDATE users SET staff_status = ? WHERE id = ?").run(decision, id);
+  notify(
+    id,
+    decision === "active" ? "Your NutriGoal account is approved" : "Your NutriGoal application",
+    decision === "active" ? `${manager.name} approved your account. Welcome to the care team.` : "Your application wasn't approved. Contact NutriGoal operations if you think this is a mistake.",
+    decision === "active" ? "/staff" : "/pending",
+  );
+  revalidatePath("/staff/team");
+}

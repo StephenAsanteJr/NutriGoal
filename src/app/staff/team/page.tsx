@@ -2,15 +2,60 @@ import type { Metadata } from "next";
 import { requireStaff } from "@/lib/auth";
 import { listClinicians } from "@/lib/data";
 import { goalLabel } from "@/lib/domain";
-import { PageHeader } from "@/components/ui";
+import { PageHeader, timeAgo } from "@/components/ui";
+import { db } from "@/lib/db";
+import { reviewApplication } from "@/actions/staff";
+import { SubmitButton } from "@/components/SubmitButton";
 
 export const metadata: Metadata = { title: "Clinicians" };
 
 export default async function TeamPage() {
   await requireStaff(["manager"]);
   const clinicians = listClinicians();
+  const applications = db()
+    .prepare("SELECT id, name, email, role, credential, license_info, organization, created_at FROM users WHERE role != 'member' AND staff_status = 'pending' ORDER BY created_at")
+    .all() as { id: string; name: string; email: string; role: string; credential: string | null; license_info: string | null; organization: string | null; created_at: string }[];
   return (
     <div>
+      <section id="applications" className="mb-8 scroll-mt-24">
+        <h2 className="mb-3 text-lg font-bold">Applications {applications.length > 0 && <span className="pill ml-2 bg-warn-tint text-warn">{applications.length} waiting</span>}</h2>
+        {applications.length === 0 ? (
+          <p className="card px-6 py-4 text-sm text-slate">No clinician or care manager applications waiting.</p>
+        ) : (
+          <ul className="card divide-y divide-line">
+            {applications.map((a) => {
+              const lic = a.license_info ? (JSON.parse(a.license_info) as { license: string; state: string; npi: string | null }) : null;
+              return (
+                <li key={a.id} className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 text-sm">
+                  <div>
+                    <div className="font-bold">
+                      {a.name} <span className="font-normal text-slate">· {a.role === "clinician" ? a.credential : `Care manager, ${a.credential}`}</span>
+                    </div>
+                    <div className="text-xs text-muted">
+                      {a.email}
+                      {lic ? ` · license ${lic.state} ${lic.license}${lic.npi ? ` · NPI ${lic.npi}` : ""}` : ""}
+                      {a.organization ? ` · ${a.organization}` : ""} · applied {timeAgo(a.created_at)}
+                    </div>
+                    {lic && <div className="mt-1 text-xs text-warn">Verify the license with the {lic.state} licensing board before approving.</div>}
+                  </div>
+                  <div className="flex gap-2">
+                    <form action={reviewApplication}>
+                      <input type="hidden" name="user_id" value={a.id} />
+                      <input type="hidden" name="decision" value="decline" />
+                      <SubmitButton className="btn-outline !py-2" pendingText="…">Decline</SubmitButton>
+                    </form>
+                    <form action={reviewApplication}>
+                      <input type="hidden" name="user_id" value={a.id} />
+                      <input type="hidden" name="decision" value="approve" />
+                      <SubmitButton className="btn-primary !py-2" pendingText="…">Approve</SubmitButton>
+                    </form>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
       <PageHeader eyebrow="Roster" title="Clinicians">
         Physicians take tickets with GLP-1 stage + side-effect or blood-sugar goals, and any ticket with a high-risk lab flag. Dietitians take
         the rest. Within a type, a matching specialty and the shortest queue wins.

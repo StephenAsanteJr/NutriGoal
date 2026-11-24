@@ -277,6 +277,14 @@ const migrations: Migration[] = [
     seedTrainers(conn);
     seedIntegrationDemo(conn);
   },
+
+  // v4: self-serve sign-up for clinicians and care managers (approved by a manager).
+  (conn) => {
+    const cols = (conn.prepare("PRAGMA table_info(users)").all() as { name: string }[]).map((c) => c.name);
+    if (!cols.includes("staff_status")) conn.exec("ALTER TABLE users ADD COLUMN staff_status TEXT NOT NULL DEFAULT 'active'");
+    if (!cols.includes("license_info")) conn.exec("ALTER TABLE users ADD COLUMN license_info TEXT");
+    if (!cols.includes("organization")) conn.exec("ALTER TABLE users ADD COLUMN organization TEXT");
+  },
 ];
 
 export function runMigrations(conn: Database.Database) {
