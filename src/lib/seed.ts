@@ -3,8 +3,12 @@
 import type Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
 
-/** Shared password for every seeded demo account (local development only). */
-export const DEMO_PASSWORD = "NutriGoal-demo-2026";
+/**
+ * Shared password for every seeded demo account. Hosted copies should set
+ * NUTRIGOAL_DEMO_PASSWORD so the public README's local password doesn't work there.
+ * (Applied when the database is first created.)
+ */
+export const DEMO_PASSWORD = process.env.NUTRIGOAL_DEMO_PASSWORD || "NutriGoal-demo-2026";
 
 export const DEMO_ACCOUNTS = {
   manager: "manager@nutrigoal.test",

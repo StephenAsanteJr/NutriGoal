@@ -71,7 +71,7 @@ Copy `.env.example` to `.env.local`, fill in what you need, and restart `npm run
 Stripe test card: `4242 4242 4242 4242`, any future expiry, any CVC.
 
 ### Demo accounts (local seed data only)
-Every seeded account uses the password **`NutriGoal-demo-2026`** (see [`src/lib/seed.ts`](src/lib/seed.ts)).
+Locally, every seeded account uses the password **`NutriGoal-demo-2026`** (see [`src/lib/seed.ts`](src/lib/seed.ts)). Hosted copies use `NUTRIGOAL_DEMO_PASSWORD` instead.
 
 | Role | Email |
 | --- | --- |
@@ -96,7 +96,7 @@ NutriGoal needs a running Node server and a disk for its SQLite database, so it 
 3. Add the variable `NUTRIGOAL_DATA_DIR=/data` so the database, uploaded reports and session secret survive redeploys. Optional: `APP_URL` (your public URL, for Stripe redirects), Stripe test-mode keys, and `ANTHROPIC_API_KEY` (leave it unset on a public demo unless you accept the usage cost; without it the assistant and voice mode use keyword rules).
 4. **Settings → Networking → Generate Domain** to get the shareable link.
 
-A "demo site" banner shows by default; set `NUTRIGOAL_DEMO_BANNER=off` to hide it. The seeded demo logins below also work on a hosted copy, so anyone with the link can sign in as staff: never enter real health information in a public demo.
+A "demo site" banner shows by default; set `NUTRIGOAL_DEMO_BANNER=off` to hide it. Set `NUTRIGOAL_DEMO_PASSWORD` to a private value before the first deploy: the seeded demo accounts (including clinician and manager logins) then use that password instead of the local one below. Never enter real health information in a public demo.
 
 ## Tech stack
 - **Next.js 16** (App Router, Server Actions, Turbopack) · **React 19** · **TypeScript** · **Tailwind CSS 4**
