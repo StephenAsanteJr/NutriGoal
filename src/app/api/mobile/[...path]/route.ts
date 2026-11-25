@@ -21,6 +21,7 @@ import { submitPaidTicket } from "@/lib/fulfillment";
 import { runAgent, type ChatMessage } from "@/lib/agent";
 import { runVoiceMode } from "@/lib/voice-mode";
 import { rateResponseFor } from "@/lib/ratings";
+import { publicOrigin } from "@/lib/origin";
 import { FOOD_GROUPS, examplesFor, foodGuide, macroTargets } from "@/lib/foods";
 import { clinicianDashboard, financeDashboard, opsDashboard } from "@/lib/analytics";
 
@@ -133,7 +134,7 @@ export async function GET(req: Request, ctx: Ctx) {
   const path = (await ctx.params).path.join("/");
   const user = userFromRequest(req, "mobile");
   if (!user) return json({ error: "Please sign in again." }, 401);
-  const origin = new URL(req.url).origin;
+  const origin = publicOrigin(req);
 
   if (path === "me") return json({ id: user.id, name: user.name, role: user.role, credential: user.credential });
   if (path === "home") return json(await home(user, origin));
@@ -190,7 +191,7 @@ const DraftSchema = z.object({
 export async function POST(req: Request, ctx: Ctx) {
   const path = (await ctx.params).path.join("/");
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
-  const origin = new URL(req.url).origin;
+  const origin = publicOrigin(req);
 
   if (path === "login") {
     const email = String(body.email ?? "").trim().toLowerCase();

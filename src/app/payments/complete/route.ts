@@ -1,11 +1,12 @@
 import { getCurrentUser } from "@/lib/auth";
 import { completeCheckout, stripeEnabled } from "@/lib/stripe";
 import { nextUrlAfter } from "@/lib/fulfillment";
+import { redirectTo } from "@/lib/origin";
 
 /** Stripe Checkout success_url: verify the session with Stripe, record proof of payment, fulfil, then redirect. */
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const to = (path: string) => Response.redirect(new URL(path, url.origin), 303);
+  const to = (path: string) => redirectTo(req, path);
   const user = await getCurrentUser();
   if (!user) return to("/login");
   const sessionId = url.searchParams.get("session_id");

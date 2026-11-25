@@ -3,11 +3,12 @@ import { getCurrentUser } from "@/lib/auth";
 import { fetchObservations, smartEndpoints } from "@/lib/integrations/epic";
 import { parseFhir, saveLabs } from "@/lib/integrations/fhir";
 import { recordSource } from "@/lib/integrations/nutrition";
+import { publicOrigin, redirectTo } from "@/lib/origin";
 
 /** SMART on FHIR redirect: exchange the code, read Observations once, store results. Tokens are not kept. */
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const to = (q: string) => Response.redirect(new URL(`/data?tab=connect&${q}`, url.origin), 303);
+  const to = (q: string) => redirectTo(req, `/data?tab=connect&${q}`);
   const user = await getCurrentUser();
   const jar = await cookies();
   const saved = jar.get("ng_epic")?.value;
@@ -26,7 +27,7 @@ export async function GET(req: Request) {
       body: new URLSearchParams({
         grant_type: "authorization_code",
         code,
-        redirect_uri: `${process.env.APP_URL?.replace(/\/$/, "") ?? url.origin}/api/integrations/epic/callback`,
+        redirect_uri: `${publicOrigin(req)}/api/integrations/epic/callback`,
         client_id: process.env.EPIC_CLIENT_ID!,
         code_verifier: verifier,
       }),
