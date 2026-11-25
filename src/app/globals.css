@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
-/* NutriGoal design tokens — McKinsey & Company-inspired palette:
-   deep navy, electric blue and cyan on white, serif display type, thin rules. */
+/* NutriGoal design tokens. McKinsey & Company-inspired base: deep navy, electric blue
+   and cyan on white, serif display type, thin rules. Two accents from the other firms,
+   each with one job so they never compete:
+   - BCG green = progress and success (plan ready, on track, verified, included)
+   - Bain red  = attention (deadlines, overdue, unread counts, live recording)
+   Navy and blue stay dominant; the accents are small marks, not big fills. */
 @theme {
   --color-navy: #051c2c;
   --color-navy-soft: #0e2f45;
@@ -14,12 +18,23 @@
   --color-muted: #7b868e;
   --color-line: #dfe4e8;
   --color-mist: #f4f6f8;
-  --color-good: #0a7a52;
-  --color-good-tint: #e6f4ee;
+  /* BCG green (brandguide.bcg.com): Pulse Green for fills and marks, a deep green
+     for text on white (Pulse Green is too light for text), Nyanza for tints. */
+  --color-bcg: #21bf61;
+  --color-bcg-deep: #197a56;
+  --color-bcg-tint: #e3fddb;
+  --color-bcg-fresh: #96f878;
+  /* Bain red */
+  --color-bain: #cc0000;
+  --color-bain-dark: #a80000;
+  --color-bain-tint: #fdecec;
+
+  --color-good: #197a56;
+  --color-good-tint: #e3fddb;
   --color-warn: #8a5300;
   --color-warn-tint: #fff3d9;
-  --color-alert: #b42318;
-  --color-alert-tint: #fdecea;
+  --color-alert: #cc0000;
+  --color-alert-tint: #fdecec;
 
   --font-display: var(--font-bodoni), Georgia, "Times New Roman", serif;
   --font-sans: Arial, "Helvetica Neue", Helvetica, sans-serif;

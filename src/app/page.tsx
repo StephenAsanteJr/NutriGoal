@@ -36,8 +36,14 @@ export default async function Landing() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-navy pb-24 pt-40 text-white">
         <svg className="pointer-events-none absolute -right-40 -top-24 h-[720px] w-[720px] opacity-30" viewBox="0 0 400 400" aria-hidden>
-          {[190, 150, 110, 70].map((r, i) => (
-            <circle key={r} cx="200" cy="200" r={r} fill="none" stroke={i % 2 ? "#00A9F4" : "#2251FF"} strokeWidth="1" />
+          {/* McKinsey blue and cyan, with one BCG green and one Bain red ring */}
+          {[
+            [190, "#2251FF"],
+            [150, "#21BF61"],
+            [110, "#00A9F4"],
+            [70, "#CC0000"],
+          ].map(([r, c]) => (
+            <circle key={r} cx="200" cy="200" r={r} fill="none" stroke={c as string} strokeWidth="1" />
           ))}
         </svg>
         <div className="relative mx-auto grid grid-cols-1 max-w-7xl gap-12 px-6 lg:grid-cols-[1.2fr_1fr]">
@@ -96,9 +102,10 @@ export default async function Landing() {
               ["Written by credentialed people", "MDs, registered dietitians and nutritionists read your goal and write your plan in their own words, then sign it with their name and credential."],
               ["Proven before it's passed on", "Recommendations come from methods our clinicians have used, tested and seen work in practice, backed by evidence, not trends or a chatbot's guess."],
               ["Built for busy people who invest in themselves", "For people short on time or energy but ready to invest in their nutritional health. This is self-healthcare: expert direction without weeks of research or appointments."],
-            ].map(([t, b]) => (
+            ].map(([t, b], i) => (
               <div key={t} className="bg-white p-6">
-                <div className="font-display text-2xl leading-snug text-navy">{t}</div>
+                <div className={`font-display text-3xl ${["text-blue", "text-bcg-deep", "text-bain"][i]}`}>0{i + 1}</div>
+                <div className="font-display mt-2 text-2xl leading-snug text-navy">{t}</div>
                 <p className="mt-3 text-sm text-slate">{b}</p>
               </div>
             ))}
@@ -136,7 +143,7 @@ export default async function Landing() {
           <ol className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-[3px] bg-line md:grid-cols-5">
             {STEPS.map((s) => (
               <li key={s.n} className="bg-white p-6">
-                <div className="font-display text-3xl text-blue">{s.n}</div>
+                <div className={`font-display text-3xl ${s.n === "05" ? "text-bcg-deep" : "text-blue"}`}>{s.n}</div>
                 <div className="mt-3 font-bold">{s.title}</div>
                 <p className="mt-2 text-sm text-slate">{s.body}</p>
               </li>
@@ -243,7 +250,7 @@ export default async function Landing() {
 function PriceCard({ name, price, unit, points, featured }: { name: string; price: string; unit: string; points: string[]; featured?: boolean }) {
   return (
     <div className={`card flex flex-col p-7 ${featured ? "border-blue ring-1 ring-blue" : ""}`}>
-      {featured && <div className="eyebrow mb-3">Most value</div>}
+      {featured && <div className="mb-3 self-start rounded-full bg-bcg-tint px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-bcg-deep">Most value</div>}
       <div className="font-bold">{name}</div>
       <div className="mt-3 flex items-baseline gap-2">
         <span className="font-display text-5xl">{price}</span>
@@ -252,7 +259,7 @@ function PriceCard({ name, price, unit, points, featured }: { name: string; pric
       <ul className="mt-6 flex-1 space-y-2.5 text-sm text-slate">
         {points.map((p) => (
           <li key={p} className="flex gap-2">
-            <span className="text-blue" aria-hidden>✓</span>
+            <span className="font-bold text-bcg-deep" aria-hidden>✓</span>
             {p}
           </li>
         ))}

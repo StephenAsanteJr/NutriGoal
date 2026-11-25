@@ -1,0 +1,82 @@
+// The signed-in "home" payload, loaded once by the tab layout and shared with every tab
+// (home, build, team, account and the tab badges), so switching tabs doesn't refetch it.
+import { createContext, useContext } from "react";
+import type { Look } from "@/components/Character";
+
+export type TicketSummary = {
+  id: number;
+  number: string;
+  goal: string;
+  goalType: string;
+  status: string;
+  statusLabel: string;
+  member: string;
+  clinician: string | null;
+  dueAt: string | null;
+  respondedAt: string | null;
+  nudges: number;
+};
+
+export type MemberHome = {
+  role: "member";
+  name: string;
+  unread: number;
+  units: "imperial" | "metric";
+  build: {
+    weightKg: number; goalWeightKg: number; bodyFatPct: number; goalBodyFatPct: number; bmi: number;
+    targetKcal: number; proteinG: number; weeks: number; sex: "male" | "female"; heightCm: number;
+  } | null;
+  look: Look;
+  membership: { plan: string; credits: number } | null;
+  marketplace: boolean;
+  nutrition: { avgKcal: number | null; avgProtein: number | null; insights: string[] } | null;
+  tickets: TicketSummary[];
+};
+
+export type ClinicianHome = {
+  role: "clinician";
+  name: string;
+  credential: string | null;
+  unread: number;
+  counts: { open: number; dueSoon: number; nudged: number; responded: number };
+  queue: TicketSummary[];
+};
+
+export type ManagerHome = {
+  role: "manager";
+  name: string;
+  unread: number;
+  kpis: { open: number; dueSoon: number; revenue30: string; members: number };
+  clinicians: { id: string; name: string; credential: string; open: number; done: number }[];
+  queue: TicketSummary[];
+};
+
+export type Home = MemberHome | ClinicianHome | ManagerHome;
+
+type HomeState = { data: Home | null; error: string | null; loading: boolean; reload: () => Promise<void> };
+
+export const HomeContext = createContext<HomeState>({ data: null, error: null, loading: true, reload: async () => {} });
+export const useHome = () => useContext(HomeContext);
+
+export const hoursUntil = (iso: string) => Math.round((new Date(iso).getTime() - Date.now()) / 3600_000);
+
+/** "due in 6 h", "overdue 3 h"; urgent = under 12 hours or overdue (shown in Bain red). */
+export function dueText(iso: string | null) {
+  if (!iso) return null;
+  const h = hoursUntil(iso);
+  return { text: h < 0 ? `overdue ${-h} h` : `due in ${h} h`, urgent: h < 12 };
+}
+
+export function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+}
+
+export function firstName(name: string) {
+  // "Dr. Nadia Okafor" → "Dr. Okafor"; "Jordan Taylor" → "Jordan"
+  return name.startsWith("Dr. ") ? `Dr. ${name.split(" ").at(-1)}` : name.split(" ")[0];
+}
+
+export function initials(name: string) {
+  return name.replace(/^Dr\.\s+/, "").split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+}

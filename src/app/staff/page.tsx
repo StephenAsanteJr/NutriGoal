@@ -40,7 +40,7 @@ export default async function StaffHome(props: PageProps<"/staff">) {
 
       <div className="grid grid-cols-1 gap-px overflow-hidden rounded-[3px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
         <Kpi label={manager ? "Open tickets" : "In my queue"} value={String(open.length)} />
-        <Kpi label="Due within 12 hrs" value={String(dueSoon.length)} tone={dueSoon.length ? "warn" : undefined} />
+        <Kpi label="Due within 12 hrs" value={String(dueSoon.length)} tone={dueSoon.length ? "alert" : undefined} />
         <Kpi label="Avg. time to response" value={responded.length ? `${avgHrs.toFixed(1)} hrs` : "—"} sub={responded.length ? `${Math.round(within48 * 100)}% within 48 hrs` : "No responses yet"} />
         {manager ? (
           <Kpi label="Revenue · last 30 days" value={money(revenue)} sub={`${members} members · simulated payments`} />
@@ -98,11 +98,11 @@ export default async function StaffHome(props: PageProps<"/staff">) {
   );
 }
 
-function Kpi({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "warn" }) {
+function Kpi({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "warn" | "alert" }) {
   return (
     <div className="bg-white px-6 py-5">
       <div className="text-[11px] font-bold uppercase tracking-wider text-muted">{label}</div>
-      <div className={`font-display mt-1 text-4xl ${tone === "warn" ? "text-warn" : ""}`}>{value}</div>
+      <div className={`font-display mt-1 text-4xl ${tone === "warn" ? "text-warn" : tone === "alert" ? "text-alert" : ""}`}>{value}</div>
       {sub && <div className="text-xs text-slate">{sub}</div>}
     </div>
   );

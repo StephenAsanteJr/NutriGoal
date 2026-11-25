@@ -42,7 +42,7 @@ export function TopNav({ user }: { user: User }) {
               <path d="M10.3 20a1.9 1.9 0 0 0 3.4 0" />
             </svg>
             {unread > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-cyan px-1 text-[10px] font-bold text-navy">
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-bain px-1 text-[10px] font-bold text-white">
                 {unread}
               </span>
             )}

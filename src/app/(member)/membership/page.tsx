@@ -135,8 +135,8 @@ function Overview({ userId, name }: { userId: string; name: string }) {
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
             ["Carbohydrates", grams.carbs, s.macro_carbs, "#2251ff"],
-            ["Protein", grams.protein, s.macro_protein, "#00a9f4"],
-            ["Fat", grams.fat, s.macro_fat, "#051c2c"],
+            ["Protein", grams.protein, s.macro_protein, "#197a56"],
+            ["Fat", grams.fat, s.macro_fat, "#0284c7"],
           ].map(([label, g, pct, color]) => (
             <div key={label as string} className="rounded-[2px] border border-line p-4">
               <div className="flex justify-between text-sm">

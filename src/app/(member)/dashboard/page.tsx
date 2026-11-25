@@ -100,7 +100,7 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
                         {goalLabel(t.goal_type)} · {t.clinician_name ?? "Matching clinician"} · {timeAgo(t.paid_at ?? t.created_at)}
                       </div>
                     </div>
-                    {t.status === "responded" && !t.member_seen_at && <span className="h-2 w-2 rounded-full bg-cyan" aria-label="New" />}
+                    {t.status === "responded" && !t.member_seen_at && <span className="h-2 w-2 rounded-full bg-bcg" aria-label="New" />}
                     <StatusPill status={t.status} />
                   </Link>
                 </li>

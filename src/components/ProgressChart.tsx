@@ -8,7 +8,7 @@ const W = 680;
 const H = 270;
 const M = { top: 18, right: 92, bottom: 34, left: 48 };
 const ACTUAL = "#2251ff";
-const PATH = "#00a9f4";
+const PATH = "#197a56"; // BCG green: the path to your goal
 const DAY = 86400_000;
 
 /**

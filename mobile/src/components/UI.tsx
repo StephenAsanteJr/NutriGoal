@@ -2,10 +2,11 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { C, serif } from "@/lib/theme";
 
-export function Screen({ children, scroll = true }: { children: React.ReactNode; scroll?: boolean }) {
+/** `tab` screens sit under no header and above the tab bar, so they pad the top (status bar) instead of the bottom. */
+export function Screen({ children, scroll = true, tab }: { children: React.ReactNode; scroll?: boolean; tab?: boolean }) {
   const inner = <View style={s.inner}>{children}</View>;
   return (
-    <SafeAreaView edges={["bottom"]} style={s.screen}>
+    <SafeAreaView edges={tab ? ["top"] : ["bottom"]} style={s.screen}>
       {scroll ? <ScrollView contentContainerStyle={{ paddingBottom: 40 }} keyboardShouldPersistTaps="handled">{inner}</ScrollView> : inner}
     </SafeAreaView>
   );
@@ -50,9 +51,9 @@ export function ErrorText({ children }: { children: React.ReactNode }) {
   return children ? <Text style={s.error}>{children}</Text> : null;
 }
 
-export function Pill({ label, tone = "info" }: { label: string; tone?: "info" | "good" | "warn" }) {
-  const bg = tone === "good" ? C.goodTint : tone === "warn" ? C.warnTint : C.blueTint;
-  const fg = tone === "good" ? C.good : tone === "warn" ? C.warn : C.blue;
+export function Pill({ label, tone = "info" }: { label: string; tone?: "info" | "good" | "warn" | "alert" }) {
+  const bg = tone === "good" ? C.goodTint : tone === "warn" ? C.warnTint : tone === "alert" ? C.alertTint : C.blueTint;
+  const fg = tone === "good" ? C.good : tone === "warn" ? C.warn : tone === "alert" ? C.alert : C.blue;
   return (
     <View style={{ alignSelf: "flex-start", backgroundColor: bg, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 }}>
       <Text style={{ color: fg, fontWeight: "700", fontSize: 12 }}>{label}</Text>

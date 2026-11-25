@@ -8,26 +8,24 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <SessionProvider>
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
         <Stack
           screenOptions={{
-            headerStyle: { backgroundColor: C.navy },
-            headerTintColor: C.white,
-            headerTitleStyle: { fontWeight: "800" },
+            headerStyle: { backgroundColor: C.mist },
+            headerShadowVisible: false,
+            headerTintColor: C.blue,
+            headerTitleStyle: { fontWeight: "800", color: C.navy },
+            headerBackButtonDisplayMode: "minimal",
             contentStyle: { backgroundColor: C.mist },
           }}
         >
-          <Stack.Screen name="index" options={{ title: "NutriGoal" }} />
-          <Stack.Screen name="build" options={{ title: "My build" }} />
-          <Stack.Screen name="tickets/index" options={{ title: "Tickets" }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="tickets/[id]" options={{ title: "Ticket" }} />
           <Stack.Screen name="new-ticket" options={{ title: "New goal ticket" }} />
           <Stack.Screen name="respond/[id]" options={{ title: "Write response" }} />
           <Stack.Screen name="weigh-in" options={{ title: "Log weight" }} />
-          <Stack.Screen name="marketplace" options={{ title: "Marketplace" }} />
           <Stack.Screen name="assistant" options={{ title: "Ask NutriGoal" }} />
-          <Stack.Screen name="alerts" options={{ title: "Alerts" }} />
-          <Stack.Screen name="team" options={{ title: "Clinicians" }} />
         </Stack>
       </SessionProvider>
     </SafeAreaProvider>
