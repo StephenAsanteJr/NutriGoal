@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSession } from "@/lib/session";
+import { usePlayer } from "@/lib/player";
 import { openWeb } from "@/lib/web";
 import { initials, useHome } from "@/lib/home";
 import { C, serif } from "@/lib/theme";
@@ -13,6 +14,7 @@ export default function Account() {
   const { name, role, signOut, call } = useSession();
   const { data } = useHome();
   const router = useRouter();
+  const player = usePlayer();
   const web = (next: string) => openWeb(call, next).catch(() => {});
   const member = data?.role === "member" ? data : null;
   const plan = member?.membership ? (member.membership.plan === "yearly" ? "Annual membership" : "Monthly membership") : null;
@@ -38,6 +40,24 @@ export default function Account() {
           </RowGroup>
         </>
       )}
+
+      <SectionLabel>Voice</SectionLabel>
+      <RowGroup>
+        <Row
+          icon="volume-high"
+          tone="green"
+          title="Read-aloud voice and speed"
+          subtitle={`${player.prefs.rate}× · tap to preview, then the sliders icon to change`}
+          onPress={() =>
+            player.play(
+              "Voice preview",
+              role === "member"
+                ? "This is how NutriGoal reads your plans and tickets aloud. Open the voice settings in the player to choose a different voice or speed."
+                : "This is how NutriGoal reads the tickets sent to you. Open the voice settings in the player to choose a different voice or speed.",
+            )
+          }
+        />
+      </RowGroup>
 
       <SectionLabel>More</SectionLabel>
       <RowGroup>

@@ -6,6 +6,7 @@ import { getResponse, getTicket } from "@/lib/data";
 import { db, nowIso } from "@/lib/db";
 import { goalLabel, money, ticketNumber } from "@/lib/domain";
 import { ResponseTicket } from "@/components/ResponseTicket";
+import { ListenButton } from "@/components/Voice";
 import { Alert, StatusPill, shortDate, timeAgo } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Ticket" };
@@ -79,6 +80,7 @@ export default async function TicketPage(props: PageProps<"/tickets/[id]">) {
           clinicianCredential={response.clinician_credential}
           aiAssist={response.ai_assist}
           respondedAt={response.created_at}
+          foods={response.foods}
         />
       ) : (
         <section className="card flex flex-wrap items-center gap-6 p-6">
@@ -120,7 +122,10 @@ export default async function TicketPage(props: PageProps<"/tickets/[id]">) {
       </section>
 
       <section className="card">
-        <h2 className="border-b border-line px-6 py-3 text-sm font-bold">What you sent</h2>
+        <div className="flex items-center justify-between gap-3 border-b border-line px-6 py-3">
+          <h2 className="text-sm font-bold">What you sent</h2>
+          <ListenButton size="sm" title={`${ticketNumber(ticket.id)}: ${ticket.goal_statement}`} text={`Your goal: ${ticket.goal_statement}. What you typically eat: ${ticket.typical_diet}. Setbacks: ${ticket.setbacks}. Target: ${ticket.specific_target}.${ticket.extra_context ? ` Other context: ${ticket.extra_context}` : ""}`} />
+        </div>
         <dl className="grid grid-cols-1 gap-px bg-line md:grid-cols-2">
           {[
             ["What I typically eat", ticket.typical_diet],

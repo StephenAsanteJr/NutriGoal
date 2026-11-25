@@ -285,6 +285,29 @@ const migrations: Migration[] = [
     if (!cols.includes("license_info")) conn.exec("ALTER TABLE users ADD COLUMN license_info TEXT");
     if (!cols.includes("organization")) conn.exec("ALTER TABLE users ADD COLUMN organization TEXT");
   },
+  // v5: clinicians can suggest example foods (by food group) on a response ticket.
+  (conn) => {
+    const cols = (conn.prepare("PRAGMA table_info(ticket_responses)").all() as { name: string }[]).map((c) => c.name);
+    if (!cols.includes("foods_json")) conn.exec("ALTER TABLE ticket_responses ADD COLUMN foods_json TEXT");
+  },
+  // v6: demo content only. Give the seeded demo plan (NG-1001, Dr. Okafor) example food picks.
+  (conn) => {
+    const demo = conn
+      .prepare(
+        `SELECT r.id FROM ticket_responses r JOIN users u ON u.id = r.clinician_id
+         WHERE r.ticket_id = 1 AND u.email = 'dr.okafor@nutrigoal.test' AND r.foods_json IS NULL`,
+      )
+      .get() as { id: string } | undefined;
+    if (!demo) return;
+    const foods = {
+      protein: ["Chicken breast, skinless", "Egg whites", "Tuna, canned in water"],
+      dairy: ["Greek yogurt, plain 2%", "Cottage cheese, 2%", "Ultra-filtered milk, 2%"],
+      grains: ["Rolled oats"],
+      produce: ["Blueberries", "Banana"],
+      fats: ["Peanut butter"],
+    };
+    conn.prepare("UPDATE ticket_responses SET foods_json = ? WHERE id = ?").run(JSON.stringify(foods), demo.id);
+  },
 ];
 
 export function runMigrations(conn: Database.Database) {

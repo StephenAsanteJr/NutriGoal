@@ -17,6 +17,18 @@ export type TicketSummary = {
   nudges: number;
 };
 
+export type FoodExample = { name: string; serving: string; kcal: number; protein: number; carbs: number; fat: number; match: number };
+export type FoodGuideData = {
+  match: { kcal: number; protein: number; carbs: number; fat: number; overall: number };
+  totals: { kcal: number; protein: number; carbs: number; fat: number };
+  rows: { id: string; label: string; hint: string; servings: number; typical: { serving: string }; examples: FoodExample[] }[];
+};
+/** Foods a clinician suggested on a response, by food group id. */
+export type ClinicianFoods = Partial<Record<"protein" | "grains" | "produce" | "dairy" | "fats", string[]>>;
+export const FOOD_GROUP_LABELS: Record<keyof ClinicianFoods, string> = {
+  protein: "Protein foods", grains: "Grains, starches & beans", produce: "Fruits & vegetables", dairy: "Dairy & alternatives", fats: "Healthy fats",
+};
+
 export type MemberHome = {
   role: "member";
   name: string;
@@ -31,6 +43,7 @@ export type MemberHome = {
   marketplace: boolean;
   nutrition: { avgKcal: number | null; avgProtein: number | null; insights: string[] } | null;
   tickets: TicketSummary[];
+  foodGuide?: FoodGuideData | null;
 };
 
 export type ClinicianHome = {

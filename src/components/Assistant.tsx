@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { MicButton } from "./Voice";
+import { ListenButton, MicButton } from "./Voice";
 
 type Action = { type: "link"; label: string; href: string };
 type Msg = { role: "user" | "assistant"; content: string; actions?: Action[] };
@@ -136,6 +136,11 @@ export function Assistant({ firstName }: { firstName: string }) {
                 >
                   {m.content}
                 </div>
+                {m.role === "assistant" && (
+                  <div className="mt-1.5">
+                    <ListenButton size="sm" title={`NutriGoal assistant · reply ${i + 1}`} text={m.content} />
+                  </div>
+                )}
                 {m.actions && m.actions.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {m.actions.map((a) => (

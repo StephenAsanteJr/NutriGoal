@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { RegisterSW } from "@/components/RegisterSW";
+import { ReadAloudBar } from "@/components/ReadAloud";
 import { Bodoni_Moda, Montserrat } from "next/font/google";
 import "./globals.css";
 
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         )}
         {children}
         <RegisterSW />
+        <ReadAloudBar />
       </body>
     </html>
   );

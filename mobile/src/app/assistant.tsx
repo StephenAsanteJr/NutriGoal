@@ -1,11 +1,14 @@
 import { useRef, useState } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View, type ScrollViewInstance } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View, type ScrollViewInstance, type TextInputInstance } from "react-native";
 import { useRouter } from "expo-router";
 import { useSession } from "@/lib/session";
 import { openWeb } from "@/lib/web";
 import { C } from "@/lib/theme";
 import { Chip } from "@/components/Bubble";
 import { Button } from "@/components/UI";
+import { ListenButton } from "@/components/Voice";
+import { inAppDictation, useDictation } from "@/lib/voice";
 
 type Msg = { role: "user" | "assistant"; content: string; actions?: { label: string; href: string }[] };
 const SUGGEST = ["Nudge my clinician", "Find a trainer near me", "Show me pharmacies", "What add-ons can I unlock?"];
@@ -17,6 +20,14 @@ export default function Assistant() {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const scroller = useRef<ScrollViewInstance>(null);
+  const input = useRef<TextInputInstance>(null);
+  const [hint, setHint] = useState(false);
+  const dictation = useDictation((t) => setText((s) => (s ? `${s.trimEnd()} ${t}` : t)));
+  const mic = () => {
+    if (inAppDictation) return dictation.listening ? dictation.stop() : dictation.start();
+    input.current?.focus();
+    setHint(true);
+  };
 
   async function send(t: string) {
     const content = t.trim();
@@ -64,6 +75,11 @@ export default function Assistant() {
             <View style={{ backgroundColor: m.role === "user" ? C.blue : C.white, borderRadius: 18, padding: 12, maxWidth: "88%" }}>
               <Text style={{ color: m.role === "user" ? C.white : C.navy }}>{m.content}</Text>
             </View>
+            {m.role === "assistant" && (
+              <View style={{ marginTop: 6 }}>
+                <ListenButton title={`NutriGoal assistant · reply ${i + 1}`} text={m.content} />
+              </View>
+            )}
             {m.actions?.map((a) => (
               <Chip key={a.href} label={`${a.label} →`} onPress={() => follow(a.href)} />
             ))}
@@ -71,8 +87,21 @@ export default function Assistant() {
         ))}
         {busy && <Text style={{ color: C.muted }}>Thinking…</Text>}
       </ScrollView>
-      <View style={{ flexDirection: "row", gap: 8, padding: 12, backgroundColor: C.white, borderTopWidth: 1, borderTopColor: C.line }}>
-        <TextInput value={text} onChangeText={setText} onSubmitEditing={() => send(text)} placeholder="Ask about trainers, stores or your tickets" placeholderTextColor={C.muted} style={{ flex: 1, borderWidth: 1, borderColor: C.line, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10, color: C.navy }} returnKeyType="send" />
+      {(dictation.listening || hint || dictation.error) && (
+        <Text style={{ color: dictation.listening || dictation.error ? C.red : C.blue, fontWeight: "700", fontSize: 12.5, paddingHorizontal: 14, paddingTop: 8, backgroundColor: C.white }}>
+          {dictation.error ?? (dictation.listening ? `● Listening${dictation.interim ? `: “${dictation.interim}”` : "… speak now"}` : "Tap the 🎙 key on your keyboard and speak.")}
+        </Text>
+      )}
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8, padding: 12, backgroundColor: C.white, borderTopWidth: 1, borderTopColor: C.line }}>
+        <Pressable
+          onPress={mic}
+          accessibilityRole="button"
+          accessibilityLabel={dictation.listening ? "Stop dictating" : "Dictate your message"}
+          style={{ width: 42, height: 42, borderRadius: 21, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: dictation.listening ? C.red : C.line, backgroundColor: dictation.listening ? C.red : C.white }}
+        >
+          <Ionicons name={dictation.listening ? "stop" : "mic"} size={18} color={dictation.listening ? C.white : C.blue} />
+        </Pressable>
+        <TextInput ref={input} onBlur={() => setHint(false)} value={text} onChangeText={setText} onSubmitEditing={() => send(text)} placeholder="Ask about trainers, stores or your tickets" placeholderTextColor={C.muted} style={{ flex: 1, borderWidth: 1, borderColor: C.line, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10, color: C.navy }} returnKeyType="send" />
         <View style={{ width: 90 }}>
           <Button label="Send" onPress={() => send(text)} disabled={!text.trim()} busy={busy} />
         </View>

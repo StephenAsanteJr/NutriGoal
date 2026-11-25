@@ -6,10 +6,14 @@ import { useSession } from "@/lib/session";
 import { C, serif } from "@/lib/theme";
 import { Bubble, BubbleCluster } from "@/components/Bubble";
 import { Body, Card, ErrorText, Eyebrow, Loading, Pill, Screen } from "@/components/UI";
+import { ListenButton } from "@/components/Voice";
+import { ClinicianFoodsCard } from "@/components/Foods";
+import type { ClinicianFoods } from "@/lib/home";
+import { planScript } from "@/lib/voice";
 
 type D = {
   ticket: { id: number; number: string; goal: string; goalType: string; status: string; statusLabel: string; member: string; clinician: string | null; dueAt: string | null; typicalDiet: string; setbacks: string; target: string; routing: string | null; nudges: number };
-  response: { recommendation: string; steps: { title: string; detail: string; timeframe: string }[]; clinician: string; aiAssist: string; at: string } | null;
+  response: { recommendation: string; steps: { title: string; detail: string; timeframe: string }[]; clinician: string; aiAssist: string; foods?: ClinicianFoods | null; at: string } | null;
   canRespond: boolean;
 };
 
@@ -40,7 +44,10 @@ export default function TicketDetail() {
 
       {data.response ? (
         <Card>
-          <Eyebrow>Recommendation</Eyebrow>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+            <Eyebrow>Recommendation</Eyebrow>
+            <ListenButton label={role === "member" ? "Listen to my plan" : "Listen to plan"} title={`Plan for ${t.number}`} text={planScript({ ...data.response, clinician: role === "member" ? data.response.clinician : undefined })} />
+          </View>
           <Text style={{ fontFamily: serif, fontSize: 19, color: C.navy, lineHeight: 26 }}>{data.response.recommendation}</Text>
           <View style={{ marginTop: 12 }}>
             {data.response.steps.map((s, i) => (
@@ -66,6 +73,7 @@ export default function TicketDetail() {
           {t.nudges ? <Body muted>Nudged {t.nudges}×</Body> : null}
         </Card>
       )}
+      {data.response?.foods ? <ClinicianFoodsCard foods={data.response.foods} clinician={data.response.clinician} /> : null}
 
       {msg && <Card tone="good"><Body>{msg}</Body></Card>}
 
@@ -78,7 +86,10 @@ export default function TicketDetail() {
       )}
 
       <Card>
-        <Eyebrow>{role === "member" ? "What you sent" : `From ${t.member}`}</Eyebrow>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+          <Eyebrow>{role === "member" ? "What you sent" : `From ${t.member}`}</Eyebrow>
+          <ListenButton label="Listen" title={`${t.number}: ${t.goal}`} text={`${role === "member" ? "Your goal" : `${t.member}'s goal`}: ${t.goal}. Typical diet: ${t.typicalDiet}. Setbacks: ${t.setbacks}. Target: ${t.target}.`} />
+        </View>
         <Text style={{ fontWeight: "700", color: C.navy }}>Typical diet</Text>
         <Body>{t.typicalDiet}</Body>
         <Text style={{ fontWeight: "700", color: C.navy, marginTop: 8 }}>Setbacks</Text>

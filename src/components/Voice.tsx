@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { player, usePlayerState } from "./ReadAloud";
 
 // Minimal typing for the browser Web Speech API (Chrome, Edge, Safari).
 type SpeechRecognitionResultLike = { isFinal: boolean; 0: { transcript: string } };
@@ -180,6 +181,65 @@ export function VoicePanel({
         </div>
       )}
       {(d.error || msg) && <p className={`mt-2 text-xs ${d.error ? "text-alert" : dark ? "text-cyan" : "text-good"} font-bold`}>{d.error ?? msg}</p>}
+    </div>
+  );
+}
+
+// ---------- Listen: read text aloud with the browser's speech synthesis ----------
+
+function SpeakerIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden>
+      <path d="M4 9v6h4l5 4V5L8 9H4z" />
+      <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />
+    </svg>
+  );
+}
+
+/** "Listen" pill: plays the text in the site-wide read-aloud player (voice and speed are set there). */
+export function ListenButton({ text, label = "Listen", title, tone = "light", size = "md" }: { text: string; label?: string; title?: string; tone?: "light" | "dark"; size?: "sm" | "md" }) {
+  const [supported, setSupported] = useState(false);
+  const s = usePlayerState();
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- feature detection must run in the browser
+    setSupported(typeof window !== "undefined" && "speechSynthesis" in window);
+  }, []);
+  if (!supported) return null;
+  const name = title ?? label;
+  const mine = s.track?.title === name;
+  const playing = mine && s.playing;
+  const dark = tone === "dark";
+  return (
+    <button
+      type="button"
+      onClick={() => (mine ? player.toggle() : player.play(name, text))}
+      aria-pressed={playing}
+      aria-label={playing ? "Pause reading aloud" : `${label}: read aloud`}
+      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border font-bold transition ${size === "sm" ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-xs"} ${
+        playing
+          ? "border-navy bg-navy text-white"
+          : dark
+            ? "border-white/30 text-white hover:bg-white/10"
+            : "border-blue/30 bg-white text-blue hover:border-blue hover:bg-blue-tint"
+      }`}
+    >
+      {playing ? (
+        <svg viewBox="0 0 16 16" className="h-3 w-3" fill="currentColor" aria-hidden><rect x="3" y="2" width="3.5" height="12" rx="1" /><rect x="9.5" y="2" width="3.5" height="12" rx="1" /></svg>
+      ) : (
+        <SpeakerIcon className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} />
+      )}
+      {playing ? "Pause" : mine ? "Resume" : label}
+    </button>
+  );
+}
+
+/** Single-line input with a mic, for short notes in server-rendered forms. */
+export function DictationInput({ name, placeholder, maxLength, label }: { name: string; placeholder?: string; maxLength?: number; label: string }) {
+  const [value, setValue] = useState("");
+  return (
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      <input name={name} className="input" placeholder={placeholder} maxLength={maxLength} required aria-label={label} value={value} onChange={(e) => setValue(e.target.value)} />
+      <MicButton label={label.toLowerCase()} onText={(t) => setValue((s) => (s ? `${s.trimEnd()} ${t}` : t).slice(0, maxLength ?? 10_000))} />
     </div>
   );
 }

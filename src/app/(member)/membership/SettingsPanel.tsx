@@ -5,6 +5,7 @@ import { saveMemberSettings, type SimpleState } from "@/actions/settings";
 import { LookPicker } from "@/components/LookPicker";
 import { PhotoScanButton } from "@/components/PhotoScan";
 import { Alert } from "@/components/ui";
+import { ListenButton } from "@/components/Voice";
 import type { AvatarLook } from "@/components/AvatarBuild";
 import { WEEKLY_RATES_LB, type Settings } from "@/lib/domain";
 
@@ -326,6 +327,13 @@ function PrivacyCard({ settings }: { settings: Settings }) {
       />
       <Toggle name="assistant_enabled" label="NutriGoal Assistant" hint="The in-app AI helper for the marketplace and ticket follow-ups." defaultChecked={settings.assistant_enabled} />
       <Toggle name="voice_mode" label="Voice mode" hint="Show the microphone for speaking your tickets." defaultChecked={settings.voice_mode} />
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[2px] border border-line px-4 py-3">
+        <div>
+          <div className="text-sm font-bold">Read-aloud voice and speed</div>
+          <p className="text-xs text-slate">Hear your plans and tickets aloud. Preview here, then open the player&apos;s voice and speed menu to choose; this browser remembers it.</p>
+        </div>
+        <ListenButton label="Preview voice" title="Voice preview" text="This is how NutriGoal reads your plans and tickets aloud. Open the speed menu in the player to choose a different voice or speed." />
+      </div>
     </SectionForm>
   );
 }

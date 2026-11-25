@@ -4,9 +4,10 @@ import "server-only";
 import { db, newId, nowIso } from "./db";
 import { getTicket, getUserById, notify, type Step } from "./data";
 import { ticketNumber } from "./domain";
+import { cleanFoods } from "./foods";
 import type { User } from "./auth";
 
-export type ResponseInput = { recommendation: string; steps: { title: string; detail: string; timeframe: string }[]; aiAssist: "none" | "wording" };
+export type ResponseInput = { recommendation: string; steps: { title: string; detail: string; timeframe: string }[]; aiAssist: "none" | "wording"; foods?: unknown };
 export type ResponseResult = { ok: true } | { ok: false; error: string; fieldErrors?: Record<string, string> };
 
 export function startReviewFor(user: User, ticketId: number) {
@@ -40,10 +41,11 @@ export function saveResponse(user: User, ticketId: number, input: ResponseInput)
   if (Object.keys(fieldErrors).length) return { ok: false, error: "Please complete the response before sending.", fieldErrors };
 
   const now = nowIso();
+  const foods = cleanFoods(input.foods);
   db().transaction(() => {
     db()
-      .prepare("INSERT INTO ticket_responses (id, ticket_id, clinician_id, recommendation, steps_json, ai_assist, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
-      .run(newId(), ticketId, user.id, recommendation, JSON.stringify(steps), input.aiAssist === "wording" ? "wording" : "none", now);
+      .prepare("INSERT INTO ticket_responses (id, ticket_id, clinician_id, recommendation, steps_json, ai_assist, foods_json, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+      .run(newId(), ticketId, user.id, recommendation, JSON.stringify(steps), input.aiAssist === "wording" ? "wording" : "none", foods ? JSON.stringify(foods) : null, now);
     db().prepare("UPDATE tickets SET status = 'responded', responded_at = ? WHERE id = ?").run(now, ticketId);
   })();
   const clinician = getUserById(user.id);

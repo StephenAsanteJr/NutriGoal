@@ -6,6 +6,7 @@ import { getProfile, getResponse, getTicket, getUserById, listClinicians, listNu
 import { goalLabel, stageLabel, ticketNumber } from "@/lib/domain";
 import { BuildPanel, lookFrom, memberCode } from "@/components/BuildPanel";
 import { ResponseTicket } from "@/components/ResponseTicket";
+import { ListenButton } from "@/components/Voice";
 import { Alert, StatusPill, shortDate, timeAgo } from "@/components/ui";
 import { SubmitButton } from "@/components/SubmitButton";
 import { managerNudge, reassignTicket, startReview } from "@/actions/staff";
@@ -72,7 +73,10 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_1fr]">
         {/* Ticket detail */}
         <section className="card">
-          <h2 className="border-b border-line px-6 py-3 text-sm font-bold">Member&apos;s ticket</h2>
+          <div className="flex items-center justify-between gap-3 border-b border-line px-6 py-3">
+            <h2 className="text-sm font-bold">Member&apos;s ticket</h2>
+            <ListenButton size="sm" label="Listen to ticket" title={`${ticketNumber(t.id)}: ${t.goal_statement}`} text={`Goal: ${t.goal_statement}. What they typically eat: ${t.typical_diet}. Setbacks: ${t.setbacks}. Target: ${t.specific_target}.${t.extra_context ? ` Other context: ${t.extra_context}` : ""}`} />
+          </div>
           <dl className="divide-y divide-line">
             {[
               ["Nutritional goal", t.goal_statement],
@@ -134,6 +138,7 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
               clinicianCredential={response.clinician_credential}
               aiAssist={response.ai_assist}
               respondedAt={response.created_at}
+          foods={response.foods}
             />
           ) : canWrite ? (
             t.status === "assigned" ? (

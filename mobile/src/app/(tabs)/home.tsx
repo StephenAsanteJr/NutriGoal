@@ -76,6 +76,9 @@ function Member({ d, go, web }: { d: MemberHome; go: Go; web: (next: string) => 
         <Row icon="add-circle" tone="blue" title="New goal ticket" subtitle={included ? "1 ticket included with your membership" : "$19.99 one-time, or join for $29.99/mo"} subtitleTone={included ? "green" : "muted"} onPress={() => go("/new-ticket")} />
         <Row icon="document-text" tone="navy" title="My tickets" subtitle={openCount ? `${openCount} in progress` : ready ? "Plan ready to read" : "Your plans live here"} subtitleTone={!openCount && ready ? "green" : "muted"} badge={openCount || null} badgeTone="navy" onPress={() => go("/tickets")} />
         <Row icon="body" tone="green" title="My build" subtitle={b ? `${w(b.weightKg)} → ${w(b.goalWeightKg)} ${unit} · ${b.weeks} weeks` : "Today vs. your goal"} onPress={() => go("/build")} />
+        {d.foodGuide && (
+          <Row icon="nutrition" tone="green" title="Foods that fit your targets" subtitle={`${d.foodGuide.match.overall}% match · ${d.foodGuide.rows.map((r) => `${r.servings} ${r.label.split(/[ ,&]/)[0].toLowerCase()}`).join(" · ")}`} onPress={() => go("/build")} />
+        )}
         <Row icon="barbell" tone="cyan" title="Log weight" subtitle="Keep your progress line current" onPress={() => go("/weigh-in")} />
         <Row icon="storefront" tone="blue" title="Marketplace" subtitle={d.marketplace ? "Trainers near you, grocers and pharmacies" : "Opens with a ticket or membership"} locked={!d.marketplace} onPress={() => go("/marketplace")} />
         <Row icon="chatbubbles" tone="navy" title="Ask NutriGoal" subtitle="Help with orders, tickets and reminders" onPress={() => go("/assistant")} />

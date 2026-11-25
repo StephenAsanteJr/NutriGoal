@@ -8,6 +8,8 @@ import { MEMBERSHIP, PRICES, energy, money } from "@/lib/domain";
 import { Alert, PageHeader, shortDate } from "@/components/ui";
 import { BuildPanel, lookFrom, memberCode } from "@/components/BuildPanel";
 import { ProgressChart } from "@/components/ProgressChart";
+import { FoodGuide } from "@/components/FoodGuide";
+import { foodGuide } from "@/lib/foods";
 import { JoinPanel } from "./JoinPanel";
 import { stripeEnabled } from "@/lib/stripe";
 import { WeighInForm } from "./WeighInForm";
@@ -154,6 +156,8 @@ function Overview({ userId, name }: { userId: string; name: string }) {
           Meals: {s.meal_names.join(" · ")}. Water goal {s.water_unit === "ml" ? `${Math.round(build.waterL * 1000).toLocaleString()} ml` : `${Math.round(build.waterL * 33.814)} oz`} a day.
         </p>
       </section>
+
+      <FoodGuide guide={foodGuide({ kcal: Math.round(kcal), ...grams })} />
 
       <section className="card">
         <h2 className="border-b border-line px-6 py-3 text-sm font-bold">Payments & receipts</h2>

@@ -1,4 +1,5 @@
 import "server-only";
+import { cleanFoods } from "./foods";
 import { db, newId, nowIso } from "./db";
 import type { BuildInput, Sex } from "./biometrics";
 import type { User } from "./auth";
@@ -193,6 +194,7 @@ export type ResponseRow = {
   recommendation: string;
   steps_json: string;
   ai_assist: "none" | "wording";
+  foods_json: string | null;
   created_at: string;
   clinician_name: string;
   clinician_credential: string | null;
@@ -207,7 +209,7 @@ export function getResponse(ticketId: number) {
     )
     .get(ticketId) as ResponseRow | undefined;
   if (!row) return null;
-  return { ...row, steps: JSON.parse(row.steps_json) as Step[] };
+  return { ...row, steps: JSON.parse(row.steps_json) as Step[], foods: row.foods_json ? cleanFoods(JSON.parse(row.foods_json)) : null };
 }
 
 // ---------- Staff ----------

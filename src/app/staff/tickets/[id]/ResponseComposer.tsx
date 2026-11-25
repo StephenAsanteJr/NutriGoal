@@ -5,6 +5,8 @@ import { submitResponse, type ResponseFormState } from "@/actions/staff";
 import { TIMEFRAME_PRESETS } from "@/lib/domain";
 import { Alert } from "@/components/ui";
 import { MicButton, VoicePanel } from "@/components/Voice";
+import { FoodPicker } from "@/components/FoodPicker";
+import type { ClinicianFoods } from "@/lib/foods";
 
 type Row = { title: string; detail: string; timeframe: string };
 const blank = (): Row => ({ title: "", detail: "", timeframe: "" });
@@ -14,6 +16,7 @@ export function ResponseComposer({ ticketId, signer }: { ticketId: number; signe
   const [rec, setRec] = useState("");
   const [rows, setRows] = useState<Row[]>(() => Array.from({ length: 5 }, blank));
   const [ai, setAi] = useState<"none" | "wording">("none");
+  const [foods, setFoods] = useState<ClinicianFoods>({});
   const fe = state?.fieldErrors ?? {};
   const update = (i: number, k: keyof Row, val: string) => setRows((r) => r.map((row, j) => (j === i ? { ...row, [k]: val } : row)));
   const complete = rows.filter((r) => r.title && r.detail && r.timeframe).length;
@@ -39,6 +42,7 @@ export function ResponseComposer({ ticketId, signer }: { ticketId: number; signe
   return (
     <form action={action} className="card overflow-hidden">
       <input type="hidden" name="ticket_id" value={ticketId} />
+      <input type="hidden" name="foods_json" value={JSON.stringify(foods)} />
       <div className="bg-navy px-6 py-4 text-white">
         <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan">Response ticket composer</div>
         <div className="text-sm text-white/80">A concise recommendation at the top, then 5–6 actionable steps with timeframes.</div>
@@ -129,6 +133,8 @@ export function ResponseComposer({ ticketId, signer }: { ticketId: number; signe
             )}
           </div>
         </div>
+
+        <FoodPicker value={foods} onChange={setFoods} />
 
         <fieldset className="rounded-[2px] border border-line p-4">
           <legend className="px-1 text-[13px] font-bold">AI writing help (disclosed to the member)</legend>

@@ -19,6 +19,8 @@ import { nudgeClinician } from "@/lib/nudges";
 import { saveResponse, startReviewFor } from "@/lib/responses";
 import { submitPaidTicket } from "@/lib/fulfillment";
 import { runAgent, type ChatMessage } from "@/lib/agent";
+import { runVoiceMode } from "@/lib/voice-mode";
+import { FOOD_GROUPS, examplesFor, foodGuide, macroTargets } from "@/lib/foods";
 
 type Ctx = { params: Promise<{ path: string[] }> };
 const iso = (d: Date) => d.toISOString();
@@ -36,6 +38,18 @@ function ticketSummary(t: TicketWithPeople, nudges?: Map<number, { n: number }>)
     dueAt: t.due_at,
     respondedAt: t.responded_at,
     nudges: nudges?.get(t.id)?.n ?? 0,
+  };
+}
+
+/** Food guide for the app: servings per group, example foods with their match, and % match to targets. */
+function guidePayload(g: ReturnType<typeof foodGuide>) {
+  return {
+    match: g.match,
+    totals: g.totals,
+    rows: g.rows.map((r) => ({
+      id: r.group.id, label: r.group.label, hint: r.group.hint, servings: r.servings, typical: r.group.typical,
+      examples: r.examples.map((e) => ({ name: e.name, serving: e.serving, kcal: e.kcal, protein: e.protein, carbs: e.carbs, fat: e.fat, match: Math.round(e.match * 100) })),
+    })),
   };
 }
 
@@ -63,6 +77,7 @@ async function home(user: User, origin: string) {
       marketplace: hasMarketplaceAccess(user.id),
       nutrition: t.current.length ? { avgKcal: t.averages.calories && Math.round(t.averages.calories), avgProtein: t.averages.protein_g && Math.round(t.averages.protein_g), insights: t.insights.slice(0, 3).map((i) => i.text) } : null,
       tickets: listTicketsForMember(user.id).filter((x) => x.status !== "awaiting_payment").slice(0, 5).map((x) => ticketSummary(x)),
+      foodGuide: b ? guidePayload(foodGuide(macroTargets(Math.round(s.calorie_goal_override ?? b.targetCalories), { carbs: s.macro_carbs, protein: s.macro_protein, fat: s.macro_fat }))) : null,
       webUrl: origin,
     };
   }
@@ -100,6 +115,10 @@ export async function GET(req: Request, ctx: Ctx) {
 
   if (path === "me") return json({ id: user.id, name: user.name, role: user.role, credential: user.credential });
   if (path === "home") return json(await home(user, origin));
+  if (path === "foods") {
+    // Catalog for clinicians picking example foods on a response (only foods with an 80%+ match).
+    return json({ groups: FOOD_GROUPS.map((g) => ({ id: g.id, label: g.label, hint: g.hint, foods: examplesFor(g).map((e) => ({ name: e.name, serving: e.serving, match: Math.round(e.match * 100) })) })) });
+  }
 
   if (path === "tickets") {
     const list = user.role === "member" ? listTicketsForMember(user.id).filter((x) => x.status !== "awaiting_payment") : listTicketsForStaff({ clinicianId: user.role === "clinician" ? user.id : undefined });
@@ -112,7 +131,7 @@ export async function GET(req: Request, ctx: Ctx) {
     const r = getResponse(t.id);
     return json({
       ticket: { ...ticketSummary(t), typicalDiet: t.typical_diet, setbacks: t.setbacks, target: t.specific_target, extra: t.extra_context, routing: user.role === "member" ? null : t.routing_reason },
-      response: r ? { recommendation: r.recommendation, steps: r.steps, clinician: `${r.clinician_name}, ${r.clinician_credential}`, aiAssist: r.ai_assist, at: r.created_at } : null,
+      response: r ? { recommendation: r.recommendation, steps: r.steps, clinician: `${r.clinician_name}, ${r.clinician_credential}`, aiAssist: r.ai_assist, foods: r.foods, at: r.created_at } : null,
       canRespond: user.role === "clinician" && t.status !== "responded",
     });
   }
@@ -170,6 +189,11 @@ export async function POST(req: Request, ctx: Ctx) {
     return json({ ok: true });
   }
 
+  if (path === "voice") {
+    const r = await runVoiceMode(user, body);
+    return json(r.body, r.status);
+  }
+
   if (path === "handoff") {
     const next = String(body.next ?? "/dashboard");
     const code = createToken(user.id, "Web handoff", "handoff");
@@ -212,6 +236,7 @@ export async function POST(req: Request, ctx: Ctx) {
         recommendation: String(body.recommendation ?? ""),
         steps: steps.map((s) => ({ title: String(s.title ?? ""), detail: String(s.detail ?? ""), timeframe: String(s.timeframe ?? "") })),
         aiAssist: body.aiAssist === "wording" ? "wording" : "none",
+        foods: body.foods,
       });
       return json(r, r.ok ? 200 : 400);
     }

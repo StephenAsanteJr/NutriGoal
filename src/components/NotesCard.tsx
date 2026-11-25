@@ -1,6 +1,7 @@
 import { addStaffNote } from "@/actions/staff";
 import type { listStaffNotes } from "@/lib/data";
 import { SubmitButton } from "./SubmitButton";
+import { DictationInput } from "./Voice";
 import { timeAgo } from "./ui";
 
 export function NotesCard({ memberId, back, notes }: { memberId: string; back: string; notes: ReturnType<typeof listStaffNotes> }) {
@@ -21,7 +22,7 @@ export function NotesCard({ memberId, back, notes }: { memberId: string; back: s
       <form action={addStaffNote} className="flex gap-2 border-t border-line p-4">
         <input type="hidden" name="member_id" value={memberId} />
         <input type="hidden" name="back" value={back} />
-        <input name="body" className="input" placeholder="Add a note for the care team…" maxLength={1000} required aria-label="New note" />
+        <DictationInput name="body" placeholder="Add a note for the care team… (or tap the mic)" maxLength={1000} label="New note" />
         <SubmitButton className="btn-dark" pendingText="…">Add</SubmitButton>
       </form>
     </section>

@@ -1,5 +1,9 @@
 import type { Step } from "@/lib/data";
 import { goalLabel, ticketNumber } from "@/lib/domain";
+import { planScript } from "@/lib/voice-text";
+import { ListenButton } from "./Voice";
+import { ClinicianFoodsList } from "./FoodGuide";
+import type { ClinicianFoods } from "@/lib/foods";
 
 type Props = {
   ticketId: number;
@@ -11,6 +15,7 @@ type Props = {
   clinicianCredential: string | null;
   aiAssist: "none" | "wording";
   respondedAt: string;
+  foods?: ClinicianFoods | null;
 };
 
 /** The response ticket pushed back to the member. */
@@ -34,7 +39,10 @@ export function ResponseTicket(p: Props) {
       </header>
 
       <section className="border-b border-line bg-blue-tint/50 px-6 py-5">
-        <div className="eyebrow mb-2">Recommendation</div>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="eyebrow !mb-0">Recommendation</div>
+          <ListenButton label="Listen to this plan" title={`Plan for ${ticketNumber(p.ticketId)}`} text={planScript({ recommendation: p.recommendation, steps: p.steps, foods: p.foods, clinician: `${p.clinicianName}${p.clinicianCredential ? `, ${p.clinicianCredential}` : ""}` })} />
+        </div>
         <p className="font-display text-[22px] leading-snug text-navy">{p.recommendation}</p>
       </section>
 
@@ -59,6 +67,8 @@ export function ResponseTicket(p: Props) {
           ))}
         </ol>
       </section>
+
+      {p.foods && <ClinicianFoodsList foods={p.foods} clinician={p.clinicianName} />}
 
       <footer className="border-t border-line bg-mist px-6 py-3 text-xs text-slate">
         Written and reviewed by {p.clinicianName}

@@ -29,6 +29,13 @@ export async function submitResponse(_: ResponseFormState, fd: FormData): Promis
     recommendation: String(fd.get("recommendation") ?? ""),
     steps: titles.map((title, i) => ({ title, detail: details[i] ?? "", timeframe: frames[i] ?? "" })),
     aiAssist: fd.get("ai_assist") === "wording" ? "wording" : "none",
+    foods: (() => {
+      try {
+        return JSON.parse(String(fd.get("foods_json") ?? "null"));
+      } catch {
+        return null;
+      }
+    })(),
   });
   if (!r.ok) return { error: r.error, fieldErrors: r.fieldErrors };
   revalidatePath("/staff");

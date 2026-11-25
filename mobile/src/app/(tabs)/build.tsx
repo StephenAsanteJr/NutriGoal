@@ -5,6 +5,7 @@ import { C, serif } from "@/lib/theme";
 import { Chip } from "@/components/Bubble";
 import { Body, Card, Loading, Screen, Title } from "@/components/UI";
 import { Character } from "@/components/Character";
+import { FoodGuideCard } from "@/components/Foods";
 
 export default function Build() {
   const { data: home } = useHome();
@@ -48,6 +49,7 @@ export default function Build() {
           </View>
         ))}
       </Card>
+      {data.foodGuide && <FoodGuideCard guide={data.foodGuide} />}
     </Screen>
   );
 }
