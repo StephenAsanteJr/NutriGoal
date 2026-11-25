@@ -27,7 +27,9 @@ export function MobileNav({ role }: { role: "member" | "clinician" | "manager" }
           { href: "/membership", label: "Member", icon: "member" },
         ]
       : [
-          { href: "/staff", label: role === "manager" ? "Ops" : "Queue", icon: "queue" },
+          ...(role === "manager"
+            ? [{ href: "/staff/ops", label: "Ops", icon: "queue" }, { href: "/staff/finance", label: "Finance", icon: "queue" }, { href: "/staff", label: "Tickets", icon: "queue" }]
+            : [{ href: "/staff/dashboard", label: "Dashboard", icon: "queue" }, { href: "/staff", label: "Queue", icon: "queue" }]),
           { href: "/staff/members", label: "Members", icon: "people" },
           ...(role === "manager" ? [{ href: "/staff/team", label: "Team", icon: "people" }] : []),
           { href: "/notifications", label: "Alerts", icon: "bell" },

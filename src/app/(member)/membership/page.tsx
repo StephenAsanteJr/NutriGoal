@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { requireMember } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getActiveSubscription, getProfile, getSettings, listWeighIns, toBuildInput } from "@/lib/data";
-import { computeBuild, formatWeight, kgToLb } from "@/lib/biometrics";
+import { computeBuild, formatHeight, formatWeight, kgToLb } from "@/lib/biometrics";
 import { MEMBERSHIP, PRICES, energy, money } from "@/lib/domain";
 import { Alert, PageHeader, shortDate } from "@/components/ui";
 import { BuildPanel, lookFrom, memberCode } from "@/components/BuildPanel";
@@ -70,6 +70,17 @@ export default async function MembershipPage(props: PageProps<"/membership">) {
             weeklyRateLb: nearestRate(build.weightChangeKg, build.effectiveWeeks),
             autoCalories: build.targetCalories,
             minCalories: profile.sex === "male" ? 1500 : 1200,
+          }}
+          preview={{
+            sex: input!.sex,
+            heightCm: input!.heightCm,
+            weightKg: input!.weightKg,
+            bodyFatPct: build.bodyFatPct,
+            goalWeightKg: build.goalWeightKg,
+            goalBodyFatPct: build.goalBodyFatPct,
+            weeks: build.effectiveWeeks,
+            units,
+            heightLabel: formatHeight(input!.heightCm, units),
           }}
         />
       )}

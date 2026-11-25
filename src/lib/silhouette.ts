@@ -44,9 +44,9 @@ export function silhouette(opts: {
   const neck = 0.03 + 0.008 * L + 0.008 * F;
   const shoulder = (m ? 0.112 : 0.098) + (m ? 0.026 : 0.018) * L + 0.03 * F;
   const chest = (m ? 0.092 : 0.086) + (m ? 0.02 : 0.012) * L + 0.034 * F;
-  const waist = (m ? 0.068 : 0.06) + 0.012 * L + (m ? 0.078 : 0.06) * F;
-  const hip = (m ? 0.084 : 0.094) + 0.012 * L + (m ? 0.05 : 0.062) * F;
-  const thighOut = (m ? 0.078 : 0.086) + 0.014 * L + (m ? 0.04 : 0.048) * F;
+  const waist = (m ? 0.075 : 0.06) + 0.012 * L + (m ? 0.078 : 0.06) * F;
+  const hip = (m ? 0.08 : 0.094) + 0.012 * L + (m ? 0.05 : 0.062) * F;
+  const thighOut = (m ? 0.074 : 0.086) + 0.014 * L + (m ? 0.04 : 0.048) * F;
   const thighIn = Math.max(0.004, 0.012 - 0.008 * F);
   const kneeOut = 0.049 + 0.006 * L + 0.016 * F;
   const kneeIn = 0.016 + 0.003 * F;
@@ -119,8 +119,8 @@ export function silhouette(opts: {
   const toPx = (arr: Pt[]): Pt[] => arr.map(([x, y, c]) => [VIEW.centerX + x * H, topY + y * H, c]);
   const mirror = (half: Pt[]): Pt[] => [...half, ...[...half].reverse().map(([x, y, c]) => [-x, y, c] as Pt)];
 
-  // Athletic tank top: scoop neck, shoulder straps, hem at the hips.
-  const topHalf: Pt[] = [
+  // Women: athletic tank top (scoop neck, straps). Men: crew-neck T-shirt with short sleeves.
+  const tankHalf: Pt[] = [
     [0.0, 0.178, true],
     [neck * 0.75, 0.16],
     [neck + 0.006, 0.132, true],
@@ -132,8 +132,28 @@ export function silhouette(opts: {
     [hip + 0.002, 0.462, true],
     [0.0, 0.466, true],
   ];
-  // Shorts: waistband to mid-thigh, split between the legs.
-  const shortsHalf: Pt[] = [
+  const armTop = shoulder + 0.006 + 0.004 * L; // outer arm at the shoulder
+  const sleeveY = 0.272;
+  const ts = (sleeveY - 0.205) / (0.335 - 0.205);
+  const sleeveOut = armTop + ts * (elbowC + upper * 0.95 - armTop) + 0.012;
+  const ti = (sleeveY - 0.245) / (0.335 - 0.245);
+  const sleeveIn = chest - 0.006 + ti * (elbowC - upper * 0.85 - (chest - 0.006)) - 0.006;
+  const teeHalf: Pt[] = [
+    [0.0, 0.152, true],
+    [neck * 0.95, 0.147],
+    [neck + 0.008, 0.135, true],
+    [shoulder + 0.002, 0.166],
+    [armTop + 0.008, 0.2],
+    [sleeveOut, sleeveY, true],
+    [sleeveIn, sleeveY + 0.008, true],
+    [chest - 0.004, 0.25, true],
+    [chest + 0.004, 0.285],
+    [waist + 0.004, 0.39],
+    [hip + 0.003, 0.47, true],
+    [0.0, 0.474, true],
+  ];
+  // Shorts: waistband to mid-thigh for women, to just above the knee for men; split between the legs.
+  const shortsFemale: Pt[] = [
     [0.0, 0.452, true],
     [hip * 0.985, 0.452, true],
     [hip + 0.004, 0.49],
@@ -141,10 +161,19 @@ export function silhouette(opts: {
     [Math.max(0.004, thighIn) + 0.002, 0.606, true],
     [0.0, 0.548, true],
   ];
+  const shortsMale: Pt[] = [
+    [0.0, 0.452, true],
+    [hip * 0.985, 0.452, true],
+    [hip + 0.004, 0.49],
+    [thighOut + 0.004, 0.6],
+    [(thighOut + kneeOut) / 2 + 0.008, 0.668, true],
+    [Math.max(0.004, (thighIn + kneeIn) / 2) + 0.004, 0.675, true],
+    [0.0, 0.552, true],
+  ];
 
   return {
-    top: polygon(toPx(mirror(topHalf))),
-    shorts: polygon(toPx(mirror(shortsHalf))),
+    top: polygon(toPx(mirror(m ? teeHalf : tankHalf))),
+    shorts: polygon(toPx(mirror(m ? shortsMale : shortsFemale))),
     feet: [-1, 1].map((side) => ({
       cx: VIEW.centerX + side * (ankleOut + 0.004) * H,
       cy: topY + 0.992 * H,

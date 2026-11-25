@@ -53,6 +53,11 @@ export type ClinicianHome = {
   unread: number;
   counts: { open: number; dueSoon: number; nudged: number; responded: number };
   queue: TicketSummary[];
+  stats?: {
+    utilization: number; thisWeek: number; capacity: number; earnings: number; earningsAllTime: number; plans: number;
+    retention: number | null; retained: number; served: number; rating: number | null; ratings: number;
+    referralRate: number | null; referralSignups: number; referralConverted: number; referralLink: string | null;
+  } | null;
 };
 
 export type ManagerHome = {
@@ -62,6 +67,10 @@ export type ManagerHome = {
   kpis: { open: number; dueSoon: number; revenue30: string; members: number };
   clinicians: { id: string; name: string; credential: string; open: number; done: number }[];
   queue: TicketSummary[];
+  dashboards?: {
+    ops: { submitted: number; responded: number; avgHours: number | null; sla: number | null; overdue: number; rating: number | null; newMembers: number; clinicians: number };
+    finance: { revenue: number; payouts: number; margin: number; marginPct: number | null; mrr: number; activeSubs: number; churn: number | null };
+  };
 };
 
 export type Home = MemberHome | ClinicianHome | ManagerHome;

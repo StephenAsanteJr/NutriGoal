@@ -8,12 +8,13 @@ import { Bubble, BubbleCluster } from "@/components/Bubble";
 import { Body, Card, ErrorText, Eyebrow, Loading, Pill, Screen } from "@/components/UI";
 import { ListenButton } from "@/components/Voice";
 import { ClinicianFoodsCard } from "@/components/Foods";
+import { RateCard } from "@/components/RateCard";
 import type { ClinicianFoods } from "@/lib/home";
 import { planScript } from "@/lib/voice";
 
 type D = {
   ticket: { id: number; number: string; goal: string; goalType: string; status: string; statusLabel: string; member: string; clinician: string | null; dueAt: string | null; typicalDiet: string; setbacks: string; target: string; routing: string | null; nudges: number };
-  response: { recommendation: string; steps: { title: string; detail: string; timeframe: string }[]; clinician: string; aiAssist: string; foods?: ClinicianFoods | null; at: string } | null;
+  response: { recommendation: string; steps: { title: string; detail: string; timeframe: string }[]; clinician: string; aiAssist: string; foods?: ClinicianFoods | null; rating?: number | null; ratingComment?: string | null; at: string } | null;
   canRespond: boolean;
 };
 
@@ -74,6 +75,16 @@ export default function TicketDetail() {
         </Card>
       )}
       {data.response?.foods ? <ClinicianFoodsCard foods={data.response.foods} clinician={data.response.clinician} /> : null}
+      {data.response && role === "member" && (
+        <RateCard
+          clinician={data.response.clinician.split(",")[0]}
+          rating={data.response.rating ?? null}
+          onRate={async (rating, comment) => {
+            await call(`tickets/${t.id}/rate`, { rating, comment });
+            reload();
+          }}
+        />
+      )}
 
       {msg && <Card tone="good"><Body>{msg}</Body></Card>}
 

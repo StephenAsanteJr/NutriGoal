@@ -1,23 +1,26 @@
 "use client";
 
-import { HAIR_COLORS, HAIR_STYLES, SKIN_TONES } from "@/lib/domain";
+import { FACIAL_HAIR, HAIR_COLORS, HAIR_STYLES, SKIN_TONES } from "@/lib/domain";
 import type { AvatarLook } from "./AvatarBuild";
 
-/** Skin tone, hair style and hair colour for the animated character. Emits hidden form fields. */
+/** Skin tone, hair and (for men) facial hair for the animated character. Emits hidden form fields. */
 export function LookPicker({
   value,
   onChange,
   extra,
+  sex,
 }: {
   value: AvatarLook;
   onChange: (next: AvatarLook) => void;
   extra?: React.ReactNode;
+  sex?: string;
 }) {
   return (
     <div className="space-y-5">
       <input type="hidden" name="skin_tone" value={value.skinTone} />
       <input type="hidden" name="hair_style" value={value.hairStyle} />
       <input type="hidden" name="hair_color" value={value.hairColor} />
+      <input type="hidden" name="facial_hair" value={sex === "male" ? value.facialHair ?? "none" : "none"} />
 
       <div>
         <span className="label">Skin tone</span>
@@ -75,6 +78,25 @@ export function LookPicker({
           </div>
         </div>
       </div>
+      {sex === "male" && (
+        <div>
+          <span className="label">Facial hair</span>
+          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Facial hair">
+            {FACIAL_HAIR.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                role="radio"
+                aria-checked={(value.facialHair ?? "none") === f.id}
+                onClick={() => onChange({ ...value, facialHair: f.id })}
+                className={`rounded-full border px-3 py-1.5 text-xs font-bold ${(value.facialHair ?? "none") === f.id ? "border-blue bg-blue-tint text-blue" : "border-line text-slate hover:border-navy"}`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {extra}
     </div>
   );

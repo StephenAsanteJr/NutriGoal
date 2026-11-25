@@ -5,7 +5,7 @@ import { db, nowIso } from "@/lib/db";
 import { requireMember } from "@/lib/auth";
 import { addWeighIn, getProfile, saveSettings } from "@/lib/data";
 import { bmiOf, estimateBodyFat, lbToKg, minGoalBodyFat, minHealthyWeightKg, safeTimeframe } from "@/lib/biometrics";
-import { HAIR_COLORS, HAIR_STYLES, SKIN_TONES, WEEKLY_RATES_LB, type HairStyleId, type Settings, type SkinToneId } from "@/lib/domain";
+import { HAIR_COLORS, HAIR_STYLES, SKIN_TONES, WEEKLY_RATES_LB, type HairStyleId, type Settings, type SkinToneId, FACIAL_HAIR, type FacialHairId } from "@/lib/domain";
 
 export type SimpleState = { error?: string; ok?: string } | undefined;
 
@@ -70,6 +70,8 @@ export async function saveMemberSettings(_: SimpleState, fd: FormData): Promise<
     if (SKIN_TONES.some((t) => t.id === tone)) patch.skin_tone = tone as SkinToneId;
     if (HAIR_STYLES.some((h) => h.id === style)) patch.hair_style = style as HairStyleId;
     if (HAIR_COLORS.some((c) => c.id === color)) patch.hair_color = color;
+    const facial = String(fd.get("facial_hair") ?? "");
+    if (FACIAL_HAIR.some((f) => f.id === facial)) patch.facial_hair = facial as FacialHairId;
     const scanBf = num(fd, "scan_body_fat");
     if (scanBf != null && !Number.isNaN(scanBf) && !profile.body_fat_pct && scanBf >= 3 && scanBf <= 70) {
       db().prepare("UPDATE profiles SET body_fat_pct = ?, updated_at = ? WHERE user_id = ?").run(scanBf, nowIso(), user.id);

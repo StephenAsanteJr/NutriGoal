@@ -20,7 +20,9 @@ import { saveResponse, startReviewFor } from "@/lib/responses";
 import { submitPaidTicket } from "@/lib/fulfillment";
 import { runAgent, type ChatMessage } from "@/lib/agent";
 import { runVoiceMode } from "@/lib/voice-mode";
+import { rateResponseFor } from "@/lib/ratings";
 import { FOOD_GROUPS, examplesFor, foodGuide, macroTargets } from "@/lib/foods";
+import { clinicianDashboard, financeDashboard, opsDashboard } from "@/lib/analytics";
 
 type Ctx = { params: Promise<{ path: string[] }> };
 const iso = (d: Date) => d.toISOString();
@@ -72,7 +74,7 @@ async function home(user: User, origin: string) {
         bmi: Math.round(b.bmi * 10) / 10, targetKcal: Math.round(s.calorie_goal_override ?? b.targetCalories), proteinG: b.proteinG, weeks: b.effectiveWeeks,
         sex: input.sex, heightCm: input.heightCm,
       } : null,
-      look: { skin: skinTone(s.skin_tone).hex, skinShade: skinTone(s.skin_tone).shade, hairStyle: s.hair_style, hairColor: s.hair_color },
+      look: { skin: skinTone(s.skin_tone).hex, skinShade: skinTone(s.skin_tone).shade, hairStyle: s.hair_style, hairColor: s.hair_color, facialHair: s.facial_hair },
       membership: sub ? { plan: sub.plan, credits: sub.ticket_credits } : null,
       marketplace: hasMarketplaceAccess(user.id),
       nutrition: t.current.length ? { avgKcal: t.averages.calories && Math.round(t.averages.calories), avgProtein: t.averages.protein_g && Math.round(t.averages.protein_g), insights: t.insights.slice(0, 3).map((i) => i.text) } : null,
@@ -89,6 +91,17 @@ async function home(user: User, origin: string) {
       role: "clinician", name: user.name, credential: user.credential, unread,
       counts: { open: open.length, dueSoon: open.filter((x) => x.due_at && new Date(x.due_at).getTime() - Date.now() < 12 * 3600_000).length, nudged: open.filter((x) => nudges.has(x.id)).length, responded: all.length - open.length },
       queue: open.map((x) => ticketSummary(x, nudges)),
+      stats: (() => {
+        const d = clinicianDashboard(user.id, "30d");
+        return d && {
+          utilization: Math.round(d.utilization.week), thisWeek: d.utilization.thisWeek, capacity: d.me.capacity,
+          earnings: d.earnings.range, earningsAllTime: d.earnings.allTime, plans: d.earnings.responses,
+          retention: d.retention.rate == null ? null : Math.round(d.retention.rate), retained: d.retention.retained, served: d.retention.served,
+          rating: d.rating.avg == null ? null : Math.round(d.rating.avg * 100) / 100, ratings: d.rating.count,
+          referralRate: d.referrals.rate == null ? null : Math.round(d.referrals.rate), referralSignups: d.referrals.signups, referralConverted: d.referrals.converted,
+          referralLink: d.me.referralCode ? `${origin}/signup?ref=${d.me.referralCode}` : null,
+        };
+      })(),
     };
   }
   const all = listTicketsForStaff({});
@@ -104,6 +117,15 @@ async function home(user: User, origin: string) {
     },
     clinicians: listClinicians().map((c) => ({ id: c.id, name: c.name, credential: c.credential, open: c.open_count, done: c.done_count })),
     queue: open.map((x) => ticketSummary(x, nudges)),
+    dashboards: (() => {
+      const f = { range: "30d" as const, clinician: null, goal: null, demo: true };
+      const o = opsDashboard(f).kpis;
+      const fin = financeDashboard(f).kpis;
+      return {
+        ops: { submitted: o.submitted.value, responded: o.responded.value, avgHours: o.avgHours.value == null ? null : Math.round(o.avgHours.value), sla: o.sla.value == null ? null : Math.round(o.sla.value), overdue: o.overdue, rating: o.rating.value == null ? null : Math.round(o.rating.value * 100) / 100, newMembers: o.newMembers, clinicians: o.activeClinicians },
+        finance: { revenue: fin.revenue.value / 100, payouts: fin.payouts.value / 100, margin: fin.margin.value / 100, marginPct: fin.marginPct.value == null ? null : Math.round(fin.marginPct.value), mrr: Math.round(fin.mrr) / 100, activeSubs: fin.activeSubs, churn: fin.churn == null ? null : Math.round(fin.churn) },
+      };
+    })(),
   };
 }
 
@@ -131,7 +153,7 @@ export async function GET(req: Request, ctx: Ctx) {
     const r = getResponse(t.id);
     return json({
       ticket: { ...ticketSummary(t), typicalDiet: t.typical_diet, setbacks: t.setbacks, target: t.specific_target, extra: t.extra_context, routing: user.role === "member" ? null : t.routing_reason },
-      response: r ? { recommendation: r.recommendation, steps: r.steps, clinician: `${r.clinician_name}, ${r.clinician_credential}`, aiAssist: r.ai_assist, foods: r.foods, at: r.created_at } : null,
+      response: r ? { recommendation: r.recommendation, steps: r.steps, clinician: `${r.clinician_name}, ${r.clinician_credential}`, aiAssist: r.ai_assist, foods: r.foods, rating: r.rating, ratingComment: r.rating_comment, at: r.created_at } : null,
       canRespond: user.role === "clinician" && t.status !== "responded",
     });
   }
@@ -212,7 +234,7 @@ export async function POST(req: Request, ctx: Ctx) {
     return json({ id, number: ticketNumber(id), canRedeem: !!sub && sub.ticket_credits > 0 });
   }
 
-  const m = path.match(/^tickets\/(\d+)\/(redeem|nudge|start-review|respond)$/);
+  const m = path.match(/^tickets\/(\d+)\/(redeem|nudge|start-review|respond|rate)$/);
   if (m) {
     const id = Number(m[1]);
     const action = m[2];
@@ -230,6 +252,11 @@ export async function POST(req: Request, ctx: Ctx) {
       return json(r, r.ok ? 200 : 400);
     }
     if (action === "start-review") return json({ ok: startReviewFor(user, id) });
+    if (action === "rate") {
+      if (user.role !== "member") return json({ error: "Members only." }, 403);
+      const r = rateResponseFor(user.id, id, Number(body.rating), String(body.comment ?? ""));
+      return json(r, r.ok ? 200 : 400);
+    }
     if (action === "respond") {
       const steps = Array.isArray(body.steps) ? (body.steps as { title?: string; detail?: string; timeframe?: string }[]) : [];
       const r = saveResponse(user, id, {

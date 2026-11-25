@@ -7,6 +7,7 @@ import { db, newId, nowIso } from "@/lib/db";
 import { createSession, destroySession, homeFor, type User } from "@/lib/auth";
 import { notify } from "@/lib/data";
 import { GOAL_TYPES } from "@/lib/domain";
+import { referralCode } from "@/lib/referrals";
 
 export type FormState = { error?: string; fieldErrors?: Record<string, string> } | undefined;
 
@@ -33,10 +34,15 @@ export async function signup(_: FormState, fd: FormData): Promise<FormState> {
   const exists = db().prepare("SELECT 1 FROM users WHERE email = ?").get(email);
   if (exists) return { fieldErrors: { email: "An account with this email already exists. Sign in instead." } };
 
+  // Referral link (/signup?ref=CODE): credit the clinician who shared it, if the code is real.
+  const ref = String(fd.get("ref") ?? "").trim().toUpperCase();
+  const referrer = ref
+    ? (db().prepare("SELECT id FROM users WHERE referral_code = ? AND role = 'clinician' AND staff_status = 'active'").get(ref) as { id: string } | undefined)
+    : undefined;
   const id = newId();
   db()
-    .prepare("INSERT INTO users (id, email, password_hash, name, role, created_at) VALUES (?, ?, ?, ?, 'member', ?)")
-    .run(id, email, await bcrypt.hash(password, 10), name, nowIso());
+    .prepare("INSERT INTO users (id, email, password_hash, name, role, created_at, referred_by) VALUES (?, ?, ?, ?, 'member', ?, ?)")
+    .run(id, email, await bcrypt.hash(password, 10), name, nowIso(), referrer?.id ?? null);
   await createSession(id);
   redirect("/onboarding");
 }
@@ -113,11 +119,11 @@ export async function signupClinician(_: FormState, fd: FormData): Promise<FormS
   const id = newId();
   db()
     .prepare(
-      `INSERT INTO users (id, email, password_hash, name, role, clinician_type, credential, specialties, onboarding_complete, staff_status, license_info, created_at)
-       VALUES (?, ?, ?, ?, 'clinician', ?, ?, ?, 1, 'pending', ?, ?)`,
+      `INSERT INTO users (id, email, password_hash, name, role, clinician_type, credential, specialties, onboarding_complete, staff_status, license_info, created_at, referral_code)
+       VALUES (?, ?, ?, ?, 'clinician', ?, ?, ?, 1, 'pending', ?, ?, ?)`,
     )
     .run(id, d.email, await bcrypt.hash(d.password, 10), d.name, p.type, p.credential, JSON.stringify(specialties.length ? specialties : ["fat_loss", "protein"]),
-      JSON.stringify({ profession: d.clinician_type, license: d.license_number, state: d.license_state, npi: d.npi || null }), nowIso());
+      JSON.stringify({ profession: d.clinician_type, license: d.license_number, state: d.license_state, npi: d.npi || null }), nowIso(), referralCode(d.name));
   notifyManagers("New clinician application", `${d.name} (${p.credential}, license ${d.license_state} ${d.license_number}) is waiting for approval.`);
   await createSession(id);
   redirect("/pending");

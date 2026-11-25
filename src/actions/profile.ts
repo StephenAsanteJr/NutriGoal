@@ -19,7 +19,7 @@ import {
   type Sex,
 } from "@/lib/biometrics";
 import { extractFromPdf, type Extraction } from "@/lib/report-extract";
-import { HAIR_COLORS, HAIR_STYLES, MEDICATION_STAGES, SKIN_TONES, type HairStyleId, type SkinToneId } from "@/lib/domain";
+import { HAIR_COLORS, HAIR_STYLES, MEDICATION_STAGES, SKIN_TONES, type HairStyleId, type SkinToneId, FACIAL_HAIR, type FacialHairId } from "@/lib/domain";
 import { addWeighIn, getProfile, saveSettings } from "@/lib/data";
 
 export type ProfileFormState =
@@ -171,7 +171,9 @@ export async function saveProfile(_: ProfileFormState, fd: FormData): Promise<Pr
   const tone = String(fd.get("skin_tone") ?? "");
   const hairStyle = String(fd.get("hair_style") ?? "");
   const hairColor = String(fd.get("hair_color") ?? "");
+  const facialHair = String(fd.get("facial_hair") ?? "");
   saveSettings(user.id, {
+    ...(FACIAL_HAIR.some((f) => f.id === facialHair) ? { facial_hair: facialHair as FacialHairId } : {}),
     ...(SKIN_TONES.some((t) => t.id === tone) ? { skin_tone: tone as SkinToneId } : {}),
     ...(HAIR_STYLES.some((h) => h.id === hairStyle) ? { hair_style: hairStyle as HairStyleId } : {}),
     ...(HAIR_COLORS.some((c) => c.id === hairColor) ? { hair_color: hairColor } : {}),

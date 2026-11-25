@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Share, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSession } from "@/lib/session";
 import { openWeb } from "@/lib/web";
@@ -11,6 +11,8 @@ import { Badge, HighlightCard, Meter, Row, RowGroup, SectionLabel } from "@/comp
 import { Character } from "@/components/Character";
 
 type Go = (path: string) => void;
+const money = (n: number) => (n >= 10000 ? `$${(n / 1000).toFixed(1)}k` : n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: n >= 1000 ? 0 : 2 }));
+const stripScheme = (url: string) => url.replace("https://", "").replace("http://", "");
 
 export default function HomeTab() {
   const { data, error, loading, reload } = useHome();
@@ -134,6 +136,22 @@ function Clinician({ d, go, web }: { d: ClinicianHome; go: Go; web: (next: strin
         <Row icon="notifications" tone="navy" title="Alerts" subtitle={d.unread ? `${d.unread} unread` : "You're all caught up"} badge={d.unread || null} onPress={() => go("/alerts")} />
         <Row icon="globe-outline" tone="cyan" title="Clinician portal" subtitle="Full ticket view, notes and labs (website)" onPress={() => web("/staff")} />
       </RowGroup>
+      {d.stats && (
+        <>
+          <SectionLabel>Your performance · 30 days</SectionLabel>
+          <RowGroup>
+            <Row icon="speedometer" tone={d.stats.utilization > 100 ? "red" : "blue"} title="Utilization" subtitle={`${d.stats.thisWeek} of ${d.stats.capacity} plans this week`} value={`${d.stats.utilization}%`} />
+            <Row icon="cash" tone="green" title="Gross earnings" subtitle={`${d.stats.plans} plans · ${money(d.stats.earningsAllTime)} all time`} value={money(d.stats.earnings)} />
+            <Row icon="repeat" tone="blue" title="Avg retention rate" subtitle={`${d.stats.retained} of ${d.stats.served} members came back`} value={d.stats.retention == null ? "–" : `${d.stats.retention}%`} />
+            <Row icon="star" tone="green" title="Average rating" subtitle={`${d.stats.ratings} ratings`} value={d.stats.rating == null ? "–" : `${d.stats.rating.toFixed(2)} ★`} />
+            <Row icon="people" tone="cyan" title="Referral conversions" subtitle={`${d.stats.referralConverted} of ${d.stats.referralSignups} sign-ups paid`} value={d.stats.referralRate == null ? "–" : `${d.stats.referralRate}%`} />
+            {d.stats.referralLink && (
+              <Row icon="share-social" tone="navy" title="Share your referral link" subtitle={stripScheme(d.stats.referralLink)} onPress={() => Share.share({ message: `Get a written nutrition plan from me on NutriGoal: ${d.stats!.referralLink}` })} />
+            )}
+            <Row icon="bar-chart" tone="blue" title="Full dashboard" subtitle="Charts, ratings and referral details (website)" onPress={() => web("/staff/dashboard")} />
+          </RowGroup>
+        </>
+      )}
     </>
   );
 }
@@ -165,6 +183,24 @@ function Manager({ d, go, web }: { d: ManagerHome; go: Go; web: (next: string) =
         <Row icon="notifications" tone="navy" title="Alerts" subtitle={d.unread ? `${d.unread} unread` : "You're all caught up"} badge={d.unread || null} onPress={() => go("/alerts")} />
         <Row icon="globe-outline" tone="cyan" title="Operations portal" subtitle="Applications, payments and reports (website)" onPress={() => web("/staff")} />
       </RowGroup>
+      {d.dashboards && (
+        <>
+          <SectionLabel>Operations · 30 days</SectionLabel>
+          <RowGroup>
+            <Row icon="document-text" tone="blue" title="Tickets submitted" subtitle={`${d.dashboards.ops.responded} plans sent`} value={String(d.dashboards.ops.submitted)} />
+            <Row icon="time" tone={d.dashboards.ops.overdue ? "red" : "green"} title="Within 48 hours" subtitle={`avg ${d.dashboards.ops.avgHours ?? "–"} h · ${d.dashboards.ops.overdue} overdue`} subtitleTone={d.dashboards.ops.overdue ? "red" : "muted"} value={d.dashboards.ops.sla == null ? "–" : `${d.dashboards.ops.sla}%`} />
+            <Row icon="star" tone="green" title="Average rating" subtitle={`${d.dashboards.ops.clinicians} clinicians · ${d.dashboards.ops.newMembers} new members`} value={d.dashboards.ops.rating == null ? "–" : `${d.dashboards.ops.rating.toFixed(2)} ★`} />
+            <Row icon="analytics" tone="blue" title="Operations dashboard" subtitle="Filters, charts, Excel and Tableau export (website)" onPress={() => web("/staff/ops")} />
+          </RowGroup>
+          <SectionLabel>Finance · 30 days</SectionLabel>
+          <RowGroup>
+            <Row icon="cash" tone="green" title="Gross revenue" subtitle={`${money(d.dashboards.finance.payouts)} clinician payouts`} value={money(d.dashboards.finance.revenue)} />
+            <Row icon="trending-up" tone="green" title="Gross margin" subtitle={d.dashboards.finance.marginPct == null ? undefined : `${d.dashboards.finance.marginPct}% of revenue`} value={money(d.dashboards.finance.margin)} />
+            <Row icon="repeat" tone="blue" title="Monthly recurring revenue" subtitle={`${d.dashboards.finance.activeSubs} active memberships · ${d.dashboards.finance.churn ?? "–"}% churn`} value={money(d.dashboards.finance.mrr)} />
+            <Row icon="pie-chart" tone="blue" title="Financial dashboard" subtitle="Revenue mix, payouts, Excel and Tableau export (website)" onPress={() => web("/staff/finance")} />
+          </RowGroup>
+        </>
+      )}
     </>
   );
 }

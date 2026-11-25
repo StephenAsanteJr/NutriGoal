@@ -17,7 +17,9 @@ export function TopNav({ user }: { user: User }) {
   const staff = user.role !== "member";
   const links = staff
     ? [
-        { href: "/staff", label: user.role === "manager" ? "Operations" : "My queue" },
+        ...(user.role === "manager"
+          ? [{ href: "/staff/ops", label: "Ops dashboard" }, { href: "/staff/finance", label: "Finance" }, { href: "/staff", label: "Tickets" }]
+          : [{ href: "/staff/dashboard", label: "My dashboard" }, { href: "/staff", label: "My queue" }]),
         { href: "/staff/members", label: "Member builds" },
         ...(user.role === "manager" ? [{ href: "/staff/team", label: "Clinicians" }] : []),
       ]

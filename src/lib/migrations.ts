@@ -2,6 +2,8 @@
 // Each step runs once, in order, inside a transaction.
 import type Database from "better-sqlite3";
 import { METROS } from "./geo-data";
+import { generateDemoHistory } from "./demo-history";
+import { referralCode } from "./referrals";
 
 type Migration = (conn: Database.Database) => void;
 
@@ -308,7 +310,33 @@ const migrations: Migration[] = [
     };
     conn.prepare("UPDATE ticket_responses SET foods_json = ? WHERE id = ?").run(JSON.stringify(foods), demo.id);
   },
+  // v7: facial hair option for men's characters.
+  (conn) => {
+    const cols = (conn.prepare("PRAGMA table_info(user_settings)").all() as { name: string }[]).map((c) => c.name);
+    if (!cols.includes("facial_hair")) conn.exec("ALTER TABLE user_settings ADD COLUMN facial_hair TEXT NOT NULL DEFAULT 'none'");
+  },
+  // v8: data for the dashboards. Member ratings of response tickets, clinician referral links,
+  //     weekly capacity (for utilization), subscription cancellations, and a demo-history flag.
+  (conn) => {
+    const has = (table: string, col: string) => (conn.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[]).some((c) => c.name === col);
+    if (!has("ticket_responses", "rating")) conn.exec("ALTER TABLE ticket_responses ADD COLUMN rating INTEGER");
+    if (!has("ticket_responses", "rating_comment")) conn.exec("ALTER TABLE ticket_responses ADD COLUMN rating_comment TEXT");
+    if (!has("ticket_responses", "rated_at")) conn.exec("ALTER TABLE ticket_responses ADD COLUMN rated_at TEXT");
+    if (!has("users", "referral_code")) conn.exec("ALTER TABLE users ADD COLUMN referral_code TEXT");
+    if (!has("users", "referred_by")) conn.exec("ALTER TABLE users ADD COLUMN referred_by TEXT");
+    if (!has("users", "weekly_capacity")) conn.exec("ALTER TABLE users ADD COLUMN weekly_capacity INTEGER NOT NULL DEFAULT 12");
+    if (!has("users", "demo_history")) conn.exec("ALTER TABLE users ADD COLUMN demo_history INTEGER NOT NULL DEFAULT 0");
+    if (!has("subscriptions", "canceled_at")) conn.exec("ALTER TABLE subscriptions ADD COLUMN canceled_at TEXT");
+    conn.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)");
+    conn.exec("CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users(referred_by)");
+    const clinicians = conn.prepare("SELECT id, name FROM users WHERE role = 'clinician' AND referral_code IS NULL").all() as { id: string; name: string }[];
+    const set = conn.prepare("UPDATE users SET referral_code = ? WHERE id = ?");
+    for (const c of clinicians) set.run(referralCode(c.name), c.id);
+  },
+  // v9: demo content only. About five months of generated history so the dashboards have data.
+  (conn) => generateDemoHistory(conn),
 ];
+
 
 export function runMigrations(conn: Database.Database) {
   const current = conn.pragma("user_version", { simple: true }) as number;

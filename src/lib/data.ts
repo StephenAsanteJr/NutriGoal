@@ -195,6 +195,9 @@ export type ResponseRow = {
   steps_json: string;
   ai_assist: "none" | "wording";
   foods_json: string | null;
+  rating: number | null;
+  rating_comment: string | null;
+  rated_at: string | null;
   created_at: string;
   clinician_name: string;
   clinician_credential: string | null;

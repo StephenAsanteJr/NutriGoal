@@ -208,6 +208,7 @@ export function ProfileForm({
 
         <Section title="Your character" step="2" subtitle="Your build is shown as an animated character. Pick a look, or scan a photo to match your skin tone.">
           <LookPicker
+            sex={v.sex}
             value={look}
             onChange={setLook}
             extra={

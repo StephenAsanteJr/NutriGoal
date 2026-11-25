@@ -4,12 +4,13 @@ import { useActionState } from "react";
 import { signup, type FormState } from "@/actions/auth";
 import { Alert, Field } from "@/components/ui";
 
-export function SignupForm() {
+export function SignupForm({ referral = "" }: { referral?: string }) {
   const [state, action, pending] = useActionState<FormState, FormData>(signup, undefined);
   const fe = state?.fieldErrors ?? {};
   return (
     <form action={action} className="mt-8 space-y-5" noValidate>
       {state?.error && <Alert>{state.error}</Alert>}
+      {referral && <input type="hidden" name="ref" value={referral} />}
       <Field label="Full name" name="name" error={fe.name}>
         <input id="name" name="name" autoComplete="name" className="input" aria-invalid={!!fe.name} required />
       </Field>

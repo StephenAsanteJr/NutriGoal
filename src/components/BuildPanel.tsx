@@ -84,6 +84,6 @@ export function memberCode(userId: string) {
   return `NG-M-${String(h % 100000).padStart(5, "0")}`;
 }
 
-export function lookFrom(settings: { skin_tone: string; hair_style: string; hair_color: string }): AvatarLook {
-  return { skinTone: settings.skin_tone, hairStyle: settings.hair_style, hairColor: settings.hair_color };
+export function lookFrom(settings: { skin_tone: string; hair_style: string; hair_color: string; facial_hair?: string }): AvatarLook {
+  return { skinTone: settings.skin_tone, hairStyle: settings.hair_style, hairColor: settings.hair_color, facialHair: settings.facial_hair ?? "none" };
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getCurrentUser, homeFor } from "@/lib/auth";
+import { db } from "@/lib/db";
 import { SignupForm } from "./SignupForm";
 import { ClinicianSignupForm, ManagerSignupForm } from "./StaffSignupForms";
 
@@ -18,6 +19,10 @@ export default async function SignupPage(props: PageProps<"/signup">) {
   if (user) redirect(homeFor(user));
   const sp = await props.searchParams;
   const role = ROLES.some((r) => r.id === sp.role) ? (sp.role as (typeof ROLES)[number]["id"]) : "member";
+  const ref = typeof sp.ref === "string" ? sp.ref.trim().toUpperCase().slice(0, 20) : "";
+  const referrer = ref
+    ? (db().prepare("SELECT name, credential FROM users WHERE referral_code = ? AND role = 'clinician' AND staff_status = 'active'").get(ref) as { name: string; credential: string | null } | undefined)
+    : undefined;
 
   return (
     <>
@@ -33,7 +38,7 @@ export default async function SignupPage(props: PageProps<"/signup">) {
         {ROLES.map((r) => (
           <Link
             key={r.id}
-            href={`/signup?role=${r.id}`}
+            href={`/signup?role=${r.id}${ref ? `&ref=${encodeURIComponent(ref)}` : ""}`}
             aria-current={role === r.id ? "page" : undefined}
             className={`rounded-[3px] border px-3 py-3 text-center transition ${role === r.id ? "border-blue bg-blue-tint" : "border-line hover:border-navy"}`}
           >
@@ -45,8 +50,14 @@ export default async function SignupPage(props: PageProps<"/signup">) {
 
       {role === "member" && (
         <>
+          {referrer && (
+            <p className="mt-6 rounded-[3px] bg-bcg-tint px-4 py-2.5 text-sm text-bcg-deep">
+              <strong>{referrer.name}</strong>
+              {referrer.credential ? `, ${referrer.credential}` : ""} invited you to NutriGoal.
+            </p>
+          )}
           <p className="mt-6 text-sm text-slate">Free to join. Next you&apos;ll build your profile, then send your first goal ticket when you&apos;re ready.</p>
-          <SignupForm />
+          <SignupForm referral={referrer ? ref : ""} />
         </>
       )}
       {role === "clinician" && (

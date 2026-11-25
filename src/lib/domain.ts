@@ -8,6 +8,9 @@ export const PRICES = {
   supportPack: 799, // Daily Support Pack, $7.99 / month (included in membership)
 } as const;
 
+/** What NutriGoal pays a clinician per signed response ticket (gross, before taxes), by clinician type. */
+export const CLINICIAN_PAYOUT_CENTS: Record<"MD" | "RD", number> = { MD: 1400, RD: 1100 };
+
 export const MEMBERSHIP = {
   ticketsPerMonth: 1,
   includesSupportPack: true,
@@ -102,6 +105,15 @@ export const HAIR_STYLES = [
 ] as const;
 export type HairStyleId = (typeof HAIR_STYLES)[number]["id"];
 
+/** Shown for men's characters only. */
+export const FACIAL_HAIR = [
+  { id: "none", label: "None" },
+  { id: "stubble", label: "Stubble" },
+  { id: "mustache", label: "Mustache" },
+  { id: "beard", label: "Beard" },
+] as const;
+export type FacialHairId = (typeof FACIAL_HAIR)[number]["id"];
+
 export const HAIR_COLORS = [
   { id: "#120c0a", label: "Black" },
   { id: "#2b1b12", label: "Dark brown" },
@@ -138,6 +150,7 @@ export type Settings = {
   skin_tone: SkinToneId;
   hair_style: HairStyleId;
   hair_color: string;
+  facial_hair: FacialHairId;
   energy_unit: "kcal" | "kJ";
   water_unit: "oz" | "ml";
   calorie_goal_override: number | null;
@@ -164,6 +177,7 @@ export const DEFAULT_SETTINGS: Settings = {
   skin_tone: "tone3",
   hair_style: "short",
   hair_color: "#2b1b12",
+  facial_hair: "none",
   energy_unit: "kcal",
   water_unit: "oz",
   calorie_goal_override: null,

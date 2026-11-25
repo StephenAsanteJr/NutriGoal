@@ -6,7 +6,7 @@ import { LookPicker } from "@/components/LookPicker";
 import { PhotoScanButton } from "@/components/PhotoScan";
 import { Alert } from "@/components/ui";
 import { ListenButton } from "@/components/Voice";
-import type { AvatarLook } from "@/components/AvatarBuild";
+import { AvatarBuild, type AvatarLook } from "@/components/AvatarBuild";
 import { WEEKLY_RATES_LB, type Settings } from "@/lib/domain";
 
 type Goals = {
@@ -19,7 +19,9 @@ type Goals = {
 };
 
 /** MyFitnessPal-style settings, one card per section, each saved on its own. */
-export function SettingsPanel({ settings, goals }: { settings: Settings; goals: Goals }) {
+export type CharacterPreview = Omit<React.ComponentProps<typeof AvatarBuild>, "look" | "variant" | "className">;
+
+export function SettingsPanel({ settings, goals, preview }: { settings: Settings; goals: Goals; preview: CharacterPreview }) {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_1fr]">
       <nav className="hidden lg:block" aria-label="Settings sections">
@@ -41,7 +43,7 @@ export function SettingsPanel({ settings, goals }: { settings: Settings; goals: 
         </ul>
       </nav>
       <div className="space-y-6">
-        <CharacterCard settings={settings} />
+        <CharacterCard settings={settings} preview={preview} />
         <GoalsCard settings={settings} goals={goals} />
         <UnitsCard settings={settings} unitSystem={goals.unitSystem} />
         <DiaryCard settings={settings} />
@@ -73,12 +75,14 @@ function SectionForm({ id, title, subtitle, children }: { id: string; title: str
   );
 }
 
-function CharacterCard({ settings }: { settings: Settings }) {
-  const [look, setLook] = useState<AvatarLook>({ skinTone: settings.skin_tone, hairStyle: settings.hair_style, hairColor: settings.hair_color });
+function CharacterCard({ settings, preview }: { settings: Settings; preview: CharacterPreview }) {
+  const [look, setLook] = useState<AvatarLook>({ skinTone: settings.skin_tone, hairStyle: settings.hair_style, hairColor: settings.hair_color, facialHair: settings.facial_hair });
   const [scanBf, setScanBf] = useState<number | null>(null);
   return (
-    <SectionForm id="character" title="Character" subtitle="How your animated build looks. Scan a photo to match your skin tone.">
+    <SectionForm id="character" title="Character" subtitle="How your animated build looks. Changes show in the preview right away; drag the slider or press play to see today vs. your goal.">
+      <div className="grid gap-6 md:grid-cols-[1fr_240px]">
       <LookPicker
+        sex={preview.sex}
         value={look}
         onChange={setLook}
         extra={
@@ -93,6 +97,11 @@ function CharacterCard({ settings }: { settings: Settings }) {
           </div>
         }
       />
+        <div className="rounded-[3px] border border-line bg-mist/50 p-3">
+          <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-muted">Live preview</div>
+          <AvatarBuild {...preview} look={look} variant="full" className="mx-auto w-full max-w-[220px]" />
+        </div>
+      </div>
       {scanBf && <input type="hidden" name="scan_body_fat" value={scanBf} />}
     </SectionForm>
   );

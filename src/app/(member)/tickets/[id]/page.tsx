@@ -7,6 +7,7 @@ import { db, nowIso } from "@/lib/db";
 import { goalLabel, money, ticketNumber } from "@/lib/domain";
 import { ResponseTicket } from "@/components/ResponseTicket";
 import { ListenButton } from "@/components/Voice";
+import { RateResponse } from "@/components/RateResponse";
 import { Alert, StatusPill, shortDate, timeAgo } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Ticket" };
@@ -82,6 +83,9 @@ export default async function TicketPage(props: PageProps<"/tickets/[id]">) {
           respondedAt={response.created_at}
           foods={response.foods}
         />
+      ) : null}
+      {response ? (
+        <RateResponse ticketId={ticket.id} clinician={response.clinician_name} rating={response.rating} comment={response.rating_comment} />
       ) : (
         <section className="card flex flex-wrap items-center gap-6 p-6">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-tint font-display text-xl text-blue">

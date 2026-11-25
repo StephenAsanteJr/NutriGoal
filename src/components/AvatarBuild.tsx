@@ -5,7 +5,7 @@ import { silhouette, VIEW, type SilhouetteShape } from "@/lib/silhouette";
 import { formatWeight, type Sex } from "@/lib/biometrics";
 import { skinTone } from "@/lib/domain";
 
-export type AvatarLook = { skinTone: string; hairStyle: string; hairColor: string };
+export type AvatarLook = { skinTone: string; hairStyle: string; hairColor: string; facialHair?: string };
 
 type Props = {
   sex: Sex;
@@ -256,22 +256,52 @@ export function Character({ shape, look, sex, still }: { shape: SilhouetteShape;
           </g>
         ))}
       </g>
-      {[-1, 1].map((s) => (
-        <path
-          key={s}
-          d={`M${cx + s * rx * 0.22},${cy - ry * 0.2} Q${cx + s * rx * 0.38},${cy - ry * 0.3} ${cx + s * rx * 0.56},${cy - ry * 0.2}`}
-          stroke={hair}
-          strokeWidth={rx * 0.09}
-          strokeLinecap="round"
-          fill="none"
-        />
-      ))}
-      <path d={`M${cx - rx * 0.06},${cy + ry * 0.2} Q${cx},${cy + ry * 0.3} ${cx + rx * 0.06},${cy + ry * 0.2}`} stroke={tone.shade} strokeWidth="1" fill="none" />
-      <path d={`M${cx - rx * 0.28},${cy + ry * 0.42} Q${cx},${cy + ry * 0.62} ${cx + rx * 0.28},${cy + ry * 0.42}`} stroke="#7a2e2e" strokeWidth={rx * 0.07} strokeLinecap="round" fill="none" />
-      <circle cx={cx - rx * 0.55} cy={cy + ry * 0.35} r={rx * 0.13} fill="#e0707a" opacity="0.22" />
-      <circle cx={cx + rx * 0.55} cy={cy + ry * 0.35} r={rx * 0.13} fill="#e0707a" opacity="0.22" />
+      <Face head={shape.head} sex={sex} hair={hair} tone={tone} facialHair={sex === "male" ? look.facialHair ?? "none" : "none"} />
 
       <Hair style={look.hairStyle} color={hair} head={shape.head} sex={sex} />
+    </g>
+  );
+}
+
+/** Brows, nose, mouth and facial hair. Women: arched brows, lashes, lip colour and blush. Men: heavier brows, neutral mouth, optional facial hair. */
+function Face({ head, sex, hair, tone, facialHair }: { head: SilhouetteShape["head"]; sex: Sex; hair: string; tone: { hex: string; shade: string }; facialHair: string }) {
+  const { cx, cy, rx, ry } = head;
+  const male = sex === "male";
+  const beard = `M${cx - rx * 0.98},${cy} C${cx - rx * 0.95},${cy + ry * 0.85} ${cx - rx * 0.45},${cy + ry * 1.1} ${cx},${cy + ry * 1.1}
+    C${cx + rx * 0.45},${cy + ry * 1.1} ${cx + rx * 0.95},${cy + ry * 0.85} ${cx + rx * 0.98},${cy}
+    C${cx + rx * 0.78},${cy + ry * 0.36} ${cx + rx * 0.5},${cy + ry * 0.3} ${cx},${cy + ry * 0.33}
+    C${cx - rx * 0.5},${cy + ry * 0.3} ${cx - rx * 0.78},${cy + ry * 0.36} ${cx - rx * 0.98},${cy} Z`;
+  return (
+    <g>
+      {[-1, 1].map((s) =>
+        male ? (
+          <path key={s} d={`M${cx + s * rx * 0.2},${cy - ry * 0.22} L${cx + s * rx * 0.58},${cy - ry * 0.25}`} stroke={hair} strokeWidth={rx * 0.13} strokeLinecap="round" />
+        ) : (
+          <g key={s}>
+            <path d={`M${cx + s * rx * 0.22},${cy - ry * 0.2} Q${cx + s * rx * 0.38},${cy - ry * 0.32} ${cx + s * rx * 0.56},${cy - ry * 0.21}`} stroke={hair} strokeWidth={rx * 0.07} strokeLinecap="round" fill="none" />
+            <path d={`M${cx + s * rx * 0.48},${cy - ry * 0.02} l${s * rx * 0.08},${-ry * 0.06}`} stroke="#1b1410" strokeWidth={rx * 0.04} strokeLinecap="round" />
+          </g>
+        ),
+      )}
+      <path d={`M${cx - rx * 0.06},${cy + ry * 0.2} Q${cx},${cy + ry * 0.3} ${cx + rx * 0.06},${cy + ry * 0.2}`} stroke={tone.shade} strokeWidth="1" fill="none" />
+      {(facialHair === "beard" || facialHair === "stubble") && <path d={beard} fill={hair} opacity={facialHair === "stubble" ? 0.22 : 0.95} />}
+      {facialHair === "beard" && <ellipse cx={cx} cy={cy + ry * 0.52} rx={rx * 0.34} ry={ry * 0.13} fill={tone.hex} />}
+      {(facialHair === "mustache" || facialHair === "beard") && (
+        <path d={`M${cx - rx * 0.3},${cy + ry * 0.37} Q${cx},${cy + ry * 0.25} ${cx + rx * 0.3},${cy + ry * 0.37}`} stroke={hair} strokeWidth={rx * 0.11} strokeLinecap="round" fill="none" />
+      )}
+      <path
+        d={`M${cx - rx * 0.26},${cy + ry * 0.44} Q${cx},${cy + ry * (male ? 0.58 : 0.62)} ${cx + rx * 0.26},${cy + ry * 0.44}`}
+        stroke={male ? "#4a2f25" : "#9c3b48"}
+        strokeWidth={rx * (male ? 0.06 : 0.08)}
+        strokeLinecap="round"
+        fill="none"
+      />
+      {!male && (
+        <>
+          <circle cx={cx - rx * 0.55} cy={cy + ry * 0.35} r={rx * 0.13} fill="#e0707a" opacity="0.25" />
+          <circle cx={cx + rx * 0.55} cy={cy + ry * 0.35} r={rx * 0.13} fill="#e0707a" opacity="0.25" />
+        </>
+      )}
     </g>
   );
 }
@@ -304,6 +334,15 @@ function Hair({ style, color, head, sex }: { style: string; color: string; head:
       return <path d={cap} fill={color} />;
     case "short":
     default:
-      return <path d={cap} fill={color} transform={sex === "female" ? undefined : undefined} />;
+      // Men's short cut sits tighter with a squared hairline; women's has a softer side part.
+      return sex === "male" ? (
+        <path
+          d={`M${cx - rx * 1.02},${cy - ry * 0.05} C${cx - rx * 1.08},${cy - ry * 1.2} ${cx + rx * 1.08},${cy - ry * 1.2} ${cx + rx * 1.02},${cy - ry * 0.05}
+            L${cx + rx * 0.92},${cy - ry * 0.38} L${cx - rx * 0.92},${cy - ry * 0.38} Z`}
+          fill={color}
+        />
+      ) : (
+        <path d={cap} fill={color} />
+      );
   }
 }
