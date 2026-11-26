@@ -51,7 +51,7 @@ export default async function MembershipPage(props: PageProps<"/membership">) {
             key={t.id}
             href={`/membership?tab=${t.id}`}
             aria-current={tab === t.id ? "page" : undefined}
-            className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-bold ${tab === t.id ? "border-blue text-navy" : "border-transparent text-slate hover:text-navy"}`}
+            className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-bold ${tab === t.id ? "border-bain text-navy" : "border-transparent text-slate hover:text-navy"}`}
           >
             {t.label}
           </Link>

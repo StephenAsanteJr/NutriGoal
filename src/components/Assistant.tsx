@@ -94,7 +94,7 @@ export function Assistant({ firstName }: { firstName: string }) {
               </span>
               <div>
                 <div className="text-sm font-bold">NutriGoal Assistant</div>
-                <div className="text-[10px] uppercase tracking-wider text-cyan">
+                <div className="text-[10px] uppercase tracking-wider text-bcg-fresh">
                   {aiMode === false ? "Quick answers mode" : "AI assistant · not medical advice"}
                 </div>
               </div>

@@ -135,7 +135,7 @@ export function ReportForm() {
           ["build", "Biometric summary"],
         ].map(([k, l]) => (
           <label key={k} className="flex items-center gap-2">
-            <input type="checkbox" name={k} defaultChecked className="accent-blue" /> {l}
+            <input type="checkbox" name={k} defaultChecked className="accent-bcg-deep" /> {l}
           </label>
         ))}
       </fieldset>

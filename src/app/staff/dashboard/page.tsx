@@ -65,7 +65,7 @@ export default async function ClinicianDashboard(props: PageProps<"/staff/dashbo
         <Panel title="Retention" subtitle="Members who sent another ticket within 90 days or kept a membership. Judged on members you answered 30+ days before each period, so they've had time to come back.">
           <div className="font-display text-5xl text-navy">{fmt(d.retention.rate, "pct")}</div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-mist">
-            <div className="h-full rounded-full bg-blue" style={{ width: `${d.retention.rate ?? 0}%` }} />
+            <div className="h-full rounded-full bg-bcg" style={{ width: `${d.retention.rate ?? 0}%` }} />
           </div>
           <p className="mt-2 text-xs text-slate">{d.retention.retained} of {d.retention.served} members retained.</p>
           <div className="mt-4 border-t border-line pt-3 text-xs text-slate">

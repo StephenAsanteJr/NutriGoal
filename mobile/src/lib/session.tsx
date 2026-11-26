@@ -2,7 +2,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import { api, ApiError } from "./api";
+import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
+import { api, apiBase, ApiError } from "./api";
 
 const KEY = "nutrigoal_token";
 type Role = "member" | "clinician" | "manager";
@@ -12,6 +14,8 @@ type Session = {
   name: string | null;
   ready: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  /** Google / Apple / SSO in a secure in-app browser. Resolves with a website link when the person must finish setup there first. */
+  signInWithProvider: (provider: string) => Promise<{ continueUrl?: string } | void>;
   signOut: () => Promise<void>;
   call: <T>(path: string, body?: unknown) => Promise<T>;
 };
@@ -55,6 +59,31 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setName(r.user.name);
   }, []);
 
+  const signInWithProvider = useCallback(async (provider: string) => {
+    if (Platform.OS === "web") {
+      globalThis.open?.(`${apiBase()}/login`, "_blank");
+      return;
+    }
+    const returnUrl = Linking.createURL("auth");
+    const start = `${apiBase()}/auth/oauth/${provider}/start?mobile_return=${encodeURIComponent(returnUrl)}`;
+    const result = await WebBrowser.openAuthSessionAsync(start, returnUrl);
+    if (result.type !== "success") return; // closed or cancelled
+    const q = Linking.parse(result.url).queryParams ?? {};
+    if (typeof q.error === "string") throw new ApiError(q.error, 400);
+    const res = await fetch(`${apiBase()}/api/mobile/oauth/redeem`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ code: q.code }),
+    });
+    const data = (await res.json().catch(() => ({}))) as { token?: string; user?: { name: string; role: Role }; error?: string; continueUrl?: string };
+    if (data.continueUrl) return { continueUrl: data.continueUrl };
+    if (!res.ok || !data.token || !data.user) throw new ApiError(data.error ?? "Sign-in failed.", res.status);
+    await store.set(data.token);
+    setToken(data.token);
+    setRole(data.user.role);
+    setName(data.user.name);
+  }, []);
+
   const signOut = useCallback(async () => {
     if (token) await api("logout", { token, method: "POST", body: {} }).catch(() => {});
     await store.del();
@@ -78,7 +107,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     [token],
   );
 
-  const value = useMemo(() => ({ token, role, name, ready, signIn, signOut, call }), [token, role, name, ready, signIn, signOut, call]);
+  const value = useMemo(() => ({ token, role, name, ready, signIn, signInWithProvider, signOut, call }), [token, role, name, ready, signIn, signInWithProvider, signOut, call]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

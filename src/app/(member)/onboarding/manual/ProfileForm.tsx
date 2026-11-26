@@ -135,10 +135,10 @@ export function ProfileForm({
   const fmtW = (kg: number) => (metric ? `${kg.toFixed(1)} kg` : `${Math.ceil(kgToLb(kg))} lb`);
 
   const rep = (k: string) => fromReport.includes(k);
-  const inputCls = (k: string) => `input ${rep(k) ? "!border-cyan !bg-cyan-tint/40" : ""}`;
+  const inputCls = (k: string) => `input ${rep(k) ? "!border-bcg !bg-bcg-tint/40" : ""}`;
   const err = (k: string) => (fe[k] ? <p className="field-error">{fe[k]}</p> : null);
   const fromBadge = (k: string) =>
-    rep(k) ? <span className="ml-2 rounded-full bg-cyan-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-navy">From report</span> : null;
+    rep(k) ? <span className="ml-2 rounded-full bg-bcg-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-navy">From report</span> : null;
 
   return (
     <form action={action} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]" noValidate>
@@ -347,7 +347,7 @@ export function ProfileForm({
       <aside className="lg:sticky lg:top-6 lg:self-start">
         <div className="card overflow-hidden">
           <div className="bg-navy px-5 py-3 text-white">
-            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan">Live preview</div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Live preview</div>
             <div className="text-sm text-white/80">Your animated build updates as you type</div>
           </div>
           {live ? (
@@ -402,7 +402,7 @@ function Section({ title, step, subtitle, right, children }: { title: string; st
     <section className="card p-6">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div className="flex items-baseline gap-3">
-          <span className="font-display text-2xl text-blue">{step}</span>
+          <span className="font-display text-2xl text-bain">{step}</span>
           <div>
             <h2 className="text-lg font-bold">{title}</h2>
             {subtitle && <p className="text-sm text-slate">{subtitle}</p>}

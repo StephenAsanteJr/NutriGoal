@@ -58,7 +58,7 @@ export default async function TicketsPage() {
                   <Link href={`/tickets/${t.id}`} className="link">{ticketNumber(t.id)}</Link>
                 </td>
                 <td className="max-w-sm px-3 py-4">
-                  <Link href={`/tickets/${t.id}`} className="block truncate font-bold hover:text-blue">{t.goal_statement}</Link>
+                  <Link href={`/tickets/${t.id}`} className="block truncate font-bold hover:text-bain">{t.goal_statement}</Link>
                   <div className="text-xs text-slate">{goalLabel(t.goal_type)}</div>
                 </td>
                 <td className="px-3 py-4">

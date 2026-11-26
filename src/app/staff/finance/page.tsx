@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireStaff } from "@/lib/auth";
-import { financeDashboard, parseFilters, RANGES } from "@/lib/analytics";
+import { financeDashboard, hasDemoHistory, parseFilters, RANGES } from "@/lib/analytics";
 import { CLINICIAN_PAYOUT_CENTS } from "@/lib/domain";
 import { fmt } from "@/lib/fmt";
 import { BarList, LineChart, StackedColumns } from "@/components/dash/Charts";
@@ -26,7 +26,7 @@ export default async function FinanceDashboard(props: PageProps<"/staff/finance"
         </p>
       </header>
 
-      <FilterBar ranges={RANGES} exportBase="/staff/finance/export" />
+      <FilterBar ranges={RANGES} exportBase="/staff/finance/export" showDemo={hasDemoHistory()} />
 
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[3px] border border-line bg-line md:grid-cols-4">
         <Kpi label="Gross revenue" value={k.revenue.value} prev={k.revenue.prev} format="moneyCents" sub={`${k.transactions.toLocaleString()} transactions`} />
@@ -53,10 +53,10 @@ export default async function FinanceDashboard(props: PageProps<"/staff/finance"
           <LineChart format="moneyCents" height={180} labels={labels} series={[{ name: "MRR", values: d.series.map((s) => s.mrr) }]} />
         </Panel>
         <Panel title="Revenue mix" subtitle="This period">
-          <BarList items={d.products} format="moneyCents" />
+          <BarList items={d.products} format="moneyCents" color="#197a56" />
         </Panel>
         <Panel title="Revenue by item" subtitle="This period">
-          <BarList items={d.kinds} format="moneyCents" />
+          <BarList items={d.kinds} format="moneyCents" color="#cc0000" />
         </Panel>
       </div>
 

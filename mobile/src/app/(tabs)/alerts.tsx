@@ -26,7 +26,7 @@ export default function Alerts() {
         <Title>Alerts</Title>
         {unread && (
           <Pressable onPress={async () => { await call("notifications/read", {}); await reload(); home.reload(); }} accessibilityRole="button" hitSlop={8}>
-            <Text style={{ color: C.blue, fontWeight: "700" }}>Mark all read</Text>
+            <Text style={{ color: C.red, fontWeight: "700" }}>Mark all read</Text>
           </Pressable>
         )}
       </View>

@@ -145,7 +145,7 @@ function GoalsCard({ settings, goals }: { settings: Settings; goals: Goals }) {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-sm font-bold">Daily calorie goal</span>
           <label className="flex items-center gap-2 text-xs">
-            <input type="checkbox" checked={custom} onChange={(e) => setCustom(e.target.checked)} className="accent-blue" /> Set a custom goal
+            <input type="checkbox" checked={custom} onChange={(e) => setCustom(e.target.checked)} className="accent-bcg-deep" /> Set a custom goal
           </label>
         </div>
         {custom ? (
@@ -186,7 +186,7 @@ function GoalsCard({ settings, goals }: { settings: Settings; goals: Goals }) {
               name={name as string}
               value={val as number}
               onChange={(e) => (set as (n: number) => void)(Number(e.target.value))}
-              className="accent-blue"
+              className="accent-bcg-deep"
             />
             <span className="text-right font-bold">{val as number}%</span>
           </label>
@@ -269,7 +269,7 @@ function Toggle({ name, label, hint, defaultChecked }: { name: string; label: st
         <span className="block text-sm font-bold">{label}</span>
         {hint && <span className="block text-xs text-slate">{hint}</span>}
       </span>
-      <input type="checkbox" name={name} defaultChecked={defaultChecked} className="mt-1 h-5 w-5 accent-blue" />
+      <input type="checkbox" name={name} defaultChecked={defaultChecked} className="mt-1 h-5 w-5 accent-bcg-deep" />
     </label>
   );
 }

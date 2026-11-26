@@ -22,10 +22,10 @@ export function Card({ children, tone }: { children: React.ReactNode; tone?: "na
 }
 
 export function Button({ label, onPress, kind = "primary", busy, disabled }: { label: string; onPress: () => void; kind?: "primary" | "dark" | "ghost"; busy?: boolean; disabled?: boolean }) {
-  const bg = kind === "primary" ? C.blue : kind === "dark" ? C.navy : "transparent";
+  const bg = kind === "primary" ? C.blue : kind === "dark" ? C.greenDeep : "transparent";
   return (
     <Pressable onPress={onPress} disabled={busy || disabled} accessibilityRole="button" style={({ pressed }) => [s.button, { backgroundColor: bg, opacity: busy || disabled ? 0.5 : pressed ? 0.85 : 1 }, kind === "ghost" && { borderWidth: 1, borderColor: C.line }]}>
-      {busy ? <ActivityIndicator color={kind === "ghost" ? C.navy : C.white} /> : <Text style={[s.buttonText, kind === "ghost" && { color: C.blue }]}>{label}</Text>}
+      {busy ? <ActivityIndicator color={kind === "ghost" ? C.navy : C.white} /> : <Text style={[s.buttonText, kind === "ghost" && { color: C.greenDeep }]}>{label}</Text>}
     </Pressable>
   );
 }
@@ -65,7 +65,7 @@ const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.mist },
   inner: { padding: 18, width: "100%", maxWidth: 640, alignSelf: "center" },
   title: { fontFamily: serif, fontSize: 30, color: C.navy, marginBottom: 6 },
-  eyebrow: { color: C.blue, fontWeight: "800", fontSize: 11, letterSpacing: 1.6, textTransform: "uppercase", marginBottom: 6 },
+  eyebrow: { color: C.red, fontWeight: "800", fontSize: 11, letterSpacing: 1.6, textTransform: "uppercase", marginBottom: 6 },
   body: { color: C.slate, fontSize: 15, lineHeight: 21 },
   card: { borderWidth: 1, borderRadius: 14, padding: 16, marginVertical: 8 },
   button: { borderRadius: 999, paddingVertical: 14, paddingHorizontal: 20, alignItems: "center", marginVertical: 6 },

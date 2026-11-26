@@ -44,7 +44,7 @@ export function ResponseComposer({ ticketId, signer }: { ticketId: number; signe
       <input type="hidden" name="ticket_id" value={ticketId} />
       <input type="hidden" name="foods_json" value={JSON.stringify(foods)} />
       <div className="bg-navy px-6 py-4 text-white">
-        <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan">Response ticket composer</div>
+        <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Response ticket composer</div>
         <div className="text-sm text-white/80">A concise recommendation at the top, then 5–6 actionable steps with timeframes.</div>
       </div>
       <div className="space-y-5 p-6">
@@ -140,11 +140,11 @@ export function ResponseComposer({ ticketId, signer }: { ticketId: number; signe
           <legend className="px-1 text-[13px] font-bold">AI writing help (disclosed to the member)</legend>
           <div className="flex flex-wrap gap-4 text-sm">
             <label className="flex items-center gap-2">
-              <input type="radio" name="ai_assist" value="none" checked={ai === "none"} onChange={() => setAi("none")} className="accent-blue" />
+              <input type="radio" name="ai_assist" value="none" checked={ai === "none"} onChange={() => setAi("none")} className="accent-bcg-deep" />
               Not used
             </label>
             <label className="flex items-center gap-2">
-              <input type="radio" name="ai_assist" value="wording" checked={ai === "wording"} onChange={() => setAi("wording")} className="accent-blue" />
+              <input type="radio" name="ai_assist" value="wording" checked={ai === "wording"} onChange={() => setAi("wording")} className="accent-bcg-deep" />
               Used for wording only (approved tool)
             </label>
           </div>

@@ -23,6 +23,9 @@ export function parseFilters(sp: Record<string, string | string[] | undefined>):
   return { range, clinician: one("clinician") || null, goal, demo: one("demo") !== "0" };
 }
 
+/** Whether any generated demo records exist (the dashboards hide the demo switch when there are none). */
+export const hasDemoHistory = () => !!db().prepare("SELECT 1 FROM users WHERE demo_history = 1 LIMIT 1").get();
+
 export function filterQuery(f: Filters, extra: Record<string, string> = {}) {
   const q = new URLSearchParams({ range: f.range, ...(f.clinician ? { clinician: f.clinician } : {}), ...(f.goal ? { goal: f.goal } : {}), ...(f.demo ? {} : { demo: "0" }), ...extra });
   return q.toString();

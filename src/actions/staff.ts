@@ -8,6 +8,8 @@ import { getTicket, getUserById, notify } from "@/lib/data";
 import { ticketNumber } from "@/lib/domain";
 import { nudgeClinician } from "@/lib/nudges";
 import { saveResponse, startReviewFor } from "@/lib/responses";
+import { routeQueuedTickets } from "@/lib/routing";
+import { readVerification, saveVerification, verifyLicense, type Profession } from "@/lib/licensing";
 
 export type ResponseFormState = { error?: string; fieldErrors?: Record<string, string> } | undefined;
 
@@ -48,7 +50,7 @@ export async function reassignTicket(fd: FormData) {
   const clinicianId = String(fd.get("clinician_id") ?? "");
   const t = getTicket(id);
   const clinician = getUserById(clinicianId);
-  if (!t || !clinician || clinician.role !== "clinician" || t.status === "responded") redirect(`/staff/tickets/${id}`);
+  if (!t || !clinician || clinician.role !== "clinician" || clinician.staff_status !== "active" || t.status === "responded" || t.status === "awaiting_payment") redirect(`/staff/tickets/${id}`);
   db()
     .prepare(
       `UPDATE tickets SET assigned_clinician_id = ?, status = 'assigned', assigned_at = ?,
@@ -96,5 +98,38 @@ export async function reviewApplication(fd: FormData) {
     decision === "active" ? `${manager.name} approved your account. Welcome to the care team.` : "Your application wasn't approved. Contact NutriGoal operations if you think this is a mistake.",
     decision === "active" ? "/staff" : "/pending",
   );
+  // A newly approved clinician picks up any paid tickets that were waiting for one.
+  if (decision === "active" && applicant.role === "clinician") routeQueuedTickets();
+  revalidatePath("/staff/team");
+  revalidatePath("/staff");
+}
+
+/** Re-run the NPI Registry check for an applicant (or an active clinician). */
+export async function rerunLicenseCheck(fd: FormData) {
+  await requireStaff(["manager"]);
+  const id = String(fd.get("user_id") ?? "");
+  const u = db().prepare("SELECT id, name, license_info, license_verification FROM users WHERE id = ? AND role = 'clinician'").get(id) as
+    | { id: string; name: string; license_info: string | null; license_verification: string | null }
+    | undefined;
+  if (!u?.license_info) return;
+  const lic = JSON.parse(u.license_info) as { profession: Profession; license: string; state: string; npi: string | null };
+  const v = await verifyLicense({ profession: lic.profession, name: u.name, license: lic.license, state: lic.state, npi: lic.npi });
+  v.manual = readVerification(u.license_verification)?.manual;
+  saveVerification(id, v);
+  revalidatePath("/staff/team");
+}
+
+/** A manager records that they confirmed the license on the issuing state board's site. */
+export async function confirmStateLicense(fd: FormData) {
+  const manager = await requireStaff(["manager"]);
+  const id = String(fd.get("user_id") ?? "");
+  const note = String(fd.get("note") ?? "").trim().slice(0, 160);
+  const u = db().prepare("SELECT license_info, license_verification FROM users WHERE id = ? AND role = 'clinician'").get(id) as { license_info: string | null; license_verification: string | null } | undefined;
+  if (!u || !note) return;
+  const lic = u.license_info ? (JSON.parse(u.license_info) as { state: string; license: string }) : null;
+  const v = readVerification(u.license_verification);
+  if (!v) return;
+  v.manual = [...(v.manual ?? []), { by: manager.name, at: nowIso(), note: `State board (${lic?.state ?? "?"} ${lic?.license ?? ""}) checked: ${note}` }];
+  db().prepare("UPDATE users SET license_verification = ?, license_verified_at = ? WHERE id = ?").run(JSON.stringify(v), nowIso(), id);
   revalidatePath("/staff/team");
 }

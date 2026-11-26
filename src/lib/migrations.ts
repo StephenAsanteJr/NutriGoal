@@ -4,6 +4,7 @@ import type Database from "better-sqlite3";
 import { METROS } from "./geo-data";
 import { generateDemoHistory } from "./demo-history";
 import { referralCode } from "./referrals";
+import { SEED_DEMO } from "./seed";
 
 type Migration = (conn: Database.Database) => void;
 
@@ -276,7 +277,7 @@ const migrations: Migration[] = [
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
     `);
-    seedTrainers(conn);
+    if (SEED_DEMO) seedTrainers(conn);
     seedIntegrationDemo(conn);
   },
 
@@ -335,6 +336,55 @@ const migrations: Migration[] = [
   },
   // v9: demo content only. About five months of generated history so the dashboards have data.
   (conn) => generateDemoHistory(conn),
+  // v10: fresh start for real use. Removes every mock person (the seeded @nutrigoal.test accounts and the
+  //      generated demo history) and the fictional marketplace listings, keeping real accounts and the
+  //      real national retailers. Real members' tickets that a mock clinician held go back to the queue.
+  //      Skipped on a demo copy (NUTRIGOAL_SEED_DEMO=1).
+  (conn) => {
+    if (SEED_DEMO) return;
+    conn.exec(`
+      CREATE TEMP TABLE IF NOT EXISTS mock_ids (id TEXT PRIMARY KEY);
+      DELETE FROM mock_ids;
+      INSERT INTO mock_ids SELECT id FROM users WHERE email LIKE '%@nutrigoal.test' OR demo_history = 1;
+
+      -- Rows that point at a mock person without cascading.
+      DELETE FROM ticket_responses WHERE clinician_id IN (SELECT id FROM mock_ids);
+      DELETE FROM staff_notes WHERE author_id IN (SELECT id FROM mock_ids);
+      DELETE FROM nudges WHERE clinician_id IN (SELECT id FROM mock_ids) OR member_id IN (SELECT id FROM mock_ids);
+      UPDATE tickets SET assigned_clinician_id = NULL, assigned_at = NULL, responded_at = NULL, status = 'queued',
+        routing_reason = 'Returned to the queue: the previous clinician was a demo account.'
+        WHERE assigned_clinician_id IN (SELECT id FROM mock_ids) AND user_id NOT IN (SELECT id FROM mock_ids) AND status <> 'awaiting_payment';
+      UPDATE users SET referred_by = NULL WHERE referred_by IN (SELECT id FROM mock_ids);
+
+      -- The people themselves (profiles, tickets, payments, memberships, notes, scans… cascade).
+      DELETE FROM users WHERE id IN (SELECT id FROM mock_ids);
+      DROP TABLE mock_ids;
+
+      -- Fictional marketplace listings: sample partners, coaches, generated trainers and their add-ons.
+      DELETE FROM user_addons WHERE addon_id IN (SELECT id FROM addons WHERE partner_id IN (SELECT id FROM partners WHERE kind = 'partner'));
+      DELETE FROM addons WHERE partner_id IN (SELECT id FROM partners WHERE kind = 'partner');
+      DELETE FROM partner_connections WHERE partner_id IN (SELECT id FROM partners WHERE kind = 'partner');
+      DELETE FROM partners WHERE kind = 'partner';
+      DELETE FROM trainer_saves WHERE substr(trainer_id, 1, 2) = 't_';
+      DELETE FROM trainers WHERE substr(id, 1, 2) = 't_';
+    `);
+  },
+  // v11: Google / Apple / SSO sign-in identities linked to NutriGoal accounts, and license verification results.
+  (conn) => {
+    conn.exec(`CREATE TABLE IF NOT EXISTS auth_identities (
+      provider TEXT NOT NULL,
+      subject TEXT NOT NULL,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      email TEXT,
+      created_at TEXT NOT NULL,
+      last_used_at TEXT,
+      PRIMARY KEY (provider, subject)
+    );
+    CREATE INDEX IF NOT EXISTS idx_auth_identities_user ON auth_identities(user_id);`);
+    const cols = (conn.prepare("PRAGMA table_info(users)").all() as { name: string }[]).map((c) => c.name);
+    if (!cols.includes("license_verification")) conn.exec("ALTER TABLE users ADD COLUMN license_verification TEXT");
+    if (!cols.includes("license_verified_at")) conn.exec("ALTER TABLE users ADD COLUMN license_verified_at TEXT");
+  },
 ];
 
 

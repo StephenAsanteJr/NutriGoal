@@ -22,12 +22,12 @@ export default async function Landing() {
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
           <Logo tone="light" />
           <nav className="flex items-center gap-6 text-sm font-bold text-white">
-            <a href="#why" className="hidden hover:text-cyan sm:inline">Why NutriGoal</a>
-            <a href="#how" className="hidden hover:text-cyan sm:inline">How it works</a>
-            <a href="#pricing" className="hidden hover:text-cyan sm:inline">Pricing</a>
-            <a href="#join" className="hidden hover:text-cyan sm:inline">Join</a>
-            <a href="#partners" className="hidden hover:text-cyan sm:inline">Partners</a>
-            <Link href="/login" className="hover:text-cyan">Sign in</Link>
+            <a href="#why" className="hidden hover:text-bcg-fresh sm:inline">Why NutriGoal</a>
+            <a href="#how" className="hidden hover:text-bcg-fresh sm:inline">How it works</a>
+            <a href="#pricing" className="hidden hover:text-bcg-fresh sm:inline">Pricing</a>
+            <a href="#join" className="hidden hover:text-bcg-fresh sm:inline">Join</a>
+            <a href="#partners" className="hidden hover:text-bcg-fresh sm:inline">Partners</a>
+            <Link href="/login" className="hover:text-bcg-fresh">Sign in</Link>
             <Link href="/signup" className="btn-primary !py-2">Get started</Link>
           </nav>
         </div>
@@ -48,7 +48,7 @@ export default async function Landing() {
         </svg>
         <div className="relative mx-auto grid grid-cols-1 max-w-7xl gap-12 px-6 lg:grid-cols-[1.2fr_1fr]">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">Real people. Proven methods. No AI slop.</div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Real people. Proven methods. No AI slop.</div>
             <h1 className="font-display mt-5 text-5xl leading-[1.05] sm:text-6xl">
               Nutrition answers,
               <br />
@@ -114,7 +114,7 @@ export default async function Landing() {
       </section>
 
       {/* Join as */}
-      <section id="join" className="border-b border-line bg-mist py-16">
+      <section id="join" className="border-b border-bain/10 bg-bain-tint py-16">
         <div className="mx-auto max-w-7xl px-6">
           <div className="eyebrow">Join NutriGoal</div>
           <h2 className="font-display mt-3 text-4xl">Sign up the way you&apos;ll use it</h2>
@@ -143,7 +143,7 @@ export default async function Landing() {
           <ol className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-[3px] bg-line md:grid-cols-5">
             {STEPS.map((s) => (
               <li key={s.n} className="bg-white p-6">
-                <div className={`font-display text-3xl ${s.n === "05" ? "text-bcg-deep" : "text-blue"}`}>{s.n}</div>
+                <div className={`font-display text-3xl ${["text-blue", "text-bcg-deep", "text-bain"][(Number(s.n) - 1) % 3]}`}>{s.n}</div>
                 <div className="mt-3 font-bold">{s.title}</div>
                 <p className="mt-2 text-sm text-slate">{s.body}</p>
               </li>
@@ -170,7 +170,7 @@ export default async function Landing() {
               <p className="mt-2 text-sm text-slate">Age, height, weight, body fat, meals, calories, activity and the goal you want, with a timeframe the platform checks is safe.</p>
             </div>
             <div className="card p-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-tint text-navy" aria-hidden>⇪</div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-bcg-tint text-bcg-deep" aria-hidden>⇪</div>
               <h3 className="mt-4 text-lg font-bold">Upload your checkup</h3>
               <p className="mt-2 text-sm text-slate">Add your latest report from a healthcare provider. We pull out labs like A1C and cholesterol, then you confirm and fill any gaps.</p>
             </div>
@@ -208,10 +208,10 @@ export default async function Landing() {
       </section>
 
       {/* Partners */}
-      <section id="partners" className="bg-navy py-20 text-white">
+      <section id="partners" className="bg-bcg-midnight py-20 text-white">
         <div className="mx-auto grid grid-cols-1 max-w-7xl gap-10 px-6 lg:grid-cols-2">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">Verified partner marketplace</div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Verified partner marketplace</div>
             <h2 className="font-display mt-3 text-4xl leading-tight">Grocers, retailers, pharmacies and coaches that fit your plan</h2>
             <p className="mt-4 text-white/75">
               Included for members and ticket holders: certified trainers within 5–10 miles, independent tracking-app picks, and the stores and
@@ -225,7 +225,7 @@ export default async function Landing() {
               ["Pharmacies", "Refill sync and walk-in lab panels"],
               ["Trainers near you", "Certified trainers within 5–10 miles"],
             ].map(([k, v]) => (
-              <div key={k} className="bg-navy p-6">
+              <div key={k} className="bg-bcg-midnight p-6">
                 <div className="font-bold">{k}</div>
                 <div className="mt-1 text-sm text-white/70">{v}</div>
               </div>
@@ -249,7 +249,7 @@ export default async function Landing() {
 
 function PriceCard({ name, price, unit, points, featured }: { name: string; price: string; unit: string; points: string[]; featured?: boolean }) {
   return (
-    <div className={`card flex flex-col p-7 ${featured ? "border-blue ring-1 ring-blue" : ""}`}>
+    <div className={`card flex flex-col p-7 ${featured ? "border-bain ring-1 ring-bain" : ""}`}>
       {featured && <div className="mb-3 self-start rounded-full bg-bcg-tint px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-bcg-deep">Most value</div>}
       <div className="font-bold">{name}</div>
       <div className="mt-3 flex items-baseline gap-2">

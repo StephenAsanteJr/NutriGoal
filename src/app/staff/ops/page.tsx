@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireStaff } from "@/lib/auth";
-import { opsDashboard, parseFilters, RANGES } from "@/lib/analytics";
+import { hasDemoHistory, opsDashboard, parseFilters, RANGES } from "@/lib/analytics";
 import { GOAL_TYPES } from "@/lib/domain";
 import { BarList, Funnel, LineChart } from "@/components/dash/Charts";
 import { DataTable, FilterBar, Kpi, Panel } from "@/components/dash/Parts";
@@ -26,7 +26,7 @@ export default async function OpsDashboard(props: PageProps<"/staff/ops">) {
         </div>
       </header>
 
-      <FilterBar ranges={RANGES} clinicians={d.clinicianOptions} goals={GOAL_TYPES.map((g) => ({ id: g.id, label: g.label }))} exportBase="/staff/ops/export" />
+      <FilterBar ranges={RANGES} clinicians={d.clinicianOptions} goals={GOAL_TYPES.map((g) => ({ id: g.id, label: g.label }))} exportBase="/staff/ops/export" showDemo={hasDemoHistory()} />
 
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[3px] border border-line bg-line md:grid-cols-4">
         <Kpi label="Tickets submitted" value={k.submitted.value} prev={k.submitted.prev} />
@@ -50,10 +50,10 @@ export default async function OpsDashboard(props: PageProps<"/staff/ops">) {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <Panel title="Goal mix" subtitle="Click a goal to filter the whole dashboard">
-          <BarList items={d.goals} filterParam="goal" selected={f.goal} />
+          <BarList items={d.goals} filterParam="goal" selected={f.goal} color="#197a56" />
         </Panel>
         <Panel title="Open backlog by age" subtitle="Hours since payment, open tickets now">
-          <BarList items={d.aging} showShare={false} />
+          <BarList items={d.aging} showShare={false} color="#cc0000" />
         </Panel>
         <Panel title="Member funnel" subtitle="Members who joined in this period">
           <Funnel steps={d.funnel} />

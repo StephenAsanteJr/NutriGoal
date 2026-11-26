@@ -143,7 +143,7 @@ export function FilterBar({ ranges, clinicians, goals, exportBase, showDemo = tr
     <div className="card flex flex-wrap items-center gap-3 p-3">
       <div className="flex overflow-hidden rounded-[2px] border border-line" role="group" aria-label="Time range">
         {ranges.map((r) => (
-          <button key={r.id} type="button" onClick={() => set("range", r.id)} aria-pressed={range === r.id} className={`px-3 py-1.5 text-xs font-bold ${range === r.id ? "bg-navy text-white" : "bg-white text-navy hover:bg-mist"}`}>
+          <button key={r.id} type="button" onClick={() => set("range", r.id)} aria-pressed={range === r.id} className={`px-3 py-1.5 text-xs font-bold ${range === r.id ? "bg-bain text-white" : "bg-white text-navy hover:bg-mist"}`}>
             {r.label}
           </button>
         ))}
@@ -166,7 +166,7 @@ export function FilterBar({ ranges, clinicians, goals, exportBase, showDemo = tr
       )}
       {showDemo && (
         <label className="flex items-center gap-2 text-xs text-slate" title="Generated demo history (flagged in the data). Turn off to see real activity only.">
-          <input type="checkbox" checked={demo} onChange={(e) => set("demo", e.target.checked ? null : "0")} className="accent-blue" />
+          <input type="checkbox" checked={demo} onChange={(e) => set("demo", e.target.checked ? null : "0")} className="accent-bcg-deep" />
           Include demo history
         </label>
       )}

@@ -55,7 +55,7 @@ function ChoiceCard(p: { href: string; tag: string; title: string; body: string;
   return (
     <Link
       href={p.href}
-      className={`card group flex flex-col p-7 transition hover:border-blue hover:shadow-[0_8px_30px_rgba(5,28,44,0.08)] ${p.featured ? "border-navy" : ""}`}
+      className={`card group flex flex-col p-7 transition hover:border-bain hover:shadow-[0_8px_30px_rgba(5,28,44,0.08)] ${p.featured ? "border-navy" : ""}`}
     >
       <div className="flex items-center justify-between">
         <span className={`flex h-12 w-12 items-center justify-center rounded-full ${p.featured ? "bg-navy text-white" : "bg-blue-tint text-blue"}`}>{p.icon}</span>
@@ -66,14 +66,14 @@ function ChoiceCard(p: { href: string; tag: string; title: string; body: string;
       <ul className="mt-5 flex-1 space-y-2 text-sm">
         {p.items.map((i) => (
           <li key={i} className="flex gap-2">
-            <span className="text-blue" aria-hidden>
+            <span className="text-bcg-deep" aria-hidden>
               —
             </span>
             {i}
           </li>
         ))}
       </ul>
-      <span className="mt-7 inline-flex items-center gap-2 font-bold text-blue">
+      <span className="mt-7 inline-flex items-center gap-2 font-bold text-bain">
         Continue <span className="transition group-hover:translate-x-1" aria-hidden>→</span>
       </span>
     </Link>

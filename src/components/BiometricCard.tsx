@@ -39,7 +39,7 @@ export function BiometricCard({ name, memberId, input, build, units, medicationS
       <header className="bg-navy px-5 py-4 text-white">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan">Biometric card</div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Biometric card</div>
             <div className="font-display mt-1 text-2xl leading-tight">{name}</div>
             <div className="mt-1 text-xs text-white/70">
               {input.age} yrs · {input.sex === "male" ? "Male" : "Female"} · {formatHeight(input.heightCm, units)}

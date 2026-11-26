@@ -53,7 +53,7 @@ export default async function MembersPage(props: PageProps<"/staff/members">) {
               return (
                 <tr key={m.id} className="border-b border-line last:border-0 hover:bg-mist/70">
                   <td className="px-6 py-3">
-                    <Link href={`/staff/members/${m.id}`} className="font-bold hover:text-blue">{m.name}</Link>
+                    <Link href={`/staff/members/${m.id}`} className="font-bold hover:text-bain">{m.name}</Link>
                     <div className="text-xs text-muted">
                       {m.email}
                       {m.plan ? ` · member (${m.plan})` : ""}

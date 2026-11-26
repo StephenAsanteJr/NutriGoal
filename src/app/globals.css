@@ -5,7 +5,9 @@
    each with one job so they never compete:
    - BCG green = progress and success (plan ready, on track, verified, included)
    - Bain red  = attention (deadlines, overdue, unread counts, live recording)
-   Navy and blue stay dominant; the accents are small marks, not big fills. */
+   The three firms share the UI evenly (about a third each; run scripts/brand-balance.mjs):
+   McKinsey owns surfaces, primary buttons and focus; BCG owns secondary buttons, success and progress;
+   Bain owns section labels (eyebrows), links, counts, alerts and emphasis. */
 @theme {
   --color-navy: #051c2c;
   --color-navy-soft: #0e2f45;
@@ -24,6 +26,7 @@
   --color-bcg-deep: #197a56;
   --color-bcg-tint: #e3fddb;
   --color-bcg-fresh: #96f878;
+  --color-bcg-midnight: #0c2b15;
   /* Bain red */
   --color-bain: #cc0000;
   --color-bain-dark: #a80000;
@@ -57,7 +60,7 @@ body {
     letter-spacing: -0.01em;
   }
   .eyebrow {
-    @apply text-[11px] font-bold uppercase tracking-[0.14em] text-blue;
+    @apply text-[11px] font-bold uppercase tracking-[0.14em] text-bain;
   }
   .card {
     @apply min-w-0 rounded-[3px] border border-line bg-white;
@@ -69,13 +72,13 @@ body {
     @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 bg-blue text-white hover:bg-blue-dark;
   }
   .btn-dark {
-    @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 bg-navy text-white hover:bg-navy-soft;
+    @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 bg-bcg-deep text-white hover:bg-[#13603f];
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 border border-navy bg-white text-navy hover:bg-mist;
+    @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 border border-bcg-deep bg-white text-bcg-deep hover:bg-bcg-tint;
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-[2px]  py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 px-3 text-blue hover:bg-blue-tint;
+    @apply inline-flex items-center justify-center gap-2 rounded-[2px]  py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 px-3 text-bcg-deep hover:bg-bcg-tint;
   }
   .label {
     @apply mb-1.5 block text-[13px] font-bold text-navy;
@@ -93,7 +96,7 @@ body {
     @apply border-alert;
   }
   .link {
-    @apply font-bold text-blue underline-offset-4 hover:underline;
+    @apply font-bold text-bain underline-offset-4 hover:underline;
   }
   .pill {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold;

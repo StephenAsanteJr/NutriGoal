@@ -88,18 +88,22 @@ export default async function TicketPage(props: PageProps<"/tickets/[id]">) {
         <RateResponse ticketId={ticket.id} clinician={response.clinician_name} rating={response.rating} comment={response.rating_comment} />
       ) : (
         <section className="card flex flex-wrap items-center gap-6 p-6">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-tint font-display text-xl text-blue">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-bcg-tint font-display text-xl text-bcg-deep">
             {(ticket.clinician_name ?? "?").replace("Dr. ", "").split(" ").map((w) => w[0]).join("").slice(0, 2)}
           </div>
           <div className="flex-1">
             <div className="text-sm text-slate">Your clinician</div>
-            <div className="text-lg font-bold">
-              {ticket.clinician_name}
-              <span className="font-normal text-slate">, {ticket.clinician_credential}</span>
-            </div>
+            {ticket.clinician_name ? (
+              <div className="text-lg font-bold">
+                {ticket.clinician_name}
+                <span className="font-normal text-slate">, {ticket.clinician_credential}</span>
+              </div>
+            ) : (
+              <div className="text-lg font-bold">Matching you with a licensed clinician</div>
+            )}
             <p className="mt-1 text-sm text-slate">
-              {ticket.status === "in_review" ? "is reviewing your ticket and build now." : "has your ticket in their queue."} Your response ticket is due{" "}
-              <strong className="text-navy">{ticket.due_at ? timeAgo(ticket.due_at) : "within 48 hours"}</strong>.
+              {!ticket.clinician_name ? "Your ticket is paid and in line for the next available physician or dietitian." : ticket.status === "in_review" ? "is reviewing your ticket and build now." : "has your ticket in their queue."}{" "}
+              Your response ticket is due <strong className="text-navy">{ticket.due_at ? timeAgo(ticket.due_at) : "within 48 hours"}</strong>.
             </p>
           </div>
           <Link href="/marketplace" className="btn-outline">Explore partners while you wait</Link>
@@ -146,9 +150,9 @@ export default async function TicketPage(props: PageProps<"/tickets/[id]">) {
       </section>
 
       {response && (
-        <section className="card flex flex-wrap items-center justify-between gap-4 bg-navy p-6 text-white">
+        <section className="card flex flex-wrap items-center justify-between gap-4 bg-bcg-midnight p-6 text-white">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan">Keep the momentum</div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Keep the momentum</div>
             <div className="font-display mt-1 text-2xl">Ready for your next goal?</div>
             <p className="text-sm text-white/70">Most members follow a first plan with a second goal in the same month.</p>
           </div>

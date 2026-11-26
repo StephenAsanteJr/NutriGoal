@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getCurrentUser, homeFor } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { SsoButtons } from "@/components/SsoButtons";
+import { hasActiveManager } from "@/lib/setup";
 import { SignupForm } from "./SignupForm";
 import { ClinicianSignupForm, ManagerSignupForm } from "./StaffSignupForms";
 
@@ -57,6 +59,7 @@ export default async function SignupPage(props: PageProps<"/signup">) {
             </p>
           )}
           <p className="mt-6 text-sm text-slate">Free to join. Next you&apos;ll build your profile, then send your first goal ticket when you&apos;re ready.</p>
+          <SsoButtons referral={referrer ? ref : ""} divider="or sign up with email" />
           <SignupForm referral={referrer ? ref : ""} />
         </>
       )}
@@ -67,15 +70,18 @@ export default async function SignupPage(props: PageProps<"/signup">) {
             no member information until a NutriGoal manager approves you.
           </p>
           <ClinicianSignupForm />
+          <p className="mt-3 text-xs text-muted">Once you&apos;re approved, you can also sign in with Google, Apple or your organization&apos;s SSO using this email.</p>
         </>
       )}
       {role === "manager" && (
         <>
           <p className="mt-6 text-sm text-slate">
-            Oversee ticket routing, clinician load and the 48-hour promise. Care manager accounts are approved by an existing NutriGoal
-            manager before they open.
+            Oversee ticket routing, clinician load and the 48-hour promise.{" "}
+            {hasActiveManager()
+              ? "Care manager accounts are approved by an existing NutriGoal manager before they open."
+              : "NutriGoal has no manager yet, so this first care manager account opens right away as the owner."}
           </p>
-          <ManagerSignupForm />
+          <ManagerSignupForm owner={!hasActiveManager()} />
         </>
       )}
     </>

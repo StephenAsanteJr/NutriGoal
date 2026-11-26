@@ -226,7 +226,7 @@ function ScanDialog({ onClose, onApply }: { onClose: () => void; onApply: (r: Sc
               ) : (
                 <>
                   <label className="mt-2 flex items-start gap-2 text-xs text-slate">
-                    <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 accent-blue" />
+                    <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 accent-bcg-deep" />
                     <span>
                       Send this photo to NutriGoal&apos;s AI model once to estimate a body-fat range for my character. The photo isn&apos;t
                       saved. It&apos;s a rough visual estimate, not a medical measurement.

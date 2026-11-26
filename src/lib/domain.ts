@@ -40,6 +40,7 @@ export type MedicationStage = (typeof MEDICATION_STAGES)[number]["id"];
 
 export const TICKET_STATUS = {
   awaiting_payment: { label: "Awaiting payment", tone: "warn" },
+  queued: { label: "Matching a clinician", tone: "info" },
   assigned: { label: "With your clinician", tone: "info" },
   in_review: { label: "Clinician reviewing", tone: "info" },
   responded: { label: "Response ready", tone: "good" },

@@ -14,7 +14,7 @@ export function NavLinks({ links, tone }: { links: { href: string; label: string
         const cls =
           tone === "dark"
             ? active
-              ? "border-blue text-navy"
+              ? "border-bain text-navy"
               : "border-transparent text-slate hover:text-navy"
             : active
               ? "border-cyan text-white"

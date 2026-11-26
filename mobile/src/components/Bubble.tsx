@@ -77,6 +77,6 @@ const styles = StyleSheet.create({
   badgeText: { color: C.navy, fontWeight: "800", fontSize: 12 },
   cluster: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", alignItems: "center", paddingVertical: 8 },
   chip: { borderRadius: 999, borderWidth: 1, borderColor: C.line, backgroundColor: C.white, paddingHorizontal: 14, paddingVertical: 9, margin: 4 },
-  chipActive: { backgroundColor: C.blue, borderColor: C.blue },
+  chipActive: { backgroundColor: C.greenDeep, borderColor: C.greenDeep },
   chipText: { color: C.navy, fontWeight: "700", fontSize: 13 },
 });

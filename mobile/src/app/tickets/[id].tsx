@@ -59,7 +59,7 @@ export default function TicketDetail() {
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontWeight: "800", color: C.navy }}>{s.title}</Text>
                   <Text style={{ color: C.slate, marginTop: 2 }}>{s.detail}</Text>
-                  <Text style={{ color: C.blue, fontWeight: "700", marginTop: 4, fontSize: 12 }}>⏱ {s.timeframe}</Text>
+                  <Text style={{ color: C.red, fontWeight: "700", marginTop: 4, fontSize: 12 }}>⏱ {s.timeframe}</Text>
                 </View>
               </View>
             ))}

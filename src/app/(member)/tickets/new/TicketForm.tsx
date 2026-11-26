@@ -80,7 +80,7 @@ export function TicketForm({ draft, onGlp1, voice = true }: { draft: Draft | nul
                 key={g.id}
                 className={`flex cursor-pointer items-center gap-3 rounded-[2px] border px-4 py-3 text-sm font-bold transition ${v.goal_type === g.id ? "border-blue bg-blue-tint text-blue" : "border-line hover:border-navy"}`}
               >
-                <input type="radio" name="goal_type" value={g.id} checked={v.goal_type === g.id} onChange={() => setV((s) => ({ ...s, goal_type: g.id }))} className="accent-blue" />
+                <input type="radio" name="goal_type" value={g.id} checked={v.goal_type === g.id} onChange={() => setV((s) => ({ ...s, goal_type: g.id }))} className="accent-bcg-deep" />
                 {g.label}
               </label>
             ))}
@@ -133,7 +133,7 @@ export function TicketForm({ draft, onGlp1, voice = true }: { draft: Draft | nul
           </ul>
         </div>
         <div className="card bg-navy p-5 text-white">
-          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan">What you&apos;ll get back</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">What you&apos;ll get back</div>
           <ul className="mt-3 space-y-2 text-sm text-white/85">
             <li>— A concise recommendation at the top</li>
             <li>— 5–6 actionable steps, each with a timeframe</li>
@@ -149,7 +149,7 @@ export function TicketForm({ draft, onGlp1, voice = true }: { draft: Draft | nul
 function Q({ n, id, label, hint, error, children, mic }: { n: string; id: string; label: string; hint?: string; error?: string; children: React.ReactNode; mic?: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[28px_1fr] gap-3">
-      <span className="font-display pt-0.5 text-xl text-blue">{n}</span>
+      <span className="font-display pt-0.5 text-xl text-bain">{n}</span>
       <div>
         <div className="mb-1.5 flex items-center justify-between gap-2">
           <label htmlFor={id} className="label !mb-0 !text-[15px]">

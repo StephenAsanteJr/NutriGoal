@@ -42,7 +42,7 @@ export function FoodGuide({ guide }: { guide: Guide }) {
           <li key={r.group.id} className="grid gap-3 px-6 py-4 md:grid-cols-[220px_1fr]">
             <div>
               <div className="flex items-baseline gap-2">
-                <span className="font-display text-3xl text-blue">{r.servings}</span>
+                <span className="font-display text-3xl text-bcg-deep">{r.servings}</span>
                 <span className="text-sm font-bold">serving{r.servings === 1 ? "" : "s"} · {r.group.label}</span>
               </div>
               <div className="text-xs text-muted">{r.group.hint}. One serving ≈ {r.group.typical.serving}.</div>

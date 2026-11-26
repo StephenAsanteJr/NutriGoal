@@ -95,7 +95,7 @@ export default async function NewTicketPage(props: PageProps<"/tickets/new">) {
 
 function StepDot({ n, label, state }: { n: number; label: string; state: "done" | "current" | "todo" }) {
   const dot =
-    state === "done" ? "bg-good text-white" : state === "current" ? "bg-blue text-white" : "border border-line bg-white text-muted";
+    state === "done" ? "bg-good text-white" : state === "current" ? "bg-bain text-white" : "border border-line bg-white text-muted";
   return (
     <li className="flex items-center gap-2" aria-current={state === "current" ? "step" : undefined}>
       <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${dot}`}>{state === "done" ? "✓" : n}</span>

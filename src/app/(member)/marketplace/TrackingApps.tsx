@@ -21,10 +21,10 @@ export function TrackingApps({ goals }: { goals: string[] }) {
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {ranked.map(({ a, fit }, i) => (
-          <article key={a.id} className={`card flex flex-col p-5 ${i === 0 && fit > 0 ? "border-blue ring-1 ring-blue" : ""}`}>
+          <article key={a.id} className={`card flex flex-col p-5 ${i === 0 && fit > 0 ? "border-bain ring-1 ring-bain" : ""}`}>
             <div className="flex items-start justify-between gap-2">
               <h3 className="text-lg font-bold">{a.name}</h3>
-              {i === 0 && fit > 0 && <span className="pill bg-blue text-white">Best fit for you</span>}
+              {i === 0 && fit > 0 && <span className="pill bg-bain text-white">Best fit for you</span>}
             </div>
             <p className="mt-1 flex-1 text-sm text-slate">{a.bestFor}</p>
             <p className="mt-3 text-xs text-muted">{a.price}</p>

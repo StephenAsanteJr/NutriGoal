@@ -56,11 +56,22 @@ export function routeTicket(ticketId: number) {
     reasons.push("Fallback: any available clinician");
   }
   const chosen = [...pool].sort(byQueue)[0];
-  if (!chosen) throw new Error("No clinicians available to take this ticket");
-  reasons.push(`Lowest open queue (${chosen.open_count})`);
-
   const now = new Date();
-  const due = new Date(now.getTime() + MEMBERSHIP.responseSlaHours * 3600_000);
+  const existingDue = (conn.prepare("SELECT due_at FROM tickets WHERE id = ?").get(ticketId) as { due_at: string | null } | undefined)?.due_at;
+  const due = existingDue ? new Date(existingDue) : new Date(now.getTime() + MEMBERSHIP.responseSlaHours * 3600_000);
+
+  // No approved clinician yet (e.g. right after launch): the paid ticket waits in the queue,
+  // the 48-hour clock keeps running, managers are alerted, and it's routed as soon as a clinician is approved.
+  if (!chosen) {
+    conn
+      .prepare("UPDATE tickets SET status = 'queued', goal_group = ?, routing_reason = ?, assigned_clinician_id = NULL, due_at = ? WHERE id = ?")
+      .run(`${stage} × ${ticket.goal_type}`, reasons.concat("Waiting for an approved clinician").join(". ") + ".", due.toISOString(), ticketId);
+    const managers = conn.prepare("SELECT id FROM users WHERE role = 'manager' AND staff_status = 'active'").all() as { id: string }[];
+    for (const m of managers)
+      notify(m.id, `Ticket ${ticketNumber(ticketId)} is waiting for a clinician`, "No approved clinician is available. Approve a clinician application or assign it from the ticket page.", `/staff/tickets/${ticketId}`);
+    return null;
+  }
+  reasons.push(`Lowest open queue (${chosen.open_count})`);
   conn
     .prepare(
       `UPDATE tickets SET status = 'assigned', goal_group = ?, routing_reason = ?, assigned_clinician_id = ?,
@@ -75,4 +86,12 @@ export function routeTicket(ticketId: number) {
     `/staff/tickets/${ticketId}`,
   );
   return chosen;
+}
+
+/** Route every queued ticket (oldest first). Called when a clinician is approved. Returns how many were assigned. */
+export function routeQueuedTickets() {
+  const queued = db().prepare("SELECT id FROM tickets WHERE status = 'queued' ORDER BY paid_at").all() as { id: number }[];
+  let n = 0;
+  for (const t of queued) if (routeTicket(t.id)) n++;
+  return n;
 }

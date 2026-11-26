@@ -8,6 +8,8 @@ import { createSession, destroySession, homeFor, type User } from "@/lib/auth";
 import { notify } from "@/lib/data";
 import { GOAL_TYPES } from "@/lib/domain";
 import { referralCode } from "@/lib/referrals";
+import { hasActiveManager } from "@/lib/setup";
+import { isState, saveVerification, validNpi, verifyLicense } from "@/lib/licensing";
 
 export type FormState = { error?: string; fieldErrors?: Record<string, string> } | undefined;
 
@@ -81,7 +83,12 @@ const clinicianSchema = z.object({
   clinician_type: z.enum(["MD", "DO", "RD", "CNS", "NUT"], { message: "Choose your profession." }),
   license_number: z.string().trim().min(3, "Enter your license or registration number.").max(40),
   license_state: z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/, "Use the 2-letter state code."),
-  npi: z.string().trim().regex(/^(\d{10})?$/, "An NPI is 10 digits (or leave it blank).").optional(),
+  npi: z.string().trim().regex(/^(\d{10})?$/, "An NPI is 10 digits.").optional(),
+}).superRefine((d, ctx) => {
+  const needsNpi = d.clinician_type === "MD" || d.clinician_type === "DO" || d.clinician_type === "RD";
+  if (needsNpi && !d.npi) ctx.addIssue({ code: "custom", path: ["npi"], message: "Physicians and registered dietitians need an NPI. Look it up above." });
+  else if (d.npi && !validNpi(d.npi)) ctx.addIssue({ code: "custom", path: ["npi"], message: "That NPI isn't valid. Check the digits." });
+  if (!isState(d.license_state)) ctx.addIssue({ code: "custom", path: ["license_state"], message: "Use a U.S. state code like NY." });
 });
 
 const managerSchema = z.object({
@@ -124,7 +131,11 @@ export async function signupClinician(_: FormState, fd: FormData): Promise<FormS
     )
     .run(id, d.email, await bcrypt.hash(d.password, 10), d.name, p.type, p.credential, JSON.stringify(specialties.length ? specialties : ["fat_loss", "protein"]),
       JSON.stringify({ profession: d.clinician_type, license: d.license_number, state: d.license_state, npi: d.npi || null }), nowIso(), referralCode(d.name));
-  notifyManagers("New clinician application", `${d.name} (${p.credential}, license ${d.license_state} ${d.license_number}) is waiting for approval.`);
+  // Pull the applicant's NPI Registry record and check it against what they entered.
+  const verification = await verifyLicense({ profession: d.clinician_type, name: d.name, license: d.license_number, state: d.license_state, npi: d.npi || null });
+  saveVerification(id, verification);
+  const statusText = { verified: "NPI record matches", needs_review: "needs a manual check", mismatch: "NPI record doesn't match", not_found: "NPI not found", unavailable: "registry check pending" }[verification.status];
+  notifyManagers("New clinician application", `${d.name} (${p.credential}, license ${d.license_state} ${d.license_number}): ${statusText}. Waiting for approval.`);
   await createSession(id);
   redirect("/pending");
 }
@@ -134,14 +145,17 @@ export async function signupManager(_: FormState, fd: FormData): Promise<FormSta
   if (!parsed.success) return issues(parsed.error);
   const d = parsed.data;
   if (db().prepare("SELECT 1 FROM users WHERE email = ?").get(d.email)) return { fieldErrors: { email: "An account with this email already exists. Sign in instead." } };
+  // Fresh install: while no approved manager exists, the first care manager to sign up becomes the owner
+  // (approved automatically). Everyone after that is approved by an existing manager.
+  const owner = !hasActiveManager();
   const id = newId();
   db()
     .prepare(
       `INSERT INTO users (id, email, password_hash, name, role, credential, onboarding_complete, staff_status, organization, created_at)
-       VALUES (?, ?, ?, ?, 'manager', ?, 1, 'pending', ?, ?)`,
+       VALUES (?, ?, ?, ?, 'manager', ?, 1, ?, ?, ?)`,
     )
-    .run(id, d.email, await bcrypt.hash(d.password, 10), d.name, d.title, d.organization, nowIso());
-  notifyManagers("New care manager application", `${d.name} (${d.title}, ${d.organization}) is waiting for approval.`);
+    .run(id, d.email, await bcrypt.hash(d.password, 10), d.name, d.title, owner ? "active" : "pending", d.organization, nowIso());
+  if (!owner) notifyManagers("New care manager application", `${d.name} (${d.title}, ${d.organization}) is waiting for approval.`);
   await createSession(id);
-  redirect("/pending");
+  redirect(owner ? "/staff/ops" : "/pending");
 }

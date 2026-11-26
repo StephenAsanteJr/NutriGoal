@@ -19,7 +19,7 @@ export function JoinPanel({ stripe = false }: { stripe?: boolean }) {
             type="button"
             onClick={() => setPlan(p)}
             aria-pressed={plan === p}
-            className={`card p-6 text-left transition ${plan === p ? "border-blue ring-1 ring-blue" : "hover:border-navy"}`}
+            className={`card p-6 text-left transition ${plan === p ? "border-blue ring-1 ring-blue" : "hover:border-bain"}`}
           >
             <div className="eyebrow">{p === "monthly" ? "Monthly" : "Annual"}</div>
             <div className="font-display mt-2 text-4xl">{money(p === "monthly" ? PRICES.subscriptionMonthly : PRICES.subscriptionYearly)}</div>
@@ -35,7 +35,7 @@ export function JoinPanel({ stripe = false }: { stripe?: boolean }) {
             "Member offers from verified partners · cancel any time",
           ].map((i) => (
             <li key={i} className="flex gap-2">
-              <span className="text-blue" aria-hidden>✓</span>
+              <span className="font-bold text-bcg-deep" aria-hidden>✓</span>
               {i}
             </li>
           ))}

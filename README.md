@@ -46,7 +46,10 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. The SQLite database and uploads are created in `data/` and seeded on first run; schema migrations apply automatically. `npm run db:reset` starts fresh.
+Open http://localhost:3000. The SQLite database and uploads are created in `data/`; schema migrations apply automatically. A new database starts **empty** (no sample people or businesses). To load the fictional demo data for local development, start with `NUTRIGOAL_SEED_DEMO=1 npm run dev` on a fresh database (`npm run db:reset`).
+
+### First-time setup (owner account)
+On a fresh install, the first person to sign up as a **care manager** (/signup → Care manager) is approved automatically and becomes the owner. Do this right after deploying. After that, clinicians and other managers apply through **/signup** and a manager approves them on **Clinicians**. Paid tickets that arrive before any clinician is approved wait as "Matching a clinician" and are routed automatically when the first clinician is approved.
 
 ### Run the mobile app
 With the web app running (`npm run dev`):
@@ -55,7 +58,7 @@ With the web app running (`npm run dev`):
 cd mobile && npm install && npx expo start
 ```
 
-Scan the QR code with **Expo Go** (free on the App Store / Google Play); your phone must be on the same Wi-Fi as this Mac. The app finds the web API on this Mac automatically (port 3000). Press `w` to open it in a browser instead. Sign in with any demo account below. To point the app at a deployed site, set `EXPO_PUBLIC_API_URL`.
+Scan the QR code with **Expo Go** (free on the App Store / Google Play); your phone must be on the same Wi-Fi as this Mac. The app talks to the site in `mobile/app.json` (`extra.apiUrl`, the live site by default); set `EXPO_PUBLIC_API_URL=http://localhost:3000` to use your local web app. Press `w` to open it in a browser instead.
 
 ### Turn on the integrations (optional)
 Copy `.env.example` to `.env.local`, fill in what you need, and restart `npm run dev`.
@@ -67,27 +70,28 @@ Copy `.env.example` to `.env.local`, fill in what you need, and restart `npm run
 | `EPIC_CLIENT_ID` | "Connect MyChart" (SMART on FHIR). Register a free app at fhir.epic.com; the default endpoint is Epic's sandbox. |
 | `GOOGLE_PLACES_API_KEY` | Adds unverified Google Maps trainers to the 5–10 mile search. |
 | `STRIPE_WEBHOOK_SECRET` | Webhook fulfilment and membership renewals. Locally: `stripe listen --forward-to localhost:3000/api/stripe/webhook`. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | "Continue with Google" (web and app). Google Cloud Console → APIs & Services → Credentials → OAuth client ID (Web application). Authorized redirect URI: `<APP_URL>/auth/oauth/google/callback`. |
+| `APPLE_CLIENT_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` | "Continue with Apple". Apple Developer → Identifiers → Services ID (= `APPLE_CLIENT_ID`) with Sign in with Apple, return URL `<APP_URL>/auth/oauth/apple/callback`; Keys → a Sign in with Apple key (`APPLE_KEY_ID`, and the .p8 file's contents as `APPLE_PRIVATE_KEY`). |
+| `SSO_ISSUER`, `SSO_CLIENT_ID`, `SSO_CLIENT_SECRET`, `SSO_LABEL` | Company single sign-on through any OpenID Connect provider (Okta, Microsoft Entra ID, Google Workspace, Auth0…). Redirect URI `<APP_URL>/auth/oauth/sso/callback`; `SSO_LABEL` is the button text, e.g. "Continue with Okta". |
+
+Sign-in buttons appear only for providers whose variables are set. New people who sign in with a provider get a member account; clinicians and managers apply with the form, then can sign in with a provider that uses the same verified email.
+
+### Clinician license verification
+When a clinician applies, NutriGoal pulls their record from the federal **NPPES NPI Registry** (CMS's public directory; no key needed) and checks it against the application: active individual NPI, name, profession (NUCC taxonomy: physician, registered dietitian or nutritionist) and the state license number and state listed on the record. Applicants can look themselves up by NPI or name to pre-fill the form. Managers see the result on **Clinicians → Applications**, with links to the NPI record, FSMB DocInfo (physicians), CDR credential verification (dietitians) and the state board's lookup, and record their state board check before approving. The NPI Registry is self-reported by providers, so the state board check stays a required manual step.
+
+### Brand colors
+McKinsey (navy, electric blue), BCG (greens) and Bain (reds) share the interface about evenly. `node scripts/brand-balance.mjs` measures accent use across the website and app.
 
 Stripe test card: `4242 4242 4242 4242`, any future expiry, any CVC.
 
-### Demo accounts (local seed data only)
-Locally, every seeded account uses the password **`NutriGoal-demo-2026`** (see [`src/lib/seed.ts`](src/lib/seed.ts)). Hosted copies use `NUTRIGOAL_DEMO_PASSWORD` instead.
-
-| Role | Email |
-| --- | --- |
-| Member (responded ticket, progress history) | `member@nutrigoal.test` |
-| Member (subscriber, type 2 diabetes) | `priya.shah@nutrigoal.test` |
-| Physician, obesity medicine | `dr.okafor@nutrigoal.test` |
-| Physician, internal medicine | `dr.grant@nutrigoal.test` |
-| Dietitian, RD LDN | `marcus.lee@nutrigoal.test` |
-| Dietitian, RD CDCES | `elena.ruiz@nutrigoal.test` |
-| Operations manager | `manager@nutrigoal.test` |
+### Demo data (local development only)
+`NUTRIGOAL_SEED_DEMO=1` on a fresh database loads fictional members, clinicians, a manager and sample partners (password **`NutriGoal-demo-2026`**, see [`src/lib/seed.ts`](src/lib/seed.ts)). Production never loads it, and migration v10 removed it from existing databases.
 
 Demo checkout (no Stripe key): `4242 4242 4242 4242` succeeds, `4000 0000 0000 0002` declines.
 
 ---
 
-## Host a public demo (Railway)
+## Host it (Railway)
 
 NutriGoal needs a running Node server and a disk for its SQLite database, so it can't run on GitHub Pages.
 
@@ -96,7 +100,7 @@ NutriGoal needs a running Node server and a disk for its SQLite database, so it 
 3. Add the variable `NUTRIGOAL_DATA_DIR=/data` so the database, uploaded reports and session secret survive redeploys. Optional: `APP_URL` (your public URL, for Stripe redirects), Stripe test-mode keys, and `ANTHROPIC_API_KEY` (leave it unset on a public demo unless you accept the usage cost; without it the assistant and voice mode use keyword rules).
 4. **Settings → Networking → Generate Domain** to get the shareable link.
 
-A "demo site" banner shows by default; set `NUTRIGOAL_DEMO_BANNER=off` to hide it. Set `NUTRIGOAL_DEMO_PASSWORD` to a private value before the first deploy: the seeded demo accounts (including clinician and manager logins) then use that password instead of the local one below. Never enter real health information in a public demo.
+Right after the first deploy, sign up as a care manager to become the owner. For a separate demo copy with sample data, deploy another service with `NUTRIGOAL_SEED_DEMO=1` and `NUTRIGOAL_DEMO_BANNER=on`. Before storing real member health information, see the compliance step below.
 
 ## Tech stack
 - **Next.js 16** (App Router, Server Actions, Turbopack) · **React 19** · **TypeScript** · **Tailwind CSS 4**
@@ -121,8 +125,8 @@ src/
 ---
 
 ## Not production-ready yet: next steps
-1. **Compliance:** HIPAA-eligible hosting and BAAs (including any AI vendor you use with PHI), encryption at rest for `data/uploads`, audit log review, MFA for staff, staff invitations instead of seeded accounts.
+1. **Compliance:** HIPAA-eligible hosting and BAAs (including any AI vendor and sign-in provider you use with PHI), encryption at rest for `data/uploads`, audit log review, MFA for staff, periodic license re-verification.
 2. **Stripe:** customer portal for cancelling or updating cards; tie subscription status to Stripe events beyond renewals.
 3. **Notifications:** deliver nudges, reminders and response tickets by email/SMS/push (settings are stored; sending isn't wired).
-4. **Marketplace:** real partner onboarding, verification workflow, and affiliate tracking with disclosure; store-specific cart building for saved stores.
+4. **Marketplace:** managers list verified partners and trainers on **Staff → Marketplace**; next: partner self-onboarding, affiliate tracking with disclosure, store-specific cart building.
 5. **Ticket follow-up:** the included follow-up question and "suggest goal 2" (deck slides 8 and 25).

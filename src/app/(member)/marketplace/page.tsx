@@ -49,7 +49,7 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
         <div className="card flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
           <span className="font-bold">Connected:</span>
           {connected.map((p) => (
-            <a key={p.id} href={`#${p.id}`} className="pill bg-blue-tint text-blue">{p.name}</a>
+            <a key={p.id} href={`#${p.id}`} className="pill bg-bain-tint text-bain">{p.name}</a>
           ))}
         </div>
       )}
@@ -74,7 +74,7 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
                   .filter((p) => p.category === g.id)
                   .map((p, i) => (
                     <li key={p.id} id={p.id} className="flex scroll-mt-24 items-start gap-3 border-b border-line px-5 py-4 last:border-0">
-                      <span className="font-display w-6 text-2xl leading-none text-blue">{i + 1}</span>
+                      <span className="font-display w-6 text-2xl leading-none text-bain">{i + 1}</span>
                       <div className="min-w-0 flex-1">
                         <div className="font-bold">{p.name}</div>
                         <div className="text-xs text-slate">{p.rank_note}</div>
@@ -87,7 +87,7 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
                           )}
                           <form action={togglePartner}>
                             <input type="hidden" name="partner_id" value={p.id} />
-                            <SubmitButton className={p.connected ? "text-xs font-bold text-good" : "text-xs font-bold text-blue hover:underline"} pendingText="…">
+                            <SubmitButton className={p.connected ? "text-xs font-bold text-good" : "text-xs font-bold text-bain hover:underline"} pendingText="…">
                               {p.connected ? "✓ Saved as my store" : g.id === "pharmacy" ? "Save as my pharmacy" : "Save as my store"}
                             </SubmitButton>
                           </form>
@@ -111,7 +111,7 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
           <Link
             key={c.id}
             href={c.id === "all" ? "/marketplace" : `/marketplace?category=${c.id}`}
-            className={`rounded-[2px] border px-4 py-2 text-sm font-bold ${cat === c.id ? "border-navy bg-navy text-white" : "border-line bg-white text-slate hover:border-navy"}`}
+            className={`rounded-[2px] border px-4 py-2 text-sm font-bold ${cat === c.id ? "border-bain bg-bain text-white" : "border-line bg-white text-slate hover:border-bain"}`}
             aria-current={cat === c.id ? "page" : undefined}
           >
             {c.label}
@@ -120,6 +120,13 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
         ))}
       </nav>
 
+      {shown.length === 0 && (
+        <div className="card p-6 text-sm text-slate">
+          {verified.length === 0
+            ? "We're vetting our first partners now. Each one's license or certification is checked before it appears here."
+            : "No verified partners in this category yet."}
+        </div>
+      )}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {shown.map((p) => {
           const match = p.goal_types.filter((g) => myGoals.has(g));
@@ -142,7 +149,7 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
                   <span key={t} className="pill bg-mist text-slate">{t}</span>
                 ))}
               </div>
-              {match.length > 0 && <p className="mt-3 text-xs font-bold text-blue">Fits your goal: {goalLabel(match[0]).toLowerCase()}</p>}
+              {match.length > 0 && <p className="mt-3 text-xs font-bold text-bcg-deep">Fits your goal: {goalLabel(match[0]).toLowerCase()}</p>}
               <div className="mt-4 border-t border-line pt-4 text-xs text-muted">
                 {p.verification} · checked {new Date(p.verified_on).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
                 {p.rating ? ` · ★ ${p.rating.toFixed(1)}` : ""}
@@ -175,8 +182,8 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
       </section>
 
       <p className="text-xs text-muted">
-        Partner listings in this demo are fictional sample businesses. NutriGoal may earn a disclosed commission on partner orders; it
-        never shares your health data with partners unless you connect and approve it.
+        NutriGoal may earn a disclosed commission on partner orders. It never shares your health data with partners unless you connect and
+        approve it.
       </p>
     </div>
   );

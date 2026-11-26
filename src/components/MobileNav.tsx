@@ -31,7 +31,7 @@ export function MobileNav({ role }: { role: "member" | "clinician" | "manager" }
             ? [{ href: "/staff/ops", label: "Ops", icon: "queue" }, { href: "/staff/finance", label: "Finance", icon: "queue" }, { href: "/staff", label: "Tickets", icon: "queue" }]
             : [{ href: "/staff/dashboard", label: "Dashboard", icon: "queue" }, { href: "/staff", label: "Queue", icon: "queue" }]),
           { href: "/staff/members", label: "Members", icon: "people" },
-          ...(role === "manager" ? [{ href: "/staff/team", label: "Team", icon: "people" }] : []),
+          ...(role === "manager" ? [{ href: "/staff/team", label: "Team", icon: "people" }, { href: "/staff/marketplace", label: "Partners", icon: "people" }] : []),
           { href: "/notifications", label: "Alerts", icon: "bell" },
         ];
   const isActive = (href: string) =>
@@ -50,7 +50,7 @@ export function MobileNav({ role }: { role: "member" | "clinician" | "manager" }
               <Link
                 href={t.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-bold ${active ? "text-blue" : "text-slate"}`}
+                className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-bold ${active ? "text-bain" : "text-slate"}`}
               >
                 {"primary" in t && t.primary ? (
                   <span className="-mt-5 flex h-11 w-11 items-center justify-center rounded-full bg-blue text-white shadow-lg">

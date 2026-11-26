@@ -33,7 +33,7 @@ export default async function NotificationsPage() {
           {items.map((n) => (
             <li key={n.id} className="border-b border-line last:border-0">
               <Link href={n.link ?? "#"} className="flex gap-4 px-6 py-4 hover:bg-mist">
-                <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.read_at ? "bg-transparent" : "bg-cyan"}`} aria-label={n.read_at ? undefined : "Unread"} />
+                <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.read_at ? "bg-transparent" : "bg-bain"}`} aria-label={n.read_at ? undefined : "Unread"} />
                 <div className="flex-1">
                   <div className="font-bold">{n.title}</div>
                   <div className="text-sm text-slate">{n.body}</div>

@@ -95,7 +95,7 @@ export function MicButton({ onText, label }: { onText: (text: string) => void; l
       aria-label={d.listening ? `Stop dictating ${label}` : `Dictate ${label}`}
       title={d.listening ? "Stop" : "Speak instead of typing"}
       className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition ${
-        d.listening ? "animate-pulse border-alert bg-alert text-white" : "border-line text-blue hover:border-blue hover:bg-blue-tint"
+        d.listening ? "animate-pulse border-alert bg-alert text-white" : "border-line text-bain hover:border-bain hover:bg-bain-tint"
       }`}
     >
       <MicIcon />
@@ -136,7 +136,7 @@ export function VoicePanel({
     );
 
   return (
-    <div className={`rounded-[3px] border p-4 ${dark ? "border-white/15 bg-white/5 text-white" : "border-blue/30 bg-blue-tint/40"}`}>
+    <div className={`rounded-[3px] border p-4 ${dark ? "border-white/15 bg-white/5 text-white" : "border-bain/20 bg-bain-tint/60"}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-sm font-bold">
@@ -180,7 +180,7 @@ export function VoicePanel({
           </div>
         </div>
       )}
-      {(d.error || msg) && <p className={`mt-2 text-xs ${d.error ? "text-alert" : dark ? "text-cyan" : "text-good"} font-bold`}>{d.error ?? msg}</p>}
+      {(d.error || msg) && <p className={`mt-2 text-xs ${d.error ? "text-alert" : dark ? "text-bcg-fresh" : "text-good"} font-bold`}>{d.error ?? msg}</p>}
     </div>
   );
 }
@@ -217,10 +217,10 @@ export function ListenButton({ text, label = "Listen", title, tone = "light", si
       aria-label={playing ? "Pause reading aloud" : `${label}: read aloud`}
       className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border font-bold transition ${size === "sm" ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-xs"} ${
         playing
-          ? "border-navy bg-navy text-white"
+          ? "border-bcg-deep bg-bcg-deep text-white"
           : dark
             ? "border-white/30 text-white hover:bg-white/10"
-            : "border-blue/30 bg-white text-blue hover:border-blue hover:bg-blue-tint"
+            : "border-bcg-deep/30 bg-white text-bcg-deep hover:border-bcg-deep hover:bg-bcg-tint"
       }`}
     >
       {playing ? (

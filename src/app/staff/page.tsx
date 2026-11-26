@@ -64,7 +64,7 @@ export default async function StaffHome(props: PageProps<"/staff">) {
                   <td className="w-1/3 px-3 py-3">
                     <div className="flex items-center gap-3">
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-mist">
-                        <div className="h-full bg-blue" style={{ width: `${Math.min(100, c.open_count * 20)}%` }} />
+                        <div className="h-full bg-bcg" style={{ width: `${Math.min(100, c.open_count * 20)}%` }} />
                       </div>
                       <span className="w-14 text-xs text-slate">{c.open_count} open</span>
                     </div>
@@ -134,7 +134,7 @@ function QueueTable({ tickets, showClinician }: { tickets: TicketWithPeople[]; s
                 <Link href={`/staff/tickets/${t.id}`} className="link">{ticketNumber(t.id)}</Link>
               </td>
               <td className="max-w-xs px-3 py-3">
-                <Link href={`/staff/tickets/${t.id}`} className="block font-bold hover:text-blue">{t.member_name}</Link>
+                <Link href={`/staff/tickets/${t.id}`} className="block font-bold hover:text-bain">{t.member_name}</Link>
                 <div className="truncate text-xs text-slate">{goalLabel(t.goal_type)} — {t.goal_statement}</div>
               </td>
               <td className="px-3 py-3 font-mono text-xs text-slate">{t.goal_group}</td>

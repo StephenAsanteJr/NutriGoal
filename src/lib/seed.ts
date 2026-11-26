@@ -1,7 +1,22 @@
-// Demo data loaded the first time the database is created.
-// All people, partners and offers here are fictional sample data.
+// Seed data. Production starts empty: only NutriGoal's own add-ons are created.
+// Set NUTRIGOAL_SEED_DEMO=1 (local development or a separate demo copy) to also load the
+// fictional demo people, partners and tickets below the first time the database is created.
 import type Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
+
+export const SEED_DEMO = process.env.NUTRIGOAL_SEED_DEMO === "1";
+
+/** NutriGoal's own products (no partner involved). Present on every database, including a fresh one. */
+const CORE_ADDONS = [
+  { id: "support_pack", name: "Daily Support Pack", description: "3–4 meal-timed nudges a day, a 4-week program for your goal group, weekly progress notes and grocery lists from your plan. Quiet hours 9 pm–8 am.", price_cents: 799, interval: "month", partner_id: null, included_with_membership: 1, sort: 1 },
+  { id: "maintenance", name: "Maintenance Check-ins", description: "Clinician check-ins at 30, 60 and 90 days after you reach your goal, so the weight stays off.", price_cents: 2500, interval: "once", partner_id: null, included_with_membership: 0, sort: 5 },
+];
+
+export function seedCatalog(conn: Database.Database) {
+  const ins = conn.prepare(`INSERT OR IGNORE INTO addons (id, name, description, price_cents, interval, partner_id, included_with_membership, sort)
+    VALUES (@id, @name, @description, @price_cents, @interval, @partner_id, @included_with_membership, @sort)`);
+  for (const a of CORE_ADDONS) ins.run(a);
+}
 
 /**
  * Shared password for every seeded demo account. Hosted copies should set
@@ -25,6 +40,8 @@ const hoursAgo = (h: number) => new Date(Date.now() - h * 3600_000).toISOString(
 const hoursFromNow = (h: number) => new Date(Date.now() + h * 3600_000).toISOString();
 
 export function seedIfEmpty(conn: Database.Database) {
+  seedCatalog(conn);
+  if (!SEED_DEMO) return;
   const { n } = conn.prepare("SELECT COUNT(*) AS n FROM users").get() as { n: number };
   if (n > 0) return;
 
@@ -229,7 +246,7 @@ export function seedIfEmpty(conn: Database.Database) {
     { id: "p_leila", name: "Leila Haddad, ACE Health Coach", category: "coach", tagline: "Habit coaching between tickets", description: "Weekly accountability calls focused on sleep, cravings and sticking with your plan after the goal.", verification: "Certification & background check verified", verified_on: "2026-08-25", location: "Remote · phone or video", tags: ["Habits", "Maintenance"], offer: "First call free", rating: 4.8, goal_types: ["keep_weight_off", "budget_meals", "fat_loss"] },
   ];
 
-  const insertAddon = conn.prepare(`INSERT INTO addons
+  const insertAddon = conn.prepare(`INSERT OR IGNORE INTO addons
     (id, name, description, price_cents, interval, partner_id, included_with_membership, sort)
     VALUES (@id, @name, @description, @price_cents, @interval, @partner_id, @included_with_membership, @sort)`);
   const addons = [

@@ -76,14 +76,14 @@ function Member({ d, go, web }: { d: MemberHome; go: Go; web: (next: string) => 
       <SectionLabel>Jump in</SectionLabel>
       <RowGroup>
         <Row icon="add-circle" tone="blue" title="New goal ticket" subtitle={included ? "1 ticket included with your membership" : "$19.99 one-time, or join for $29.99/mo"} subtitleTone={included ? "green" : "muted"} onPress={() => go("/new-ticket")} />
-        <Row icon="document-text" tone="navy" title="My tickets" subtitle={openCount ? `${openCount} in progress` : ready ? "Plan ready to read" : "Your plans live here"} subtitleTone={!openCount && ready ? "green" : "muted"} badge={openCount || null} badgeTone="navy" onPress={() => go("/tickets")} />
+        <Row icon="document-text" tone="red" title="My tickets" subtitle={openCount ? `${openCount} in progress` : ready ? "Plan ready to read" : "Your plans live here"} subtitleTone={!openCount && ready ? "green" : "muted"} badge={openCount || null} badgeTone="navy" onPress={() => go("/tickets")} />
         <Row icon="body" tone="green" title="My build" subtitle={b ? `${w(b.weightKg)} → ${w(b.goalWeightKg)} ${unit} · ${b.weeks} weeks` : "Today vs. your goal"} onPress={() => go("/build")} />
         {d.foodGuide && (
           <Row icon="nutrition" tone="green" title="Foods that fit your targets" subtitle={`${d.foodGuide.match.overall}% match · ${d.foodGuide.rows.map((r) => `${r.servings} ${r.label.split(/[ ,&]/)[0].toLowerCase()}`).join(" · ")}`} onPress={() => go("/build")} />
         )}
-        <Row icon="barbell" tone="cyan" title="Log weight" subtitle="Keep your progress line current" onPress={() => go("/weigh-in")} />
-        <Row icon="storefront" tone="blue" title="Marketplace" subtitle={d.marketplace ? "Trainers near you, grocers and pharmacies" : "Opens with a ticket or membership"} locked={!d.marketplace} onPress={() => go("/marketplace")} />
-        <Row icon="chatbubbles" tone="navy" title="Ask NutriGoal" subtitle="Help with orders, tickets and reminders" onPress={() => go("/assistant")} />
+        <Row icon="barbell" tone="green" title="Log weight" subtitle="Keep your progress line current" onPress={() => go("/weigh-in")} />
+        <Row icon="storefront" tone="green" title="Marketplace" subtitle={d.marketplace ? "Trainers near you, grocers and pharmacies" : "Opens with a ticket or membership"} locked={!d.marketplace} onPress={() => go("/marketplace")} />
+        <Row icon="chatbubbles" tone="red" title="Ask NutriGoal" subtitle="Help with orders, tickets and reminders" onPress={() => go("/assistant")} />
         <Row icon="trending-up" tone="green" title="Nutrition trends" subtitle="Your tracker and lab history (website)" onPress={() => web("/data")} />
       </RowGroup>
 
@@ -97,7 +97,7 @@ function Member({ d, go, web }: { d: MemberHome; go: Go; web: (next: string) => 
                 <Text style={{ color: C.muted, fontSize: 11, fontWeight: "800", letterSpacing: 1 }}>TODAY → GOAL</Text>
                 <Text style={{ fontFamily: serif, fontSize: 24, color: C.navy }}>{w(b.weightKg)} → {w(b.goalWeightKg)} {unit}</Text>
                 <Text style={{ color: C.slate, fontSize: 13 }}>{b.bodyFatPct}% → {b.goalBodyFatPct}% body fat</Text>
-                <Text style={{ color: C.blue, fontWeight: "800", fontSize: 13, marginTop: 6 }}>{b.targetKcal.toLocaleString()} kcal · {b.proteinG} g protein / day</Text>
+                <Text style={{ color: C.greenDeep, fontWeight: "800", fontSize: 13, marginTop: 6 }}>{b.targetKcal.toLocaleString()} kcal · {b.proteinG} g protein / day</Text>
               </View>
             </View>
             {d.nutrition?.avgKcal != null && <Meter label="Calories, 7-day avg" value={d.nutrition.avgKcal} target={b.targetKcal} unit="kcal" mode="range" />}
@@ -133,20 +133,20 @@ function Clinician({ d, go, web }: { d: ClinicianHome; go: Go; web: (next: strin
         <Row icon="time" tone="red" title="Due within 12 hours" subtitle={d.counts.dueSoon ? "Keep the 48-hour promise" : "Nothing urgent"} subtitleTone={d.counts.dueSoon ? "red" : "muted"} badge={d.counts.dueSoon || null} onPress={() => go("/tickets")} />
         <Row icon="flag" tone="red" title="Nudged" subtitle="Members or managers asking for a look" badge={d.counts.nudged || null} onPress={() => go("/tickets")} />
         <Row icon="checkmark-circle" tone="green" title="Responded" subtitle="Plans you've written and signed" value={String(d.counts.responded)} />
-        <Row icon="notifications" tone="navy" title="Alerts" subtitle={d.unread ? `${d.unread} unread` : "You're all caught up"} badge={d.unread || null} onPress={() => go("/alerts")} />
-        <Row icon="globe-outline" tone="cyan" title="Clinician portal" subtitle="Full ticket view, notes and labs (website)" onPress={() => web("/staff")} />
+        <Row icon="notifications" tone="red" title="Alerts" subtitle={d.unread ? `${d.unread} unread` : "You're all caught up"} badge={d.unread || null} onPress={() => go("/alerts")} />
+        <Row icon="globe-outline" tone="blue" title="Clinician portal" subtitle="Full ticket view, notes and labs (website)" onPress={() => web("/staff")} />
       </RowGroup>
       {d.stats && (
         <>
           <SectionLabel>Your performance · 30 days</SectionLabel>
           <RowGroup>
-            <Row icon="speedometer" tone={d.stats.utilization > 100 ? "red" : "blue"} title="Utilization" subtitle={`${d.stats.thisWeek} of ${d.stats.capacity} plans this week`} value={`${d.stats.utilization}%`} />
+            <Row icon="speedometer" tone={d.stats.utilization > 100 ? "red" : "green"} title="Utilization" subtitle={`${d.stats.thisWeek} of ${d.stats.capacity} plans this week`} value={`${d.stats.utilization}%`} />
             <Row icon="cash" tone="green" title="Gross earnings" subtitle={`${d.stats.plans} plans · ${money(d.stats.earningsAllTime)} all time`} value={money(d.stats.earnings)} />
-            <Row icon="repeat" tone="blue" title="Avg retention rate" subtitle={`${d.stats.retained} of ${d.stats.served} members came back`} value={d.stats.retention == null ? "–" : `${d.stats.retention}%`} />
+            <Row icon="repeat" tone="red" title="Avg retention rate" subtitle={`${d.stats.retained} of ${d.stats.served} members came back`} value={d.stats.retention == null ? "–" : `${d.stats.retention}%`} />
             <Row icon="star" tone="green" title="Average rating" subtitle={`${d.stats.ratings} ratings`} value={d.stats.rating == null ? "–" : `${d.stats.rating.toFixed(2)} ★`} />
-            <Row icon="people" tone="cyan" title="Referral conversions" subtitle={`${d.stats.referralConverted} of ${d.stats.referralSignups} sign-ups paid`} value={d.stats.referralRate == null ? "–" : `${d.stats.referralRate}%`} />
+            <Row icon="people" tone="red" title="Referral conversions" subtitle={`${d.stats.referralConverted} of ${d.stats.referralSignups} sign-ups paid`} value={d.stats.referralRate == null ? "–" : `${d.stats.referralRate}%`} />
             {d.stats.referralLink && (
-              <Row icon="share-social" tone="navy" title="Share your referral link" subtitle={stripScheme(d.stats.referralLink)} onPress={() => Share.share({ message: `Get a written nutrition plan from me on NutriGoal: ${d.stats!.referralLink}` })} />
+              <Row icon="share-social" tone="red" title="Share your referral link" subtitle={stripScheme(d.stats.referralLink)} onPress={() => Share.share({ message: `Get a written nutrition plan from me on NutriGoal: ${d.stats!.referralLink}` })} />
             )}
             <Row icon="bar-chart" tone="blue" title="Full dashboard" subtitle="Charts, ratings and referral details (website)" onPress={() => web("/staff/dashboard")} />
           </RowGroup>
@@ -175,19 +175,19 @@ function Manager({ d, go, web }: { d: ManagerHome; go: Go; web: (next: string) =
       )}
       <SectionLabel>Jump in</SectionLabel>
       <RowGroup>
-        <Row icon="clipboard" tone="blue" title="Open tickets" subtitle="Routing, reassignments and nudges" badge={d.kpis.open || null} badgeTone="navy" onPress={() => go("/tickets")} />
+        <Row icon="clipboard" tone="red" title="Open tickets" subtitle="Routing, reassignments and nudges" badge={d.kpis.open || null} badgeTone="navy" onPress={() => go("/tickets")} />
         <Row icon="time" tone="red" title="Due within 12 hours" subtitle={d.kpis.dueSoon ? "At risk of missing 48 hours" : "Nothing at risk"} subtitleTone={d.kpis.dueSoon ? "red" : "muted"} badge={d.kpis.dueSoon || null} onPress={() => go("/tickets")} />
-        <Row icon="people" tone="navy" title="Clinicians" subtitle={`${d.clinicians.length} on the roster · load and approvals`} onPress={() => go("/team")} />
+        <Row icon="people" tone="red" title="Clinicians" subtitle={`${d.clinicians.length} on the roster · load and approvals`} onPress={() => go("/team")} />
         <Row icon="trending-up" tone="green" title="Revenue, last 30 days" value={d.kpis.revenue30} />
-        <Row icon="person-circle" tone="cyan" title="Members" value={String(d.kpis.members)} />
-        <Row icon="notifications" tone="navy" title="Alerts" subtitle={d.unread ? `${d.unread} unread` : "You're all caught up"} badge={d.unread || null} onPress={() => go("/alerts")} />
+        <Row icon="person-circle" tone="green" title="Members" value={String(d.kpis.members)} />
+        <Row icon="notifications" tone="red" title="Alerts" subtitle={d.unread ? `${d.unread} unread` : "You're all caught up"} badge={d.unread || null} onPress={() => go("/alerts")} />
         <Row icon="globe-outline" tone="cyan" title="Operations portal" subtitle="Applications, payments and reports (website)" onPress={() => web("/staff")} />
       </RowGroup>
       {d.dashboards && (
         <>
           <SectionLabel>Operations · 30 days</SectionLabel>
           <RowGroup>
-            <Row icon="document-text" tone="blue" title="Tickets submitted" subtitle={`${d.dashboards.ops.responded} plans sent`} value={String(d.dashboards.ops.submitted)} />
+            <Row icon="document-text" tone="red" title="Tickets submitted" subtitle={`${d.dashboards.ops.responded} plans sent`} value={String(d.dashboards.ops.submitted)} />
             <Row icon="time" tone={d.dashboards.ops.overdue ? "red" : "green"} title="Within 48 hours" subtitle={`avg ${d.dashboards.ops.avgHours ?? "–"} h · ${d.dashboards.ops.overdue} overdue`} subtitleTone={d.dashboards.ops.overdue ? "red" : "muted"} value={d.dashboards.ops.sla == null ? "–" : `${d.dashboards.ops.sla}%`} />
             <Row icon="star" tone="green" title="Average rating" subtitle={`${d.dashboards.ops.clinicians} clinicians · ${d.dashboards.ops.newMembers} new members`} value={d.dashboards.ops.rating == null ? "–" : `${d.dashboards.ops.rating.toFixed(2)} ★`} />
             <Row icon="analytics" tone="blue" title="Operations dashboard" subtitle="Filters, charts, Excel and Tableau export (website)" onPress={() => web("/staff/ops")} />
@@ -196,7 +196,7 @@ function Manager({ d, go, web }: { d: ManagerHome; go: Go; web: (next: string) =
           <RowGroup>
             <Row icon="cash" tone="green" title="Gross revenue" subtitle={`${money(d.dashboards.finance.payouts)} clinician payouts`} value={money(d.dashboards.finance.revenue)} />
             <Row icon="trending-up" tone="green" title="Gross margin" subtitle={d.dashboards.finance.marginPct == null ? undefined : `${d.dashboards.finance.marginPct}% of revenue`} value={money(d.dashboards.finance.margin)} />
-            <Row icon="repeat" tone="blue" title="Monthly recurring revenue" subtitle={`${d.dashboards.finance.activeSubs} active memberships · ${d.dashboards.finance.churn ?? "–"}% churn`} value={money(d.dashboards.finance.mrr)} />
+            <Row icon="repeat" tone="green" title="Monthly recurring revenue" subtitle={`${d.dashboards.finance.activeSubs} active memberships · ${d.dashboards.finance.churn ?? "–"}% churn`} value={money(d.dashboards.finance.mrr)} />
             <Row icon="pie-chart" tone="blue" title="Financial dashboard" subtitle="Revenue mix, payouts, Excel and Tableau export (website)" onPress={() => web("/staff/finance")} />
           </RowGroup>
         </>

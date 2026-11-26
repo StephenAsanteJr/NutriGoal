@@ -172,7 +172,7 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {partners.map((p) => (
-            <Link key={p.id} href={`/marketplace?category=${p.category}#${p.id}`} className="card block p-5 hover:border-blue">
+            <Link key={p.id} href={`/marketplace?category=${p.category}#${p.id}`} className="card block p-5 hover:border-bain">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
                   {PARTNER_CATEGORIES.find((c) => c.id === p.category)?.label}
@@ -181,7 +181,7 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
               </div>
               <div className="mt-2 font-bold">{p.name}</div>
               <p className="text-sm text-slate">{p.tagline}</p>
-              {p.offer && <p className="mt-3 text-xs font-bold text-blue">{p.offer}</p>}
+              {p.offer && <p className="mt-3 text-xs font-bold text-bcg-deep">{p.offer}</p>}
             </Link>
           ))}
         </div>

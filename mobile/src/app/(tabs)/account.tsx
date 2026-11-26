@@ -35,8 +35,8 @@ export default function Account() {
           <SectionLabel>Membership</SectionLabel>
           <RowGroup>
             <Row icon="ribbon" tone={plan ? "green" : "navy"} title={plan ?? "No membership yet"} subtitle={plan ? `${member!.membership!.credits} ticket credit${member!.membership!.credits === 1 ? "" : "s"} left` : "$29.99/mo or $300/yr, one ticket every month"} subtitleTone={plan ? "green" : "muted"} onPress={() => web("/membership")} />
-            <Row icon="receipt" tone="blue" title="Payments and receipts" onPress={() => web("/payments")} />
-            <Row icon="settings-outline" tone="navy" title="Goals, units and reminders" subtitle="Your settings, like MyFitnessPal's" onPress={() => web("/membership?tab=settings")} />
+            <Row icon="receipt" tone="red" title="Payments and receipts" onPress={() => web("/payments")} />
+            <Row icon="settings-outline" tone="red" title="Goals, units and reminders" subtitle="Your settings, like MyFitnessPal's" onPress={() => web("/membership?tab=settings")} />
           </RowGroup>
         </>
       )}
@@ -62,7 +62,7 @@ export default function Account() {
       <SectionLabel>More</SectionLabel>
       <RowGroup>
         <Row icon="open-outline" tone="cyan" title="Open the full website" subtitle="Already signed in" onPress={() => web(role === "member" ? "/dashboard" : "/staff")} />
-        {role === "member" && <Row icon="chatbubbles" tone="navy" title="Ask NutriGoal" subtitle="Support for orders, tickets and reminders" onPress={() => router.push("/assistant")} />}
+        {role === "member" && <Row icon="chatbubbles" tone="green" title="Ask NutriGoal" subtitle="Support for orders, tickets and reminders" onPress={() => router.push("/assistant")} />}
         <Row icon="log-out-outline" tone="red" title="Sign out" onPress={signOut} />
       </RowGroup>
       <View style={{ marginTop: 16 }}>

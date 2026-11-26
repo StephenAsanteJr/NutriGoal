@@ -43,7 +43,7 @@ export function FoodGuideCard({ guide }: { guide: FoodGuideData }) {
         return (
           <View key={r.id} style={{ borderTopWidth: 1, borderTopColor: C.line }}>
             <Pressable onPress={() => setOpen(isOpen ? null : r.id)} accessibilityRole="button" accessibilityState={{ expanded: isOpen }} style={s.groupRow}>
-              <Text style={{ fontFamily: serif, fontSize: 24, color: C.blue, width: 32 }}>{r.servings}</Text>
+              <Text style={{ fontFamily: serif, fontSize: 24, color: C.greenDeep, width: 32 }}>{r.servings}</Text>
               <View style={{ flex: 1 }}>
                 <Text style={{ color: C.navy, fontWeight: "800" }}>{r.label}</Text>
                 <Text style={{ color: C.muted, fontSize: 12 }} numberOfLines={isOpen ? 3 : 1}>

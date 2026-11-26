@@ -37,7 +37,7 @@ export function PaymentOptions({ ticketId, membership, stripe = false }: { ticke
 
 function OptionShell({ n, title, price, unit, children, featured }: { n: string; title: string; price: string; unit: string; children: React.ReactNode; featured?: boolean }) {
   return (
-    <section className={`card flex h-full flex-col p-7 ${featured ? "border-navy" : ""}`}>
+    <section className={`card flex h-full flex-col p-7 ${featured ? "border-bain ring-1 ring-bain" : ""}`}>
       <div className="flex items-center justify-between">
         <span className="eyebrow">Option {n}</span>
         {featured && <span className="pill bg-navy text-white">Best value</span>}
@@ -57,7 +57,7 @@ function Bullets({ items }: { items: string[] }) {
     <ul className="mt-5 space-y-2 text-sm text-slate">
       {items.map((i) => (
         <li key={i} className="flex gap-2">
-          <span className="text-blue" aria-hidden>✓</span>
+          <span className="font-bold text-bcg-deep" aria-hidden>✓</span>
           {i}
         </li>
       ))}

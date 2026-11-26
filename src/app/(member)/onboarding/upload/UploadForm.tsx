@@ -38,7 +38,7 @@ export function UploadForm() {
                   {ex.found.map((f) => (
                     <tr key={f.field} className="border-b border-line last:border-0">
                       <td className="py-2.5 font-bold">{f.label}</td>
-                      <td className="py-2.5 text-blue">{f.display}</td>
+                      <td className="py-2.5 font-bold text-bcg-deep">{f.display}</td>
                       <td className="hidden py-2.5 font-mono text-xs text-muted sm:table-cell">“{f.raw}”</td>
                     </tr>
                   ))}
@@ -120,7 +120,7 @@ export function UploadForm() {
       </div>
 
       <label className="flex items-start gap-3 text-sm text-slate">
-        <input type="checkbox" name="consent" className="mt-0.5 h-4 w-4 accent-blue" />
+        <input type="checkbox" name="consent" className="mt-0.5 h-4 w-4 accent-bcg-deep" />
         <span>This is my own report, and I agree to share it with the NutriGoal clinicians who review my tickets.</span>
       </label>
 

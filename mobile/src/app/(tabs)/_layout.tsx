@@ -22,7 +22,7 @@ const TABS: Record<string, { title: string; icon: IconName; roles: Role[] }> = {
 
 function TabIcon({ name, focused, color }: { name: IconName; focused: boolean; color: string }) {
   return (
-    <View style={{ width: 54, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: focused ? C.blueTint : "transparent" }}>
+    <View style={{ width: 54, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: focused ? C.redTint : "transparent" }}>
       <Ionicons name={(focused ? name : `${name}-outline`) as IconName} size={22} color={color} />
     </View>
   );
@@ -44,7 +44,7 @@ export default function TabsLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: C.blue,
+          tabBarActiveTintColor: C.red,
           tabBarInactiveTintColor: C.muted,
           tabBarLabelStyle: { fontSize: 11, fontWeight: "700" },
           tabBarStyle: { backgroundColor: C.white, borderTopColor: C.line },

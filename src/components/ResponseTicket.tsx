@@ -25,7 +25,7 @@ export function ResponseTicket(p: Props) {
     <article className="card overflow-hidden" aria-label="Response ticket">
       <header className="flex flex-wrap items-center justify-between gap-3 bg-navy px-6 py-4 text-white">
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan">Response ticket · {ticketNumber(p.ticketId)}</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Response ticket · {ticketNumber(p.ticketId)}</div>
           <div className="mt-1 text-sm text-white/80">
             {goalLabel(p.goalType)} — “{p.goalStatement}”
           </div>
@@ -38,7 +38,7 @@ export function ResponseTicket(p: Props) {
         </div>
       </header>
 
-      <section className="border-b border-line bg-blue-tint/50 px-6 py-5">
+      <section className="border-b border-line bg-bcg-tint/60 px-6 py-5">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <div className="eyebrow !mb-0">Recommendation</div>
           <ListenButton label="Listen to this plan" title={`Plan for ${ticketNumber(p.ticketId)}`} text={planScript({ recommendation: p.recommendation, steps: p.steps, foods: p.foods, clinician: `${p.clinicianName}${p.clinicianCredential ? `, ${p.clinicianCredential}` : ""}` })} />
@@ -56,7 +56,7 @@ export function ResponseTicket(p: Props) {
                 <div className="font-bold text-navy">{s.title}</div>
                 <p className="mt-0.5 text-sm text-slate">{s.detail}</p>
               </div>
-              <span className="pill whitespace-nowrap bg-cyan-tint text-navy">
+              <span className="pill whitespace-nowrap bg-bain-tint text-bain">
                 <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
                   <circle cx="8" cy="8" r="6.5" />
                   <path d="M8 4.5V8l2.3 1.5" />

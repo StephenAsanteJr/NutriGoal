@@ -22,7 +22,7 @@ export function SignupForm({ referral = "" }: { referral?: string }) {
       </Field>
       <div>
         <label className="flex items-start gap-3 text-sm text-slate">
-          <input type="checkbox" name="consent" className="mt-0.5 h-4 w-4 accent-blue" />
+          <input type="checkbox" name="consent" className="mt-0.5 h-4 w-4 accent-bcg-deep" />
           <span>
             I agree that NutriGoal clinicians may review the health information I share to answer my tickets. NutriGoal never sells
             individual health data.

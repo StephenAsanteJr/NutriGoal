@@ -8,7 +8,7 @@ import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { fmt, type FmtKind } from "@/lib/fmt";
 
-export const SERIES = ["#2251ff", "#197a56", "#0284c7"];
+export const SERIES = ["#2251ff", "#197a56", "#cc0000"]; // McKinsey blue · BCG green · Bain red
 const LATE = "#cc0000";
 const GRID = "#e6ebef";
 const AXIS = "#7b868e";

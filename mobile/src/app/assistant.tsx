@@ -88,7 +88,7 @@ export default function Assistant() {
         {busy && <Text style={{ color: C.muted }}>Thinking…</Text>}
       </ScrollView>
       {(dictation.listening || hint || dictation.error) && (
-        <Text style={{ color: dictation.listening || dictation.error ? C.red : C.blue, fontWeight: "700", fontSize: 12.5, paddingHorizontal: 14, paddingTop: 8, backgroundColor: C.white }}>
+        <Text style={{ color: dictation.listening || dictation.error ? C.red : C.greenDeep, fontWeight: "700", fontSize: 12.5, paddingHorizontal: 14, paddingTop: 8, backgroundColor: C.white }}>
           {dictation.error ?? (dictation.listening ? `● Listening${dictation.interim ? `: “${dictation.interim}”` : "… speak now"}` : "Tap the 🎙 key on your keyboard and speak.")}
         </Text>
       )}
@@ -99,7 +99,7 @@ export default function Assistant() {
           accessibilityLabel={dictation.listening ? "Stop dictating" : "Dictate your message"}
           style={{ width: 42, height: 42, borderRadius: 21, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: dictation.listening ? C.red : C.line, backgroundColor: dictation.listening ? C.red : C.white }}
         >
-          <Ionicons name={dictation.listening ? "stop" : "mic"} size={18} color={dictation.listening ? C.white : C.blue} />
+          <Ionicons name={dictation.listening ? "stop" : "mic"} size={18} color={dictation.listening ? C.white : C.red} />
         </Pressable>
         <TextInput ref={input} onBlur={() => setHint(false)} value={text} onChangeText={setText} onSubmitEditing={() => send(text)} placeholder="Ask about trainers, stores or your tickets" placeholderTextColor={C.muted} style={{ flex: 1, borderWidth: 1, borderColor: C.line, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10, color: C.navy }} returnKeyType="send" />
         <View style={{ width: 90 }}>

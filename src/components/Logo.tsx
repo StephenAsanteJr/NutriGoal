@@ -25,7 +25,7 @@ export function Logo({
         <span className={tone === "dark" ? "text-blue" : "text-[#5B83FF]"}>GOAL</span>
       </span>
       {suffix && (
-        <span className={`ml-1 hidden text-[11px] font-bold uppercase tracking-[0.14em] sm:inline ${tone === "dark" ? "text-muted" : "text-cyan"}`}>
+        <span className={`ml-1 hidden text-[11px] font-bold uppercase tracking-[0.14em] sm:inline ${tone === "dark" ? "text-muted" : "text-bcg-fresh"}`}>
           {suffix}
         </span>
       )}

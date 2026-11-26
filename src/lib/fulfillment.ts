@@ -22,7 +22,9 @@ export function submitPaidTicket(userId: string, ticketId: number, method: strin
   notify(
     userId,
     `Ticket ${ticketNumber(ticketId)} submitted`,
-    `${clinician.name}, ${clinician.credential} will send your response ticket within 48 hours.`,
+    clinician
+      ? `${clinician.name}, ${clinician.credential} will send your response ticket within 48 hours.`
+      : "We're matching you with a licensed clinician now. Your response ticket is due within 48 hours.",
     `/tickets/${ticketId}`,
   );
   revalidatePath("/dashboard");

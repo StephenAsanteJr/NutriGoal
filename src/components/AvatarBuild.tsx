@@ -90,7 +90,7 @@ export function AvatarBuild(p: Props) {
           </div>
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue hover:underline disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-bain hover:underline disabled:opacity-50"
             disabled={playing}
             onClick={() => {
               setT(0);
@@ -138,7 +138,7 @@ export function AvatarBuild(p: Props) {
               max={100}
               value={Math.round(t * 100)}
               onChange={(e) => setT(Number(e.target.value) / 100)}
-              className="w-full accent-blue"
+              className="w-full accent-bcg-deep"
               aria-label="Timeline from today to goal"
             />
             <div className="flex justify-between text-[11px] text-muted">
@@ -178,7 +178,7 @@ function Comparison({ start, goal, look, sex, p }: { start: SilhouetteShape; goa
     <div className="mt-4 grid grid-cols-2 gap-3 border-t border-line pt-4">
       {[
         { label: "Today", s: start, wt: p.weightKg, f: p.bodyFatPct, tone: "text-navy" },
-        { label: "Goal", s: goal, wt: p.goalWeightKg, f: p.goalBodyFatPct, tone: "text-blue" },
+        { label: "Goal", s: goal, wt: p.goalWeightKg, f: p.goalBodyFatPct, tone: "text-bcg-deep" },
       ].map((c) => (
         <div key={c.label} className="text-center">
           <svg viewBox={vb} className="mx-auto block h-28 w-auto" aria-hidden>

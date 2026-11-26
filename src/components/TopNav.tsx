@@ -21,7 +21,7 @@ export function TopNav({ user }: { user: User }) {
           ? [{ href: "/staff/ops", label: "Ops dashboard" }, { href: "/staff/finance", label: "Finance" }, { href: "/staff", label: "Tickets" }]
           : [{ href: "/staff/dashboard", label: "My dashboard" }, { href: "/staff", label: "My queue" }]),
         { href: "/staff/members", label: "Member builds" },
-        ...(user.role === "manager" ? [{ href: "/staff/team", label: "Clinicians" }] : []),
+        ...(user.role === "manager" ? [{ href: "/staff/team", label: "Clinicians" }, { href: "/staff/marketplace", label: "Marketplace" }] : []),
       ]
     : user.onboarding_complete
       ? MEMBER_LINKS
@@ -56,7 +56,7 @@ export function TopNav({ user }: { user: User }) {
             </div>
           </div>
           <form action={logout}>
-            <button className={`text-xs font-bold underline-offset-4 hover:underline ${staff ? "text-cyan" : "text-blue"}`}>
+            <button className={`text-xs font-bold underline-offset-4 hover:underline ${staff ? "text-bcg-fresh" : "text-bain"}`}>
               Sign out
             </button>
           </form>

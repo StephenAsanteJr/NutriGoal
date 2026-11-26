@@ -53,10 +53,11 @@ export default function Marketplace() {
       ) : (
         <Button label="Set my location on the website" kind="ghost" onPress={() => web("/marketplace#trainers")} />
       )}
+      {data.location && data.trainers.length === 0 && <Body muted>No NutriGoal-verified trainers in your area yet. We add them as each certification is checked.</Body>}
       {data.trainers.length > 0 && (
         <RowGroup>
           {data.trainers.map((t) => (
-            <Row key={t.id} icon="fitness" tone="blue" title={t.name} subtitle={`${t.certification} · ${t.specialty}${t.price ? ` · ${t.price}/session` : ""}`} value={`${t.miles} mi`} />
+            <Row key={t.id} icon="fitness" tone="red" title={t.name} subtitle={`${t.certification} · ${t.specialty}${t.price ? ` · ${t.price}/session` : ""}`} value={`${t.miles} mi`} />
           ))}
         </RowGroup>
       )}
@@ -77,11 +78,14 @@ export default function Marketplace() {
       <Body muted>Public listings, not NutriGoal partners.</Body>
 
       <SectionLabel>Verified partners</SectionLabel>
+      {data.partners.length === 0 && <Body muted>We&apos;re vetting our first partners now. Each one&apos;s license or certification is checked before it appears here.</Body>}
+      {data.partners.length > 0 && (
       <RowGroup>
         {data.partners.map((p) => (
           <Row key={p.id} icon={p.saved ? "bookmark" : "shield-checkmark"} tone="green" title={p.name} subtitle={p.offer ?? p.tagline} subtitleTone={p.offer ? "green" : "muted"} onPress={() => web("/marketplace")} />
         ))}
       </RowGroup>
+      )}
       <Button label="Open the full marketplace" kind="dark" onPress={() => web("/marketplace")} />
     </Screen>
   );

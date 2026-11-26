@@ -90,11 +90,11 @@ function TrainerCard({ t }: { t: NearbyTrainer }) {
             <div className="text-xs text-slate">{t.certification}</div>
           </div>
         </div>
-        <span className="pill whitespace-nowrap bg-cyan-tint text-navy">{t.miles < 1 ? "<1" : t.miles.toFixed(1)} mi</span>
+        <span className="pill whitespace-nowrap bg-bcg-tint text-bcg-deep">{t.miles < 1 ? "<1" : t.miles.toFixed(1)} mi</span>
       </div>
       <p className="mt-3 text-sm font-bold text-navy">{t.specialty}</p>
       <p className="text-xs text-muted">{t.studio}</p>
-      {t.goal_types.length > 0 && <p className="mt-2 text-xs text-blue">Good for: {t.goal_types.slice(0, 2).map((g) => goalLabel(g).toLowerCase()).join(", ")}</p>}
+      {t.goal_types.length > 0 && <p className="mt-2 text-xs text-bcg-deep">Good for: {t.goal_types.slice(0, 2).map((g) => goalLabel(g).toLowerCase()).join(", ")}</p>}
       <div className="mt-auto flex items-center justify-between gap-3 border-t border-line pt-3 text-xs">
         <span className="text-slate">
           {t.price_cents ? `${money(t.price_cents)}/session · ` : ""}
@@ -111,7 +111,7 @@ function TrainerCard({ t }: { t: NearbyTrainer }) {
           <form action={toggleTrainer}>
             <input type="hidden" name="trainer_id" value={t.id} />
             <input type="hidden" name="label" value={t.name} />
-            <SubmitButton className={t.saved ? "font-bold text-good" : "font-bold text-blue hover:underline"} pendingText="…">
+            <SubmitButton className={t.saved ? "font-bold text-good" : "font-bold text-bain hover:underline"} pendingText="…">
               {t.saved ? "✓ Saved" : "Save"}
             </SubmitButton>
           </form>

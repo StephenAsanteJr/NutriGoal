@@ -6,6 +6,8 @@ import { PageHeader, timeAgo } from "@/components/ui";
 import { db } from "@/lib/db";
 import { reviewApplication } from "@/actions/staff";
 import { SubmitButton } from "@/components/SubmitButton";
+import { LicenseCheck } from "@/components/LicenseCheck";
+import { readVerification } from "@/lib/licensing";
 
 export const metadata: Metadata = { title: "Clinicians" };
 
@@ -13,8 +15,8 @@ export default async function TeamPage() {
   await requireStaff(["manager"]);
   const clinicians = listClinicians();
   const applications = db()
-    .prepare("SELECT id, name, email, role, credential, license_info, organization, created_at FROM users WHERE role != 'member' AND staff_status = 'pending' ORDER BY created_at")
-    .all() as { id: string; name: string; email: string; role: string; credential: string | null; license_info: string | null; organization: string | null; created_at: string }[];
+    .prepare("SELECT id, name, email, role, credential, license_info, license_verification, organization, created_at FROM users WHERE role != 'member' AND staff_status = 'pending' ORDER BY created_at")
+    .all() as { id: string; name: string; email: string; role: string; credential: string | null; license_info: string | null; license_verification: string | null; organization: string | null; created_at: string }[];
   return (
     <div>
       <section id="applications" className="mb-8 scroll-mt-24">
@@ -26,8 +28,8 @@ export default async function TeamPage() {
             {applications.map((a) => {
               const lic = a.license_info ? (JSON.parse(a.license_info) as { license: string; state: string; npi: string | null }) : null;
               return (
-                <li key={a.id} className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 text-sm">
-                  <div>
+                <li key={a.id} className="flex flex-wrap items-start justify-between gap-4 px-6 py-4 text-sm">
+                  <div className="min-w-0 flex-1">
                     <div className="font-bold">
                       {a.name} <span className="font-normal text-slate">· {a.role === "clinician" ? a.credential : `Care manager, ${a.credential}`}</span>
                     </div>
@@ -36,7 +38,7 @@ export default async function TeamPage() {
                       {lic ? ` · license ${lic.state} ${lic.license}${lic.npi ? ` · NPI ${lic.npi}` : ""}` : ""}
                       {a.organization ? ` · ${a.organization}` : ""} · applied {timeAgo(a.created_at)}
                     </div>
-                    {lic && <div className="mt-1 text-xs text-warn">Verify the license with the {lic.state} licensing board before approving.</div>}
+                    {a.role === "clinician" && <LicenseCheck userId={a.id} v={readVerification(a.license_verification)} />}
                   </div>
                   <div className="flex gap-2">
                     <form action={reviewApplication}>
@@ -73,7 +75,7 @@ export default async function TeamPage() {
                   <div className="text-sm text-slate">{c.credential}</div>
                 </div>
               </div>
-              <span className={`pill ${c.clinician_type === "MD" ? "bg-navy text-white" : "bg-cyan-tint text-navy"}`}>{c.clinician_type === "MD" ? "Physician" : "Dietitian"}</span>
+              <span className={`pill ${c.clinician_type === "MD" ? "bg-navy text-white" : "bg-bcg-tint text-bcg-deep"}`}>{c.clinician_type === "MD" ? "Physician" : "Dietitian"}</span>
             </div>
             <p className="mt-4 text-sm text-slate">{c.bio}</p>
             <div className="mt-4 flex flex-wrap gap-1.5">

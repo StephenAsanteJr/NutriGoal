@@ -14,7 +14,7 @@ import { GOAL_TYPES, TICKET_STATUS, TRACKING_APPS, goalLabel, money, skinTone, t
 import { hasMarketplaceAccess } from "@/lib/access";
 import { getLocation, trainersNear } from "@/lib/trainers";
 import { computeTrends } from "@/lib/integrations/trends";
-import { createToken, json, preflight, revokeTokenByValue, userFromRequest } from "@/lib/integrations/tokens";
+import { createToken, json, preflight, redeemHandoff, revokeTokenByValue, userFromRequest } from "@/lib/integrations/tokens";
 import { nudgeClinician } from "@/lib/nudges";
 import { saveResponse, startReviewFor } from "@/lib/responses";
 import { submitPaidTicket } from "@/lib/fulfillment";
@@ -22,6 +22,7 @@ import { runAgent, type ChatMessage } from "@/lib/agent";
 import { runVoiceMode } from "@/lib/voice-mode";
 import { rateResponseFor } from "@/lib/ratings";
 import { publicOrigin } from "@/lib/origin";
+import { enabledProviders } from "@/lib/oauth";
 import { FOOD_GROUPS, examplesFor, foodGuide, macroTargets } from "@/lib/foods";
 import { clinicianDashboard, financeDashboard, opsDashboard } from "@/lib/analytics";
 
@@ -132,6 +133,8 @@ async function home(user: User, origin: string) {
 
 export async function GET(req: Request, ctx: Ctx) {
   const path = (await ctx.params).path.join("/");
+  // Public: which "Continue with…" buttons the app should show.
+  if (path === "auth/providers") return json({ providers: enabledProviders(), start: `${publicOrigin(req)}/auth/oauth` });
   const user = userFromRequest(req, "mobile");
   if (!user) return json({ error: "Please sign in again." }, 401);
   const origin = publicOrigin(req);
@@ -201,6 +204,22 @@ export async function POST(req: Request, ctx: Ctx) {
     if (!row || !(await bcrypt.compare(String(body.password ?? ""), row.password_hash))) return json({ error: "That email and password don't match an account." }, 401);
     if (row.role === "member" && !row.onboarding_complete) return json({ error: "Finish building your profile on the website first, then sign in here." }, 403);
     if (row.role !== "member" && row.staff_status !== "active") return json({ error: "Your account is waiting for approval by a NutriGoal manager." }, 403);
+    return json({ token: createToken(row.id, "NutriGoal mobile app", "mobile"), user: { name: row.name, role: row.role } });
+  }
+
+  // App finished Google / Apple / SSO in the browser and holds a one-time code: trade it for an app token.
+  if (path === "oauth/redeem") {
+    const userId = redeemHandoff(String(body.code ?? ""));
+    if (!userId) return json({ error: "That sign-in link expired. Please try again." }, 401);
+    const row = db().prepare("SELECT id, role, name, onboarding_complete, staff_status FROM users WHERE id = ?").get(userId) as
+      | { id: string; role: string; name: string; onboarding_complete: number; staff_status: string }
+      | undefined;
+    if (!row) return json({ error: "Account not found." }, 404);
+    if (row.role !== "member" && row.staff_status !== "active") return json({ error: "Your account is waiting for approval by a NutriGoal manager." }, 403);
+    if (row.role === "member" && !row.onboarding_complete) {
+      const next = createToken(row.id, "Web handoff", "handoff");
+      return json({ error: "Welcome! Build your profile on the website first, then come back to the app.", continueUrl: `${origin}/auth/handoff?code=${encodeURIComponent(next)}&next=%2Fonboarding` }, 403);
+    }
     return json({ token: createToken(row.id, "NutriGoal mobile app", "mobile"), user: { name: row.name, role: row.role } });
   }
 
