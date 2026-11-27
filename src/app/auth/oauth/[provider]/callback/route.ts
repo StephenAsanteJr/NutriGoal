@@ -33,7 +33,7 @@ async function finish(req: Request, provider: string, params: URLSearchParams) {
   }
   if (!resolved.ok) return fail(resolved.error, pending.mobile);
 
-  const user = db().prepare("SELECT id, role, onboarding_complete, staff_status FROM users WHERE id = ?").get(resolved.userId) as { id: string; role: "member" | "clinician" | "manager"; onboarding_complete: number; staff_status: string };
+  const user = db().prepare("SELECT id, role, onboarding_complete, staff_status FROM users WHERE id = ?").get(resolved.userId) as { id: string; role: "member" | "clinician" | "manager" | "org_manager"; onboarding_complete: number; staff_status: string };
   if (pending.mobile) {
     // App sign-in: hand the app a one-time code (2 minutes); it trades the code for its own token.
     const oneTime = createToken(user.id, "App sign-in (SSO)", "handoff");

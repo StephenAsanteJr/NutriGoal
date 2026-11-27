@@ -34,7 +34,7 @@ export function LookPicker({
               aria-label={t.label}
               title={t.label}
               onClick={() => onChange({ ...value, skinTone: t.id })}
-              className={`h-10 w-10 rounded-full border-2 transition ${value.skinTone === t.id ? "border-bcg-deep ring-2 ring-bcg/30" : "border-white shadow-[0_0_0_1px_#dfe4e8] hover:scale-105"}`}
+              className={`h-10 w-10 rounded-full border-2 transition ${value.skinTone === t.id ? "border-bcg-deep ring-2 ring-bcg/30" : "border-white shadow-[0_0_0_1px_#dfe6e1] hover:scale-105"}`}
               style={{ background: `linear-gradient(135deg, ${t.hex} 55%, ${t.shade})` }}
             />
           ))}
@@ -52,7 +52,7 @@ export function LookPicker({
                 role="radio"
                 aria-checked={value.hairStyle === h.id}
                 onClick={() => onChange({ ...value, hairStyle: h.id })}
-                className={`rounded-full border px-3 py-1.5 text-xs font-bold ${value.hairStyle === h.id ? "border-bcg-deep bg-bcg-tint text-bcg-deep" : "border-line text-slate hover:border-navy"}`}
+                className={`rounded-full border px-3 py-1.5 text-xs font-bold ${value.hairStyle === h.id ? "border-bcg-deep bg-bcg-tint text-bcg-deep" : "border-line text-slate hover:border-ink"}`}
               >
                 {h.label}
               </button>
@@ -71,7 +71,7 @@ export function LookPicker({
                 aria-label={c.label}
                 title={c.label}
                 onClick={() => onChange({ ...value, hairColor: c.id })}
-                className={`h-8 w-8 rounded-full border-2 ${value.hairColor === c.id ? "border-bcg-deep ring-2 ring-bcg/30" : "border-white shadow-[0_0_0_1px_#dfe4e8]"}`}
+                className={`h-8 w-8 rounded-full border-2 ${value.hairColor === c.id ? "border-bcg-deep ring-2 ring-bcg/30" : "border-white shadow-[0_0_0_1px_#dfe6e1]"}`}
                 style={{ background: c.id }}
               />
             ))}
@@ -89,7 +89,7 @@ export function LookPicker({
                 role="radio"
                 aria-checked={(value.facialHair ?? "none") === f.id}
                 onClick={() => onChange({ ...value, facialHair: f.id })}
-                className={`rounded-full border px-3 py-1.5 text-xs font-bold ${(value.facialHair ?? "none") === f.id ? "border-bcg-deep bg-bcg-tint text-bcg-deep" : "border-line text-slate hover:border-navy"}`}
+                className={`rounded-full border px-3 py-1.5 text-xs font-bold ${(value.facialHair ?? "none") === f.id ? "border-bcg-deep bg-bcg-tint text-bcg-deep" : "border-line text-slate hover:border-ink"}`}
               >
                 {f.label}
               </button>

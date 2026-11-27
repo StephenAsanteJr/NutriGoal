@@ -11,7 +11,7 @@ import type { ClinicianFoods } from "@/lib/foods";
 type Row = { title: string; detail: string; timeframe: string };
 const blank = (): Row => ({ title: "", detail: "", timeframe: "" });
 
-export function ResponseComposer({ ticketId, signer }: { ticketId: number; signer: { name: string; credential: string | null } }) {
+export function ResponseComposer({ ticketId, signer, cuisines = [] }: { ticketId: number; signer: { name: string; credential: string | null }; cuisines?: string[] }) {
   const [state, action, pending] = useActionState<ResponseFormState, FormData>(submitResponse, undefined);
   const [rec, setRec] = useState("");
   const [rows, setRows] = useState<Row[]>(() => Array.from({ length: 5 }, blank));
@@ -43,7 +43,7 @@ export function ResponseComposer({ ticketId, signer }: { ticketId: number; signe
     <form action={action} className="card overflow-hidden">
       <input type="hidden" name="ticket_id" value={ticketId} />
       <input type="hidden" name="foods_json" value={JSON.stringify(foods)} />
-      <div className="bg-navy px-6 py-4 text-white">
+      <div className="bg-ink px-6 py-4 text-white">
         <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Response ticket composer</div>
         <div className="text-sm text-white/80">A concise recommendation at the top, then 5–6 actionable steps with timeframes.</div>
       </div>
@@ -87,7 +87,7 @@ export function ResponseComposer({ ticketId, signer }: { ticketId: number; signe
             {rows.map((r, i) => (
               <li key={i} className={`rounded-[2px] border p-3 ${fe[`step_${i}`] ? "border-alert" : "border-line"}`}>
                 <div className="grid grid-cols-[28px_1fr_150px] items-start gap-3">
-                  <span className="mt-2 flex h-6 w-6 items-center justify-center rounded-full bg-navy text-xs font-bold text-white">{i + 1}</span>
+                  <span className="mt-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-xs font-bold text-white">{i + 1}</span>
                   <input name="step_title" className="input !py-2 font-bold" placeholder="Step title" value={r.title} onChange={(e) => update(i, "title", e.target.value)} maxLength={80} aria-label={`Step ${i + 1} title`} />
                   <input
                     name="step_timeframe"
@@ -134,7 +134,7 @@ export function ResponseComposer({ ticketId, signer }: { ticketId: number; signe
           </div>
         </div>
 
-        <FoodPicker value={foods} onChange={setFoods} />
+        <FoodPicker value={foods} onChange={setFoods} memberCuisines={cuisines} />
 
         <fieldset className="rounded-[2px] border border-line p-4">
           <legend className="px-1 text-[13px] font-bold">AI writing help (disclosed to the member)</legend>

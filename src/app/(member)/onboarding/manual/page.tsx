@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { requireMember } from "@/lib/auth";
@@ -5,11 +6,13 @@ import { getProfile, getSettings, listReports } from "@/lib/data";
 import { cmToFtIn, kgToLb } from "@/lib/biometrics";
 import type { Extraction } from "@/lib/report-extract";
 import { ProfileForm, type ProfileInitial } from "./ProfileForm";
+import { getDemographics } from "@/lib/demographics";
 
 export const metadata: Metadata = { title: "Your health data" };
 
 export default async function ManualPage(props: PageProps<"/onboarding/manual">) {
   const user = await requireMember({ allowIncompleteOnboarding: true });
+  if (!user.onboarding_complete && !getDemographics(user.id)) redirect("/onboarding/about");
   const sp = await props.searchParams;
   const profile = getProfile(user.id);
   const reports = listReports(user.id);
@@ -32,7 +35,7 @@ export default async function ManualPage(props: PageProps<"/onboarding/manual">)
   const initial: ProfileInitial = {
     unit_system: units,
     sex: (merged.sex as string) ?? "",
-    age: n("age"),
+    age: n("age") || String(getDemographics(user.id)?.age ?? ""),
     height_cm: heightCm ? String(Math.round(heightCm)) : "",
     height_ft: ftin ? String(ftin.ft) : "",
     height_in: ftin ? String(ftin.inch) : "",
@@ -64,7 +67,7 @@ export default async function ManualPage(props: PageProps<"/onboarding/manual">)
     <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="eyebrow mb-2">{user.onboarding_complete ? "Update your build" : "Step 2 of 3 · Your build"}</div>
+          <div className="eyebrow mb-2">{user.onboarding_complete ? "Update your build" : "Step 3 of 4 · Your build"}</div>
           <h1 className="font-display text-4xl">{report ? "Review your report and add details" : "Enter your health data"}</h1>
           <p className="mt-2 max-w-2xl text-slate">
             {report

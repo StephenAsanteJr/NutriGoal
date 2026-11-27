@@ -385,16 +385,103 @@ const migrations: Migration[] = [
     if (!cols.includes("license_verification")) conn.exec("ALTER TABLE users ADD COLUMN license_verification TEXT");
     if (!cols.includes("license_verified_at")) conn.exec("ALTER TABLE users ADD COLUMN license_verified_at TEXT");
   },
+  // v12: a fourth account type, the organizational manager (employers, health plans, schools…), plus
+  // organizations and the members who join one. The users table is rebuilt to allow the new role
+  // (SQLite can't alter a CHECK constraint); this step runs with foreign keys off (see FK_OFF below).
+  // Existing 'manager' accounts are NutriGoal management.
+  (conn) => {
+    const table = conn.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'users'").get() as { sql: string };
+    if (!table.sql.includes("'org_manager'")) {
+      const indexes = (conn.prepare("SELECT sql FROM sqlite_master WHERE type = 'index' AND tbl_name = 'users' AND sql IS NOT NULL").all() as { sql: string }[]).map((r) => r.sql);
+      const createNew = table.sql
+        .replace(/^CREATE TABLE\s+"?users"?/i, "CREATE TABLE users_v12")
+        .replace(/CHECK \(role IN \('member','clinician','manager'\)\)/, "CHECK (role IN ('member','clinician','manager','org_manager'))");
+      if (!createNew.includes("'org_manager'")) throw new Error("v12: unexpected users schema");
+      conn.exec(createNew);
+      conn.exec("INSERT INTO users_v12 SELECT * FROM users");
+      conn.exec("DROP TABLE users");
+      conn.exec("ALTER TABLE users_v12 RENAME TO users");
+      for (const sql of indexes) conn.exec(sql);
+    }
+    conn.exec(`
+      CREATE TABLE IF NOT EXISTS organizations (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        industry TEXT,
+        eligible_count INTEGER NOT NULL DEFAULT 0,
+        plan TEXT NOT NULL DEFAULT 'growth',
+        status TEXT NOT NULL DEFAULT 'pilot' CHECK (status IN ('pilot','active','paused')),
+        invite_code TEXT UNIQUE NOT NULL,
+        created_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+        created_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS org_admins (
+        org_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+        user_id TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+        title TEXT,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (org_id, user_id)
+      );
+      -- A member belongs to at most one organization. The organization never sees who joined:
+      -- reports read this table only to build group totals (see lib/org-wellness.ts).
+      CREATE TABLE IF NOT EXISTS org_enrollments (
+        org_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+        user_id TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+        joined_at TEXT NOT NULL,
+        PRIMARY KEY (org_id, user_id)
+      );
+    `);
+  },
+  // v13: demographics, asked before biometrics (members) and in the application (clinicians).
+  (conn) => {
+    conn.exec(`CREATE TABLE IF NOT EXISTS demographics (
+      user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      age INTEGER,
+      gender TEXT,
+      occupation TEXT,
+      work_pattern TEXT,
+      city TEXT,
+      region TEXT,
+      country TEXT,
+      household_size INTEGER,
+      household_json TEXT,
+      cooking TEXT,
+      languages TEXT,
+      cultural_background TEXT,
+      cuisines_json TEXT,
+      dietary_pattern TEXT,
+      years_in_practice INTEGER,
+      practice_setting TEXT,
+      populations TEXT,
+      updated_at TEXT NOT NULL
+    )`);
+  },
 ];
+
+/** Migrations (0-based) that rebuild a table and so must run with foreign keys off. */
+const FK_OFF = new Set([11]);
 
 
 export function runMigrations(conn: Database.Database) {
   const current = conn.pragma("user_version", { simple: true }) as number;
   for (let v = current; v < migrations.length; v++) {
-    conn.transaction(() => {
-      migrations[v](conn);
-      conn.pragma(`user_version = ${v + 1}`);
-    })();
+    // SQLite's documented table-rebuild procedure: foreign keys off (outside the transaction),
+    // rebuild, check nothing dangles, commit, foreign keys back on.
+    const fkOff = FK_OFF.has(v);
+    if (fkOff) conn.pragma("foreign_keys = OFF");
+    try {
+      conn.transaction(() => {
+        const before = fkOff ? (conn.pragma("foreign_key_check") as unknown[]).length : 0;
+        migrations[v](conn);
+        if (fkOff) {
+          const after = (conn.pragma("foreign_key_check") as unknown[]).length;
+          if (after > before) throw new Error(`Migration v${v + 1} left ${after - before} broken references`);
+        }
+        conn.pragma(`user_version = ${v + 1}`);
+      })();
+    } finally {
+      if (fkOff) conn.pragma("foreign_keys = ON");
+    }
   }
 }
 

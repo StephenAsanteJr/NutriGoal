@@ -63,13 +63,13 @@ export default async function ClinicianDashboard(props: PageProps<"/staff/dashbo
           )}
         </Panel>
         <Panel title="Retention" subtitle="Members who sent another ticket within 90 days or kept a membership. Judged on members you answered 30+ days before each period, so they've had time to come back.">
-          <div className="font-display text-5xl text-navy">{fmt(d.retention.rate, "pct")}</div>
+          <div className="font-display text-5xl text-ink">{fmt(d.retention.rate, "pct")}</div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-mist">
             <div className="h-full rounded-full bg-bcg" style={{ width: `${d.retention.rate ?? 0}%` }} />
           </div>
           <p className="mt-2 text-xs text-slate">{d.retention.retained} of {d.retention.served} members retained.</p>
           <div className="mt-4 border-t border-line pt-3 text-xs text-slate">
-            Speed: <strong className="text-navy">{fmt(d.speed.avgHours, "hours")}</strong> average to a plan · <strong className="text-navy">{fmt(d.speed.sla, "pct")}</strong> within 48 hours · {d.utilization.open} open now
+            Speed: <strong className="text-ink">{fmt(d.speed.avgHours, "hours")}</strong> average to a plan · <strong className="text-ink">{fmt(d.speed.sla, "pct")}</strong> within 48 hours · {d.utilization.open} open now
           </div>
         </Panel>
         <Panel title="Referrals" subtitle="Share your link. Members who join through it are credited to you; a conversion is their first payment.">
@@ -81,7 +81,7 @@ export default async function ClinicianDashboard(props: PageProps<"/staff/dashbo
               ["Revenue", fmt(d.referrals.revenue, "money")],
             ].map(([k, v]) => (
               <div key={k} className="rounded-[2px] bg-mist px-2 py-2">
-                <dd className="font-display text-xl text-navy">{v}</dd>
+                <dd className="font-display text-xl text-ink">{v}</dd>
                 <dt className="text-[10px] font-bold uppercase tracking-wider text-muted">{k}</dt>
               </div>
             ))}

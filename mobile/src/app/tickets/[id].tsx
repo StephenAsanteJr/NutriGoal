@@ -14,6 +14,7 @@ import { planScript } from "@/lib/voice";
 
 type D = {
   ticket: { id: number; number: string; goal: string; goalType: string; status: string; statusLabel: string; member: string; clinician: string | null; dueAt: string | null; typicalDiet: string; setbacks: string; target: string; routing: string | null; nudges: number };
+  about?: { label: string; value: string }[] | null;
   response: { recommendation: string; steps: { title: string; detail: string; timeframe: string }[]; clinician: string; aiAssist: string; foods?: ClinicianFoods | null; rating?: number | null; ratingComment?: string | null; at: string } | null;
   canRespond: boolean;
 };
@@ -40,7 +41,7 @@ export default function TicketDetail() {
   return (
     <Screen>
       <Eyebrow>{t.number} · {t.goalType}</Eyebrow>
-      <Text style={{ fontFamily: serif, fontSize: 26, color: C.navy, marginBottom: 8 }}>{t.goal}</Text>
+      <Text style={{ fontFamily: serif, fontSize: 26, color: C.ink, marginBottom: 8 }}>{t.goal}</Text>
       <Pill label={t.statusLabel} tone={t.status === "responded" ? "good" : "info"} />
 
       {data.response ? (
@@ -49,15 +50,15 @@ export default function TicketDetail() {
             <Eyebrow>Recommendation</Eyebrow>
             <ListenButton label={role === "member" ? "Listen to my plan" : "Listen to plan"} title={`Plan for ${t.number}`} text={planScript({ ...data.response, clinician: role === "member" ? data.response.clinician : undefined })} />
           </View>
-          <Text style={{ fontFamily: serif, fontSize: 19, color: C.navy, lineHeight: 26 }}>{data.response.recommendation}</Text>
+          <Text style={{ fontFamily: serif, fontSize: 19, color: C.ink, lineHeight: 26 }}>{data.response.recommendation}</Text>
           <View style={{ marginTop: 12 }}>
             {data.response.steps.map((s, i) => (
               <View key={i} style={{ flexDirection: "row", gap: 10, paddingVertical: 10, borderTopWidth: 1, borderTopColor: C.line }}>
-                <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: C.navy, alignItems: "center", justifyContent: "center" }}>
+                <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: C.ink, alignItems: "center", justifyContent: "center" }}>
                   <Text style={{ color: C.white, fontWeight: "800" }}>{i + 1}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: "800", color: C.navy }}>{s.title}</Text>
+                  <Text style={{ fontWeight: "800", color: C.ink }}>{s.title}</Text>
                   <Text style={{ color: C.slate, marginTop: 2 }}>{s.detail}</Text>
                   <Text style={{ color: C.red, fontWeight: "700", marginTop: 4, fontSize: 12 }}>⏱ {s.timeframe}</Text>
                 </View>
@@ -90,9 +91,9 @@ export default function TicketDetail() {
 
       {!data.response && (
         <BubbleCluster>
-          {role === "member" && <Bubble size={120} label="Nudge clinician" icon="⚑" color="#ffb547" textColor={C.navy} onPress={nudge} />}
-          {role === "manager" && <Bubble size={120} label="Send nudge" icon="⚑" color="#ffb547" textColor={C.navy} onPress={nudge} />}
-          {data.canRespond && <Bubble size={140} label="Write response" icon="✍️" color={C.blue} onPress={() => router.push(`/respond/${t.id}`)} />}
+          {role === "member" && <Bubble size={120} label="Nudge clinician" icon="⚑" color="#ffb547" textColor={C.ink} onPress={nudge} />}
+          {role === "manager" && <Bubble size={120} label="Send nudge" icon="⚑" color="#ffb547" textColor={C.ink} onPress={nudge} />}
+          {data.canRespond && <Bubble size={140} label="Write response" icon="✍️" color={C.greenDeep} onPress={() => router.push(`/respond/${t.id}`)} />}
         </BubbleCluster>
       )}
 
@@ -101,14 +102,25 @@ export default function TicketDetail() {
           <Eyebrow>{role === "member" ? "What you sent" : `From ${t.member}`}</Eyebrow>
           <ListenButton label="Listen" title={`${t.number}: ${t.goal}`} text={`${role === "member" ? "Your goal" : `${t.member}'s goal`}: ${t.goal}. Typical diet: ${t.typicalDiet}. Setbacks: ${t.setbacks}. Target: ${t.target}.`} />
         </View>
-        <Text style={{ fontWeight: "700", color: C.navy }}>Typical diet</Text>
+        <Text style={{ fontWeight: "700", color: C.ink }}>Typical diet</Text>
         <Body>{t.typicalDiet}</Body>
-        <Text style={{ fontWeight: "700", color: C.navy, marginTop: 8 }}>Setbacks</Text>
+        <Text style={{ fontWeight: "700", color: C.ink, marginTop: 8 }}>Setbacks</Text>
         <Body>{t.setbacks}</Body>
-        <Text style={{ fontWeight: "700", color: C.navy, marginTop: 8 }}>Target</Text>
+        <Text style={{ fontWeight: "700", color: C.ink, marginTop: 8 }}>Target</Text>
         <Body>{t.target}</Body>
         {t.routing && <Text style={{ color: C.muted, fontSize: 12, marginTop: 8 }}>Routing: {t.routing}</Text>}
       </Card>
+      {role !== "member" && data.about && data.about.length > 0 && (
+        <Card>
+          <Eyebrow>About the member</Eyebrow>
+          {data.about.map((r) => (
+            <View key={r.label} style={{ flexDirection: "row", paddingVertical: 5, borderBottomWidth: 1, borderBottomColor: C.line }}>
+              <Text style={{ width: 118, color: C.muted, fontSize: 13 }}>{r.label}</Text>
+              <Text style={{ flex: 1, color: C.ink, fontSize: 13 }}>{r.value}</Text>
+            </View>
+          ))}
+        </Card>
+      )}
     </Screen>
   );
 }

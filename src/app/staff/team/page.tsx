@@ -6,6 +6,8 @@ import { PageHeader, timeAgo } from "@/components/ui";
 import { db } from "@/lib/db";
 import { reviewApplication } from "@/actions/staff";
 import { SubmitButton } from "@/components/SubmitButton";
+import { getDemographics } from "@/lib/demographics";
+import { cuisineById } from "@/lib/cuisines";
 import { LicenseCheck } from "@/components/LicenseCheck";
 import { readVerification } from "@/lib/licensing";
 
@@ -22,7 +24,7 @@ export default async function TeamPage() {
       <section id="applications" className="mb-8 scroll-mt-24">
         <h2 className="mb-3 text-lg font-bold">Applications {applications.length > 0 && <span className="pill ml-2 bg-warn-tint text-warn">{applications.length} waiting</span>}</h2>
         {applications.length === 0 ? (
-          <p className="card px-6 py-4 text-sm text-slate">No clinician or care manager applications waiting.</p>
+          <p className="card px-6 py-4 text-sm text-slate">No clinician or NutriGoal management applications waiting.</p>
         ) : (
           <ul className="card divide-y divide-line">
             {applications.map((a) => {
@@ -31,13 +33,14 @@ export default async function TeamPage() {
                 <li key={a.id} className="flex flex-wrap items-start justify-between gap-4 px-6 py-4 text-sm">
                   <div className="min-w-0 flex-1">
                     <div className="font-bold">
-                      {a.name} <span className="font-normal text-slate">· {a.role === "clinician" ? a.credential : `Care manager, ${a.credential}`}</span>
+                      {a.name} <span className="font-normal text-slate">· {a.role === "clinician" ? a.credential : `NutriGoal management, ${a.credential}`}</span>
                     </div>
                     <div className="text-xs text-muted">
                       {a.email}
                       {lic ? ` · license ${lic.state} ${lic.license}${lic.npi ? ` · NPI ${lic.npi}` : ""}` : ""}
                       {a.organization ? ` · ${a.organization}` : ""} · applied {timeAgo(a.created_at)}
                     </div>
+                    {a.role === "clinician" && <ApplicantAbout userId={a.id} />}
                     {a.role === "clinician" && <LicenseCheck userId={a.id} v={readVerification(a.license_verification)} />}
                   </div>
                   <div className="flex gap-2">
@@ -67,7 +70,7 @@ export default async function TeamPage() {
           <article key={c.id} className="card p-6">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-navy font-display text-lg text-white">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ink font-display text-lg text-white">
                   {c.name.replace("Dr. ", "").split(" ").map((w) => w[0]).join("")}
                 </div>
                 <div>
@@ -75,7 +78,7 @@ export default async function TeamPage() {
                   <div className="text-sm text-slate">{c.credential}</div>
                 </div>
               </div>
-              <span className={`pill ${c.clinician_type === "MD" ? "bg-navy text-white" : "bg-bcg-tint text-bcg-deep"}`}>{c.clinician_type === "MD" ? "Physician" : "Dietitian"}</span>
+              <span className={`pill ${c.clinician_type === "MD" ? "bg-ink text-white" : "bg-bcg-tint text-bcg-deep"}`}>{c.clinician_type === "MD" ? "Physician" : "Dietitian"}</span>
             </div>
             <p className="mt-4 text-sm text-slate">{c.bio}</p>
             <div className="mt-4 flex flex-wrap gap-1.5">
@@ -93,4 +96,19 @@ export default async function TeamPage() {
       </div>
     </div>
   );
+}
+
+function ApplicantAbout({ userId }: { userId: string }) {
+  const d = getDemographics(userId);
+  if (!d) return null;
+  const cuisines = d.cuisines.map((id) => cuisineById(id)?.label).filter(Boolean).join(", ");
+  const parts = [
+    d.years_in_practice != null ? `${d.years_in_practice} years in practice` : null,
+    d.practice_setting,
+    [d.city, d.region, d.country].filter(Boolean).join(", ") || null,
+    d.languages ? `Languages: ${d.languages}` : null,
+    cuisines ? `Cuisines: ${cuisines}` : null,
+    d.populations ? `Serves: ${d.populations}` : null,
+  ].filter(Boolean);
+  return parts.length ? <p className="mt-1 text-xs text-slate">{parts.join(" · ")}</p> : null;
 }

@@ -11,7 +11,7 @@ export function Kpi({ label, value, format = "int", prev, goodWhen = "up", sub, 
   return (
     <div className="bg-white px-5 py-4">
       <div className="text-[11px] font-bold uppercase tracking-wider text-muted">{label}</div>
-      <div className={`font-display mt-1 text-3xl ${tone === "alert" ? "text-alert" : tone === "good" ? "text-bcg-deep" : "text-navy"}`}>{fmt(value, format)}</div>
+      <div className={`font-display mt-1 text-3xl ${tone === "alert" ? "text-alert" : tone === "good" ? "text-bcg-deep" : "text-ink"}`}>{fmt(value, format)}</div>
       <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs">
         {d != null && (
           <span className={`font-bold ${good ? "text-bcg-deep" : "text-alert"}`} title="Change vs. the previous period of the same length">
@@ -90,7 +90,7 @@ export function DataTable({ columns, rows, initialSort, pageSize = 15, filterPar
             <tr className="border-b border-line text-[11px] uppercase tracking-wider text-muted">
               {columns.map((c) => (
                 <th key={c.key} className={`px-2 py-2 font-bold ${c.align === "right" || (c.format && !["text", "date", "bool"].includes(c.format)) ? "text-right" : ""}`}>
-                  <button type="button" onClick={() => setSort((s) => ({ key: c.key, dir: s.key === c.key && s.dir === "desc" ? "asc" : "desc" }))} className="inline-flex items-center gap-1 hover:text-navy" aria-label={`Sort by ${c.label}`}>
+                  <button type="button" onClick={() => setSort((s) => ({ key: c.key, dir: s.key === c.key && s.dir === "desc" ? "asc" : "desc" }))} className="inline-flex items-center gap-1 hover:text-ink" aria-label={`Sort by ${c.label}`}>
                     {c.label} {sort.key === c.key ? (sort.dir === "desc" ? "↓" : "↑") : ""}
                   </button>
                 </th>
@@ -101,9 +101,9 @@ export function DataTable({ columns, rows, initialSort, pageSize = 15, filterPar
             {filtered.slice(0, limit).map((r, i) => {
               const active = selected != null && String(r[rowKey]) === selected;
               return (
-                <tr key={String(r[rowKey] ?? i)} onClick={() => pick(r)} className={`${filterParam ? "cursor-pointer hover:bg-mist" : ""} ${active ? "bg-blue-tint" : ""}`} title={filterParam ? (active ? "Click to clear this filter" : "Click to filter the dashboard") : undefined}>
+                <tr key={String(r[rowKey] ?? i)} onClick={() => pick(r)} className={`${filterParam ? "cursor-pointer hover:bg-mist" : ""} ${active ? "bg-bcg-tint" : ""}`} title={filterParam ? (active ? "Click to clear this filter" : "Click to filter the dashboard") : undefined}>
                   {columns.map((c) => (
-                    <td key={c.key} className={`px-2 py-2 ${c.align === "right" || (c.format && !["text", "date", "bool"].includes(c.format)) ? "text-right tabular-nums" : ""} ${c.key === columns[0].key ? "font-bold text-navy" : "text-slate"}`}>
+                    <td key={c.key} className={`px-2 py-2 ${c.align === "right" || (c.format && !["text", "date", "bool"].includes(c.format)) ? "text-right tabular-nums" : ""} ${c.key === columns[0].key ? "font-bold text-ink" : "text-slate"}`}>
                       {cell(c, r[c.key])}
                     </td>
                   ))}
@@ -143,7 +143,7 @@ export function FilterBar({ ranges, clinicians, goals, exportBase, showDemo = tr
     <div className="card flex flex-wrap items-center gap-3 p-3">
       <div className="flex overflow-hidden rounded-[2px] border border-line" role="group" aria-label="Time range">
         {ranges.map((r) => (
-          <button key={r.id} type="button" onClick={() => set("range", r.id)} aria-pressed={range === r.id} className={`px-3 py-1.5 text-xs font-bold ${range === r.id ? "bg-bain text-white" : "bg-white text-navy hover:bg-mist"}`}>
+          <button key={r.id} type="button" onClick={() => set("range", r.id)} aria-pressed={range === r.id} className={`px-3 py-1.5 text-xs font-bold ${range === r.id ? "bg-bain text-white" : "bg-white text-ink hover:bg-mist"}`}>
             {r.label}
           </button>
         ))}

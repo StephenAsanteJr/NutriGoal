@@ -35,11 +35,11 @@ export default function Alerts() {
         <View style={{ backgroundColor: C.white, borderRadius: 18, borderWidth: 1, borderColor: C.line, overflow: "hidden", marginTop: 8 }}>
           {data.notifications.map((n, i) => (
             <Pressable key={n.id} onPress={() => open(n.link)} accessibilityRole="button" style={({ pressed }) => [{ flexDirection: "row", gap: 12, padding: 14, borderTopWidth: i ? 1 : 0, borderTopColor: C.line }, pressed && { backgroundColor: C.mist }]}>
-              <IconTile icon={/nudge/i.test(n.title) ? "flag" : /ready|response|plan/i.test(n.title) ? "checkmark-circle" : "notifications"} tone={/nudge/i.test(n.title) ? "red" : /ready|response|plan/i.test(n.title) ? "green" : "navy"} />
+              <IconTile icon={/nudge/i.test(n.title) ? "flag" : /ready|response|plan/i.test(n.title) ? "checkmark-circle" : "notifications"} tone={/nudge/i.test(n.title) ? "red" : /ready|response|plan/i.test(n.title) ? "green" : "ink"} />
               <View style={{ flex: 1 }}>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                   {!n.read_at && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: C.red }} accessibilityLabel="Unread" />}
-                  <Text style={{ fontWeight: "800", color: C.navy, flex: 1 }}>{n.title}</Text>
+                  <Text style={{ fontWeight: "800", color: C.ink, flex: 1 }}>{n.title}</Text>
                 </View>
                 <Text style={{ color: C.slate, fontSize: 13.5, marginTop: 2 }}>{n.body}</Text>
                 <Text style={{ color: C.muted, fontSize: 12, marginTop: 4 }}>{new Date(n.created_at).toLocaleString()}</Text>

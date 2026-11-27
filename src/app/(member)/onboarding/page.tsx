@@ -1,16 +1,20 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { requireMember } from "@/lib/auth";
+import { getDemographics } from "@/lib/demographics";
 
 export const metadata: Metadata = { title: "Build your profile" };
 
 export default async function OnboardingChoice() {
   const user = await requireMember({ allowIncompleteOnboarding: true });
+  // Demographics come before biometrics.
+  if (!user.onboarding_complete && !getDemographics(user.id)) redirect("/onboarding/about");
   const first = user.name.split(" ")[0];
   return (
     <div className="mx-auto max-w-5xl">
-      <div className="eyebrow mb-2">Step 2 of 3 · Your build</div>
-      <h1 className="font-display text-4xl leading-tight">Welcome, {first}. How would you like to build your profile?</h1>
+      <div className="eyebrow mb-2">Step 3 of 4 · Your build</div>
+      <h1 className="font-display text-4xl leading-tight">Thanks, {first}. Now, how would you like to add your health data?</h1>
       <p className="mt-3 max-w-2xl text-slate">
         Your answers become a physical build and biometric card that your clinician reviews with every ticket. You can update it any time.
       </p>
@@ -45,7 +49,7 @@ export default async function OnboardingChoice() {
         />
       </div>
       <p className="mt-6 text-xs text-muted">
-        Your health information is only visible to you and to NutriGoal clinicians and care managers reviewing your account.
+        Your health information is only visible to you, the NutriGoal clinician answering your ticket and NutriGoal management. If you joined through an organization, it sees only group totals, never your information.
       </p>
     </div>
   );
@@ -55,10 +59,10 @@ function ChoiceCard(p: { href: string; tag: string; title: string; body: string;
   return (
     <Link
       href={p.href}
-      className={`card group flex flex-col p-7 transition hover:border-bain hover:shadow-[0_8px_30px_rgba(5,28,44,0.08)] ${p.featured ? "border-navy" : ""}`}
+      className={`card group flex flex-col p-7 transition hover:border-bain hover:shadow-[0_8px_30px_rgba(5,28,44,0.08)] ${p.featured ? "border-ink" : ""}`}
     >
       <div className="flex items-center justify-between">
-        <span className={`flex h-12 w-12 items-center justify-center rounded-full ${p.featured ? "bg-navy text-white" : "bg-blue-tint text-blue"}`}>{p.icon}</span>
+        <span className={`flex h-12 w-12 items-center justify-center rounded-full ${p.featured ? "bg-ink text-white" : "bg-bcg-tint text-bcg-deep"}`}>{p.icon}</span>
         <span className="pill bg-mist text-slate">{p.tag}</span>
       </div>
       <h2 className="font-display mt-6 text-2xl">{p.title}</h2>

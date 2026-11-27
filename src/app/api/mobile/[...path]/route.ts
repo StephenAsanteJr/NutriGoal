@@ -25,6 +25,10 @@ import { publicOrigin } from "@/lib/origin";
 import { enabledProviders } from "@/lib/oauth";
 import { FOOD_GROUPS, examplesFor, foodGuide, macroTargets } from "@/lib/foods";
 import { clinicianDashboard, financeDashboard, opsDashboard } from "@/lib/analytics";
+import { getOrgForManager, orgReport } from "@/lib/org-wellness";
+import { CUISINES, cuisineById, cuisineExamples } from "@/lib/cuisines";
+import { demographicsSummary, getDemographics } from "@/lib/demographics";
+import { fmtCents, tierById } from "@/lib/enterprise";
 
 type Ctx = { params: Promise<{ path: string[] }> };
 const iso = (d: Date) => d.toISOString();
@@ -45,9 +49,22 @@ function ticketSummary(t: TicketWithPeople, nudges?: Map<number, { n: number }>)
   };
 }
 
+const cuisineList = () => CUISINES.map((c) => ({ id: c.id, label: c.label, region: c.region }));
+const pctFood = (e: { name: string; serving: string; kcal: number; protein: number; carbs: number; fat: number; match: number }) =>
+  ({ name: e.name, serving: e.serving, kcal: e.kcal, protein: e.protein, carbs: e.carbs, fat: e.fat, match: Math.round(e.match * 100) });
+
+/** One culture's ingredients by food group (only those that match the group's typical serving 80%+). */
+function cuisinePayload(id: string) {
+  const c = cuisineById(id);
+  if (!c) return null;
+  return { id: c.id, label: c.label, note: c.note ?? null, groups: Object.fromEntries(FOOD_GROUPS.map((g) => [g.id, cuisineExamples(c.id, g.id).map(pctFood)])) };
+}
+
 /** Food guide for the app: servings per group, example foods with their match, and % match to targets. */
-function guidePayload(g: ReturnType<typeof foodGuide>) {
+function guidePayload(g: ReturnType<typeof foodGuide>, preferred: string[] = []) {
   return {
+    preferred: preferred.filter((p) => cuisineById(p)),
+    cuisines: cuisineList(),
     match: g.match,
     totals: g.totals,
     rows: g.rows.map((r) => ({
@@ -81,8 +98,25 @@ async function home(user: User, origin: string) {
       marketplace: hasMarketplaceAccess(user.id),
       nutrition: t.current.length ? { avgKcal: t.averages.calories && Math.round(t.averages.calories), avgProtein: t.averages.protein_g && Math.round(t.averages.protein_g), insights: t.insights.slice(0, 3).map((i) => i.text) } : null,
       tickets: listTicketsForMember(user.id).filter((x) => x.status !== "awaiting_payment").slice(0, 5).map((x) => ticketSummary(x)),
-      foodGuide: b ? guidePayload(foodGuide(macroTargets(Math.round(s.calorie_goal_override ?? b.targetCalories), { carbs: s.macro_carbs, protein: s.macro_protein, fat: s.macro_fat }))) : null,
+      foodGuide: b ? guidePayload(foodGuide(macroTargets(Math.round(s.calorie_goal_override ?? b.targetCalories), { carbs: s.macro_carbs, protein: s.macro_protein, fat: s.macro_fat })), getDemographics(user.id)?.cuisines ?? []) : null,
       webUrl: origin,
+    };
+  }
+  if (user.role === "org_manager") {
+    // De-identified totals only (see lib/org-wellness.ts): no member names, tickets or health data.
+    const org = getOrgForManager(user.id);
+    if (!org) return { role: "org_manager", name: user.name, unread, org: null };
+    const r = orgReport(org);
+    const tier = tierById(org.plan);
+    return {
+      role: "org_manager", name: user.name, unread,
+      org: {
+        name: org.name, plan: tier.name, status: org.status, eligible: org.eligible_count, enrolled: r.enrolled, enrollmentRate: r.enrollmentRate,
+        suppressed: r.suppressed, activePct: r.activePct, wellnessIndex: r.wellnessIndex,
+        directions: r.directions.map((d) => ({ id: d.id, label: d.label, pct: d.pct })),
+        plans30: r.plansDelivered30, monthlyBill: fmtCents(r.monthlyBillCents),
+        inviteCode: org.invite_code, inviteLink: `${origin}/join/${org.invite_code}`,
+      },
     };
   }
   const nudges = nudgeCounts();
@@ -141,9 +175,23 @@ export async function GET(req: Request, ctx: Ctx) {
 
   if (path === "me") return json({ id: user.id, name: user.name, role: user.role, credential: user.credential });
   if (path === "home") return json(await home(user, origin));
+  // Organizational managers never reach tickets, plans, foods or the marketplace.
+  if (user.role === "org_manager" && path !== "notifications") return json({ error: "Not available for organization accounts." }, 403);
   if (path === "foods") {
-    // Catalog for clinicians picking example foods on a response (only foods with an 80%+ match).
-    return json({ groups: FOOD_GROUPS.map((g) => ({ id: g.id, label: g.label, hint: g.hint, foods: examplesFor(g).map((e) => ({ name: e.name, serving: e.serving, match: Math.round(e.match * 100) })) })) });
+    // Catalog for clinicians picking example foods on a response (only foods with an 80%+ match),
+    // from the general list or one culture's cuisine (?cuisine=thai).
+    const cuisine = new URL(req.url).searchParams.get("cuisine");
+    const c = cuisine && cuisine !== "everyday" ? cuisineById(cuisine) : null;
+    return json({
+      cuisine: c?.id ?? "everyday",
+      cuisines: cuisineList(),
+      groups: FOOD_GROUPS.map((g) => ({ id: g.id, label: g.label, hint: g.hint, foods: (c ? cuisineExamples(c.id, g.id) : examplesFor(g)).map((e) => ({ name: e.name, serving: e.serving, match: Math.round(e.match * 100) })) })),
+    });
+  }
+  const cm = path.match(/^cuisines\/([a-z_]+)$/);
+  if (cm) {
+    const payload = cuisinePayload(cm[1]);
+    return payload ? json(payload) : json({ error: "Not found." }, 404);
   }
 
   if (path === "tickets") {
@@ -159,6 +207,9 @@ export async function GET(req: Request, ctx: Ctx) {
       ticket: { ...ticketSummary(t), typicalDiet: t.typical_diet, setbacks: t.setbacks, target: t.specific_target, extra: t.extra_context, routing: user.role === "member" ? null : t.routing_reason },
       response: r ? { recommendation: r.recommendation, steps: r.steps, clinician: `${r.clinician_name}, ${r.clinician_credential}`, aiAssist: r.ai_assist, foods: r.foods, rating: r.rating, ratingComment: r.rating_comment, at: r.created_at } : null,
       canRespond: user.role === "clinician" && t.status !== "responded",
+      // Care context for the clinician (never sent to the member's organization).
+      about: user.role === "member" ? null : demographicsSummary(getDemographics(t.user_id)).map(([label, value]) => ({ label, value })),
+      memberCuisines: user.role === "member" ? [] : getDemographics(t.user_id)?.cuisines ?? [],
     });
   }
 
@@ -230,6 +281,8 @@ export async function POST(req: Request, ctx: Ctx) {
     revokeTokenByValue(req);
     return json({ ok: true });
   }
+
+  if (user.role === "org_manager" && !["handoff", "notifications/read"].includes(path)) return json({ error: "Not available for organization accounts." }, 403);
 
   if (path === "voice") {
     const r = await runVoiceMode(user, body);

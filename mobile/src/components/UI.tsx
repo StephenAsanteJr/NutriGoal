@@ -16,16 +16,16 @@ export const Title = ({ children }: { children: React.ReactNode }) => <Text styl
 export const Eyebrow = ({ children }: { children: React.ReactNode }) => <Text style={s.eyebrow}>{children}</Text>;
 export const Body = ({ children, muted }: { children: React.ReactNode; muted?: boolean }) => <Text style={[s.body, muted && { color: C.muted }]}>{children}</Text>;
 
-export function Card({ children, tone }: { children: React.ReactNode; tone?: "navy" | "good" | "warn" | "alert" }) {
-  const bg = tone === "navy" ? C.navy : tone === "good" ? C.goodTint : tone === "warn" ? C.warnTint : tone === "alert" ? C.alertTint : C.white;
+export function Card({ children, tone }: { children: React.ReactNode; tone?: "ink" | "good" | "warn" | "alert" }) {
+  const bg = tone === "ink" ? C.ink : tone === "good" ? C.goodTint : tone === "warn" ? C.warnTint : tone === "alert" ? C.alertTint : C.white;
   return <View style={[s.card, { backgroundColor: bg, borderColor: tone ? "transparent" : C.line }]}>{children}</View>;
 }
 
 export function Button({ label, onPress, kind = "primary", busy, disabled }: { label: string; onPress: () => void; kind?: "primary" | "dark" | "ghost"; busy?: boolean; disabled?: boolean }) {
-  const bg = kind === "primary" ? C.blue : kind === "dark" ? C.greenDeep : "transparent";
+  const bg = kind === "primary" ? C.greenDeep : kind === "dark" ? C.ink : "transparent";
   return (
     <Pressable onPress={onPress} disabled={busy || disabled} accessibilityRole="button" style={({ pressed }) => [s.button, { backgroundColor: bg, opacity: busy || disabled ? 0.5 : pressed ? 0.85 : 1 }, kind === "ghost" && { borderWidth: 1, borderColor: C.line }]}>
-      {busy ? <ActivityIndicator color={kind === "ghost" ? C.navy : C.white} /> : <Text style={[s.buttonText, kind === "ghost" && { color: C.greenDeep }]}>{label}</Text>}
+      {busy ? <ActivityIndicator color={kind === "ghost" ? C.ink : C.white} /> : <Text style={[s.buttonText, kind === "ghost" && { color: C.greenDeep }]}>{label}</Text>}
     </Pressable>
   );
 }
@@ -42,7 +42,7 @@ export function Field({ label, ...props }: TextInputProps & { label: string }) {
 export function Loading() {
   return (
     <View style={{ padding: 40, alignItems: "center" }}>
-      <ActivityIndicator color={C.blue} size="large" />
+      <ActivityIndicator color={C.greenDeep} size="large" />
     </View>
   );
 }
@@ -52,8 +52,8 @@ export function ErrorText({ children }: { children: React.ReactNode }) {
 }
 
 export function Pill({ label, tone = "info" }: { label: string; tone?: "info" | "good" | "warn" | "alert" }) {
-  const bg = tone === "good" ? C.goodTint : tone === "warn" ? C.warnTint : tone === "alert" ? C.alertTint : C.blueTint;
-  const fg = tone === "good" ? C.good : tone === "warn" ? C.warn : tone === "alert" ? C.alert : C.blue;
+  const bg = tone === "good" ? C.goodTint : tone === "warn" ? C.warnTint : tone === "alert" ? C.alertTint : C.mist;
+  const fg = tone === "good" ? C.good : tone === "warn" ? C.warn : tone === "alert" ? C.alert : C.ink;
   return (
     <View style={{ alignSelf: "flex-start", backgroundColor: bg, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 }}>
       <Text style={{ color: fg, fontWeight: "700", fontSize: 12 }}>{label}</Text>
@@ -64,13 +64,13 @@ export function Pill({ label, tone = "info" }: { label: string; tone?: "info" | 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.mist },
   inner: { padding: 18, width: "100%", maxWidth: 640, alignSelf: "center" },
-  title: { fontFamily: serif, fontSize: 30, color: C.navy, marginBottom: 6 },
+  title: { fontFamily: serif, fontSize: 30, color: C.ink, marginBottom: 6 },
   eyebrow: { color: C.red, fontWeight: "800", fontSize: 11, letterSpacing: 1.6, textTransform: "uppercase", marginBottom: 6 },
   body: { color: C.slate, fontSize: 15, lineHeight: 21 },
   card: { borderWidth: 1, borderRadius: 14, padding: 16, marginVertical: 8 },
   button: { borderRadius: 999, paddingVertical: 14, paddingHorizontal: 20, alignItems: "center", marginVertical: 6 },
   buttonText: { color: C.white, fontWeight: "800", fontSize: 15 },
-  label: { color: C.navy, fontWeight: "700", fontSize: 13, marginBottom: 6 },
-  input: { backgroundColor: C.white, borderWidth: 1, borderColor: C.line, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, color: C.navy },
+  label: { color: C.ink, fontWeight: "700", fontSize: 13, marginBottom: 6 },
+  input: { backgroundColor: C.white, borderWidth: 1, borderColor: C.line, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, color: C.ink },
   error: { color: C.alert, fontWeight: "700", marginVertical: 6 },
 });

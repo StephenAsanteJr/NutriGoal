@@ -18,7 +18,10 @@ export type TicketSummary = {
 };
 
 export type FoodExample = { name: string; serving: string; kcal: number; protein: number; carbs: number; fat: number; match: number };
+export type CuisineRef = { id: string; label: string; region: string };
 export type FoodGuideData = {
+  preferred?: string[];
+  cuisines?: CuisineRef[];
   match: { kcal: number; protein: number; carbs: number; fat: number; overall: number };
   totals: { kcal: number; protein: number; carbs: number; fat: number };
   rows: { id: string; label: string; hint: string; servings: number; typical: { serving: string }; examples: FoodExample[] }[];
@@ -73,7 +76,20 @@ export type ManagerHome = {
   };
 };
 
-export type Home = MemberHome | ClinicianHome | ManagerHome;
+/** Organizational manager: de-identified group totals only (no names, tickets or health data). */
+export type OrgHome = {
+  role: "org_manager";
+  name: string;
+  unread: number;
+  org: {
+    name: string; plan: string; status: string; eligible: number; enrolled: number; enrollmentRate: number | null;
+    suppressed: boolean; activePct: number | null; wellnessIndex: number | null;
+    directions: { id: "closer" | "holding" | "straying" | "no_data"; label: string; pct: number | null }[];
+    plans30: number | null; monthlyBill: string; inviteCode: string; inviteLink: string;
+  } | null;
+};
+
+export type Home = MemberHome | ClinicianHome | ManagerHome | OrgHome;
 
 type HomeState = { data: Home | null; error: string | null; loading: boolean; reload: () => Promise<void> };
 

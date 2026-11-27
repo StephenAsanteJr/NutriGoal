@@ -13,25 +13,40 @@ const MEMBER_LINKS = [
   { href: "/membership", label: "Membership" },
 ];
 
+const ROLE_LINKS: Record<"clinician" | "manager" | "org_manager", { href: string; label: string }[]> = {
+  clinician: [
+    { href: "/staff/dashboard", label: "My dashboard" },
+    { href: "/staff", label: "My queue" },
+    { href: "/staff/members", label: "Member builds" },
+  ],
+  manager: [
+    { href: "/staff/ops", label: "Ops" },
+    { href: "/staff/finance", label: "Finance" },
+    { href: "/staff", label: "Tickets" },
+    { href: "/staff/members", label: "Builds" },
+    { href: "/staff/team", label: "Clinicians" },
+    { href: "/staff/organizations", label: "Orgs" },
+    { href: "/staff/marketplace", label: "Marketplace" },
+  ],
+  org_manager: [
+    { href: "/org", label: "Wellness" },
+    { href: "/org/plan", label: "Plan & costs" },
+    { href: "/org/settings", label: "Invite & settings" },
+  ],
+};
+
+const SUFFIX = { clinician: "Clinician portal", manager: "Management", org_manager: "Organization portal" } as const;
+
 export function TopNav({ user }: { user: User }) {
   const staff = user.role !== "member";
-  const links = staff
-    ? [
-        ...(user.role === "manager"
-          ? [{ href: "/staff/ops", label: "Ops dashboard" }, { href: "/staff/finance", label: "Finance" }, { href: "/staff", label: "Tickets" }]
-          : [{ href: "/staff/dashboard", label: "My dashboard" }, { href: "/staff", label: "My queue" }]),
-        { href: "/staff/members", label: "Member builds" },
-        ...(user.role === "manager" ? [{ href: "/staff/team", label: "Clinicians" }, { href: "/staff/marketplace", label: "Marketplace" }] : []),
-      ]
-    : user.onboarding_complete
-      ? MEMBER_LINKS
-      : [];
+  const links = user.role === "member" ? (user.onboarding_complete ? MEMBER_LINKS : []) : ROLE_LINKS[user.role];
+  const home = user.role === "member" ? "/dashboard" : user.role === "org_manager" ? "/org" : "/staff";
   const unread = unreadCount(user.id);
 
   return (
-    <header className={staff ? "bg-navy text-white" : "border-b border-line bg-white"}>
+    <header className={staff ? "bg-ink text-white" : "border-b border-line bg-white"}>
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:h-16 sm:gap-8 sm:px-6">
-        <Logo href={staff ? "/staff" : "/dashboard"} tone={staff ? "light" : "dark"} suffix={staff ? "Clinician portal" : undefined} />
+        <Logo href={home} tone={staff ? "light" : "dark"} suffix={user.role === "member" ? undefined : SUFFIX[user.role]} />
         <NavLinks links={links} tone={staff ? "light" : "dark"} />
         <div className="ml-auto flex items-center gap-3 text-sm sm:gap-4">
           <Link

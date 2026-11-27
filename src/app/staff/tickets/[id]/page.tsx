@@ -13,6 +13,7 @@ import { managerNudge, reassignTicket, startReview } from "@/actions/staff";
 import { NotesCard } from "@/components/NotesCard";
 import { StaffDataPanel } from "@/components/StaffDataPanel";
 import { ResponseComposer } from "./ResponseComposer";
+import { demographicsSummary, getDemographics } from "@/lib/demographics";
 
 export const metadata: Metadata = { title: "Review ticket" };
 
@@ -29,6 +30,8 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
   const input = toBuildInput(profile);
   const reports = listReports(t.user_id);
   const notes = listStaffNotes(t.user_id);
+  const about = getDemographics(t.user_id);
+  const aboutRows = demographicsSummary(about);
   const response = getResponse(t.id);
   const clinicians = manager ? listClinicians() : [];
   const canWrite = mine && t.status !== "responded";
@@ -51,7 +54,7 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
           <h1 className="font-display max-w-3xl text-4xl leading-tight">{t.goal_statement}</h1>
           <p className="mt-2 text-sm text-slate">
             {member.name} · paid {t.paid_at ? shortDate(t.paid_at) : "—"} via {t.payment_method?.replace("_", " ")} · assigned to{" "}
-            <strong className="text-navy">{t.clinician_name}</strong>
+            <strong className="text-ink">{t.clinician_name}</strong>
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -94,7 +97,7 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
             ))}
           </dl>
           <div className="border-t border-line bg-mist px-6 py-3 text-xs text-slate">
-            <strong className="text-navy">Routing (rules, no AI):</strong> {t.routing_reason}
+            <strong className="text-ink">Routing (rules, no AI):</strong> {t.routing_reason}
           </div>
         </section>
 
@@ -151,7 +154,7 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
                 <SubmitButton className="btn-primary" pendingText="Opening…">Start review</SubmitButton>
               </form>
             ) : (
-              <ResponseComposer ticketId={t.id} signer={{ name: user.name, credential: user.credential }} />
+              <ResponseComposer ticketId={t.id} signer={{ name: user.name, credential: user.credential }} cuisines={about?.cuisines ?? []} />
             )
           ) : (
             <div className="card p-6 text-sm text-slate">This ticket is assigned to {t.clinician_name}. Only the assigned clinician writes and signs the response{manager ? "; reassign it above if needed" : ""}.</div>
@@ -174,6 +177,20 @@ export default async function StaffTicket(props: PageProps<"/staff/tickets/[id]"
           <Alert tone="warn">This member hasn&apos;t completed their build.</Alert>
         )}
       </section>
+
+      {aboutRows.length > 0 && (
+        <section className="card">
+          <h2 className="border-b border-line px-6 py-3 text-sm font-bold">About the member</h2>
+          <dl className="grid grid-cols-1 gap-x-8 px-6 py-3 text-sm sm:grid-cols-2">
+            {aboutRows.map(([k, v]) => (
+              <div key={k} className="flex gap-3 border-b border-line py-1.5 last:border-0">
+                <dt className="w-36 shrink-0 text-muted">{k}</dt>
+                <dd className="text-ink">{v}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
 
       <StaffDataPanel memberId={member.id} />
 

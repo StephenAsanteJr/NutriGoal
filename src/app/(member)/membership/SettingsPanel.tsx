@@ -35,7 +35,7 @@ export function SettingsPanel({ settings, goals, preview }: { settings: Settings
             ["privacy", "Privacy & assistant"],
           ].map(([id, label]) => (
             <li key={id}>
-              <a href={`#settings-${id}`} className="block rounded-[2px] px-3 py-2 font-bold text-slate hover:bg-white hover:text-navy">
+              <a href={`#settings-${id}`} className="block rounded-[2px] px-3 py-2 font-bold text-slate hover:bg-white hover:text-ink">
                 {label}
               </a>
             </li>
@@ -161,7 +161,7 @@ function GoalsCard({ settings, goals }: { settings: Settings; goals: Goals }) {
           </label>
         ) : (
           <p className="mt-1 text-sm text-slate">
-            Automatic: <strong className="text-navy">{Math.round(goals.autoCalories).toLocaleString()} kcal</strong> from your build and timeline.
+            Automatic: <strong className="text-ink">{Math.round(goals.autoCalories).toLocaleString()} kcal</strong> from your build and timeline.
           </p>
         )}
       </div>
@@ -202,7 +202,7 @@ function Segmented({ name, value, options }: { name: string; value: string; opti
     <div className="inline-flex rounded-[2px] border border-line p-0.5 text-xs font-bold" role="radiogroup">
       <input type="hidden" name={name} value={v} />
       {options.map(([id, label]) => (
-        <button key={id} type="button" role="radio" aria-checked={v === id} onClick={() => setV(id)} className={`rounded-[2px] px-3 py-1.5 ${v === id ? "bg-navy text-white" : "text-slate hover:text-navy"}`}>
+        <button key={id} type="button" role="radio" aria-checked={v === id} onClick={() => setV(id)} className={`rounded-[2px] px-3 py-1.5 ${v === id ? "bg-ink text-white" : "text-slate hover:text-ink"}`}>
           {label}
         </button>
       ))}

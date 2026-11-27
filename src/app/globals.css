@@ -1,32 +1,25 @@
 @import "tailwindcss";
 
-/* NutriGoal design tokens. McKinsey & Company-inspired base: deep navy, electric blue
-   and cyan on white, serif display type, thin rules. Two accents from the other firms,
-   each with one job so they never compete:
-   - BCG green = progress and success (plan ready, on track, verified, included)
-   - Bain red  = attention (deadlines, overdue, unread counts, live recording)
-   The three firms share the UI evenly (about a third each; run scripts/brand-balance.mjs):
-   McKinsey owns surfaces, primary buttons and focus; BCG owns secondary buttons, success and progress;
-   Bain owns section labels (eyebrows), links, counts, alerts and emphasis. */
+/* NutriGoal design tokens: two brand colors on white, serif display type, thin rules.
+   - BCG green = action and progress: primary buttons, focus, selection, success, progress
+     (Pulse Green for fills and marks, a deep green for text on white, Nyanza for tints)
+   - Bain red  = attention and navigation: section labels (eyebrows), links, the active tab,
+     counts, deadlines, overdue, live recording
+   Ink and dark surfaces are BCG's midnight green; grays carry a slight green cast.
+   `node scripts/brand-balance.mjs` measures how the two share the interface. */
 @theme {
-  --color-navy: #051c2c;
-  --color-navy-soft: #0e2f45;
-  --color-blue: #2251ff;
-  --color-blue-dark: #1a3fd6;
-  --color-blue-tint: #e9eeff;
-  --color-cyan: #00a9f4;
-  --color-cyan-tint: #e5f6fe;
-  --color-slate: #4a5862;
-  --color-muted: #7b868e;
-  --color-line: #dfe4e8;
-  --color-mist: #f4f6f8;
-  /* BCG green (brandguide.bcg.com): Pulse Green for fills and marks, a deep green
-     for text on white (Pulse Green is too light for text), Nyanza for tints. */
+  --color-ink: #0c2b15;
+  --color-ink-soft: #174a28;
+  --color-slate: #4b5a51;
+  --color-muted: #77847b;
+  --color-line: #dfe6e1;
+  --color-mist: #f3f7f4;
+  /* BCG green (brandguide.bcg.com) */
   --color-bcg: #21bf61;
   --color-bcg-deep: #197a56;
+  --color-bcg-dark: #13603f;
   --color-bcg-tint: #e3fddb;
   --color-bcg-fresh: #96f878;
-  --color-bcg-midnight: #0c2b15;
   /* Bain red */
   --color-bain: #cc0000;
   --color-bain-dark: #a80000;
@@ -45,7 +38,7 @@
 }
 
 html {
-  color: var(--color-navy);
+  color: var(--color-ink);
   background: #fff;
 }
 
@@ -69,10 +62,10 @@ body {
     @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 bg-blue text-white hover:bg-blue-dark;
+    @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 bg-bcg-deep text-white hover:bg-bcg-dark;
   }
   .btn-dark {
-    @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 bg-bcg-deep text-white hover:bg-[#13603f];
+    @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 bg-ink text-white hover:bg-ink-soft;
   }
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 border border-bcg-deep bg-white text-bcg-deep hover:bg-bcg-tint;
@@ -81,7 +74,7 @@ body {
     @apply inline-flex items-center justify-center gap-2 rounded-[2px]  py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 px-3 text-bcg-deep hover:bg-bcg-tint;
   }
   .label {
-    @apply mb-1.5 block text-[13px] font-bold text-navy;
+    @apply mb-1.5 block text-[13px] font-bold text-ink;
   }
   .hint {
     @apply mt-1 text-xs text-muted;
@@ -90,7 +83,7 @@ body {
     @apply mt-1 text-xs font-bold text-alert;
   }
   .input {
-    @apply w-full rounded-[2px] border border-line bg-white px-3 py-2.5 text-[15px] text-navy outline-none transition placeholder:text-muted focus:border-blue focus:ring-2 focus:ring-blue/15;
+    @apply w-full rounded-[2px] border border-line bg-white px-3 py-2.5 text-[15px] text-ink outline-none transition placeholder:text-muted focus:border-bcg-deep focus:ring-2 focus:ring-bcg-deep/15;
   }
   .input[aria-invalid="true"] {
     @apply border-alert;

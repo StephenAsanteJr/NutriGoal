@@ -48,7 +48,7 @@ export default function NewTicket() {
               size={150}
               label="Use included ticket"
               icon="🎟️"
-              color={C.blue}
+              color={C.greenDeep}
               sublabel="$0 with membership"
               onPress={async () => {
                 try {
@@ -60,7 +60,7 @@ export default function NewTicket() {
               }}
             />
           )}
-          <Bubble size={130} label="Pay & submit" icon="💳" color={C.navy} sublabel="$19.99 or membership" onPress={() => openWeb(call, `/tickets/new?draft=${draft.id}`).catch(() => setError("Couldn't open checkout."))} />
+          <Bubble size={130} label="Pay & submit" icon="💳" color={C.ink} sublabel="$19.99 or membership" onPress={() => openWeb(call, `/tickets/new?draft=${draft.id}`).catch(() => setError("Couldn't open checkout."))} />
         </BubbleCluster>
         <Body muted>Payment opens NutriGoal&apos;s secure checkout on the web (Stripe), already signed in. Come back here to follow your ticket.</Body>
         <Button label="View my tickets" kind="ghost" onPress={() => router.replace("/tickets")} />
@@ -77,7 +77,7 @@ export default function NewTicket() {
         action="Fill the form from what I said"
         onTranscript={fromVoice}
       />
-      <Text style={{ color: C.navy, fontWeight: "700", marginTop: 14, marginBottom: 6 }}>What kind of goal?</Text>
+      <Text style={{ color: C.ink, fontWeight: "700", marginTop: 14, marginBottom: 6 }}>What kind of goal?</Text>
       <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 10 }}>
         {GOALS.map(([id, label]) => (
           <Chip key={id} label={label} active={goalType === id} onPress={() => setGoalType(id)} />

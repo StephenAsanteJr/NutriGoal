@@ -55,7 +55,7 @@ export function BuildPanel(props: {
                   <td className="py-2 text-slate">{label}</td>
                   <td className="py-2 font-bold">{formatWeight(now as number, props.units)}</td>
                   <td className="py-2 font-bold text-bcg-deep">{formatWeight(goal as number, props.units)}</td>
-                  <td className={`py-2 text-right text-xs font-bold ${Math.abs(d) < 0.3 ? "text-muted" : d < 0 ? "text-navy" : "text-good"}`}>
+                  <td className={`py-2 text-right text-xs font-bold ${Math.abs(d) < 0.3 ? "text-muted" : d < 0 ? "text-ink" : "text-good"}`}>
                     {Math.abs(d) < 0.3 ? "—" : `${d < 0 ? "−" : "+"}${formatWeight(Math.abs(d), props.units)}`}
                   </td>
                 </tr>

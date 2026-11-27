@@ -12,3 +12,12 @@ export function publicOrigin(req: Request) {
 export function redirectTo(req: Request, path: string) {
   return Response.redirect(new URL(path, publicOrigin(req)), 303);
 }
+
+/** The site's public address from inside a server component or action. */
+export async function pageOrigin() {
+  if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, "");
+  const { headers } = await import("next/headers");
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  return `${h.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https")}://${host}`;
+}

@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#051c2c",
+  themeColor: "#0c2b15",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -41,9 +41,9 @@ const showDemoBanner = process.env.NUTRIGOAL_DEMO_BANNER === "on";
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${bodoni.variable} ${montserrat.variable} h-full`}>
-      <body className="flex min-h-full flex-col bg-white text-navy">
+      <body className="flex min-h-full flex-col bg-white text-ink">
         {showDemoBanner && (
-          <div role="note" className="bg-amber-100 px-4 py-2 text-center text-sm text-navy">
+          <div role="note" className="bg-amber-100 px-4 py-2 text-center text-sm text-ink">
             Demo site with sample data: please don&rsquo;t enter real health information.
           </div>
         )}

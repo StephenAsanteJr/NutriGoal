@@ -15,7 +15,7 @@ export default function Index() {
   return token ? <Redirect href="/home" /> : <SignIn />;
 }
 
-function openSignup(role: "member" | "clinician" | "manager") {
+function openSignup(role: "member" | "clinician" | "org" | "manager") {
   const url = `${apiBase()}/signup?role=${role}`;
   if (Platform.OS === "web") globalThis.open?.(url, "_blank");
   else WebBrowser.openBrowserAsync(url);
@@ -57,11 +57,11 @@ function ProviderButtons({ onError }: { onError: (msg: string | null) => void })
             }}
             style={({ pressed }) => ({
               flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, borderRadius: 999, paddingVertical: 13,
-              backgroundColor: dark ? "#000" : C.white, borderWidth: 1, borderColor: dark ? "#000" : p.id === "google" ? "#dadce0" : C.navy, opacity: pressed || busy === p.id ? 0.8 : 1,
+              backgroundColor: dark ? "#000" : C.white, borderWidth: 1, borderColor: dark ? "#000" : p.id === "google" ? "#dadce0" : C.ink, opacity: pressed || busy === p.id ? 0.8 : 1,
             })}
           >
-            <Ionicons name={p.id === "google" ? "logo-google" : p.id === "apple" ? "logo-apple" : "key"} size={18} color={dark ? C.white : p.id === "google" ? "#4285F4" : C.navy} />
-            <Text style={{ color: dark ? C.white : C.navy, fontWeight: "800", fontSize: 15 }}>{busy === p.id ? "Opening…" : p.label}</Text>
+            <Ionicons name={p.id === "google" ? "logo-google" : p.id === "apple" ? "logo-apple" : "key"} size={18} color={dark ? C.white : p.id === "google" ? "#4285F4" : C.ink} />
+            <Text style={{ color: dark ? C.white : C.ink, fontWeight: "800", fontSize: 15 }}>{busy === p.id ? "Opening…" : p.label}</Text>
           </Pressable>
         );
       })}
@@ -81,8 +81,8 @@ function SignIn() {
       <View style={{ alignItems: "center", marginTop: 18, marginBottom: 18 }}>
         <Image source={require("../../assets/brand-mark.png")} style={{ width: 84, height: 84 }} />
         <Text style={{ fontWeight: "900", fontSize: 26, letterSpacing: 1, marginTop: 8 }}>
-          <Text style={{ color: C.navy }}>NUTRI </Text>
-          <Text style={{ color: C.blue }}>GOAL</Text>
+          <Text style={{ color: C.ink }}>NUTRI </Text>
+          <Text style={{ color: C.greenDeep }}>GOAL</Text>
         </Text>
         <Text style={{ color: C.muted, fontSize: 11, letterSpacing: 2, marginTop: 4 }}>
           HEALTH <Text style={{ color: C.green }}>•</Text> BALANCE <Text style={{ color: C.red }}>•</Text> SUCCESS
@@ -108,17 +108,18 @@ function SignIn() {
             }
           }}
         />
-        <Body muted>Members, clinicians and care managers all sign in here.</Body>
+        <Body muted>Members, clinicians, organizations and NutriGoal management all sign in here.</Body>
       </Card>
 
       <SectionLabel>New to NutriGoal? Sign up as a…</SectionLabel>
       <RowGroup>
-        <Row icon="person-add" tone="blue" title="Member" subtitle="Get a written plan for one goal at a time" onPress={() => openSignup("member")} />
+        <Row icon="person-add" tone="green" title="Member" subtitle="Get a written plan for one goal at a time" onPress={() => openSignup("member")} />
         <Row icon="medkit" tone="green" title="Clinician" subtitle="MD, DO, dietitian or nutritionist" onPress={() => openSignup("clinician")} />
-        <Row icon="clipboard" tone="red" title="Care manager" subtitle="Run routing and the 48-hour promise" onPress={() => openSignup("manager")} />
+        <Row icon="business" tone="green" title="Organization" subtitle="Employers, health plans and schools" onPress={() => openSignup("org")} />
+        <Row icon="clipboard" tone="red" title="NutriGoal management" subtitle="Run NutriGoal itself" onPress={() => openSignup("manager")} />
       </RowGroup>
       <View style={{ marginTop: 12, gap: 6 }}>
-        <Body muted>Sign-up opens on the website. Clinician and care manager accounts are approved by NutriGoal before they open.</Body>
+        <Body muted>Sign-up opens on the website. Clinician and NutriGoal management accounts are approved before they open; organizations see only group totals.</Body>
         <Body muted>Real words from real people. Plans are written and signed by physicians, dietitians and nutritionists, never by AI.</Body>
       </View>
     </Screen>

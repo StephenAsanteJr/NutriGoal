@@ -71,7 +71,7 @@ export function UploadForm() {
     <form action={action} className="space-y-6">
       {error && <Alert>{error}</Alert>}
       <div
-        className={`card flex cursor-pointer flex-col items-center justify-center border-2 border-dashed px-6 py-14 text-center transition ${drag ? "border-blue bg-blue-tint" : "border-line hover:border-navy"}`}
+        className={`card flex cursor-pointer flex-col items-center justify-center border-2 border-dashed px-6 py-14 text-center transition ${drag ? "border-bcg-deep bg-bcg-tint" : "border-line hover:border-ink"}`}
         onClick={() => input.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
@@ -94,7 +94,7 @@ export function UploadForm() {
         onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && input.current?.click()}
         aria-label="Choose a report file"
       >
-        <svg viewBox="0 0 48 48" className="h-12 w-12 text-blue" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+        <svg viewBox="0 0 48 48" className="h-12 w-12 text-bcg-deep" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
           <path d="M28 6H14a4 4 0 0 0-4 4v28a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4V16z" />
           <path d="M28 6v10h10M24 34V22M19 27l5-5 5 5" />
         </svg>

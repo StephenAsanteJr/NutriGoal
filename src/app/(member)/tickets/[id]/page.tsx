@@ -59,7 +59,7 @@ export default async function TicketPage(props: PageProps<"/tickets/[id]">) {
       <ol className="card grid grid-cols-1 gap-px overflow-hidden bg-line sm:grid-cols-4" aria-label="Ticket progress">
         {steps.map((s, i) => (
           <li key={s.label} className="flex items-start gap-3 bg-white px-5 py-4">
-            <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${s.done ? "bg-navy text-white" : "border border-line text-muted"}`}>
+            <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${s.done ? "bg-ink text-white" : "border border-line text-muted"}`}>
               {s.done ? "✓" : i + 1}
             </span>
             <div>
@@ -103,7 +103,7 @@ export default async function TicketPage(props: PageProps<"/tickets/[id]">) {
             )}
             <p className="mt-1 text-sm text-slate">
               {!ticket.clinician_name ? "Your ticket is paid and in line for the next available physician or dietitian." : ticket.status === "in_review" ? "is reviewing your ticket and build now." : "has your ticket in their queue."}{" "}
-              Your response ticket is due <strong className="text-navy">{ticket.due_at ? timeAgo(ticket.due_at) : "within 48 hours"}</strong>.
+              Your response ticket is due <strong className="text-ink">{ticket.due_at ? timeAgo(ticket.due_at) : "within 48 hours"}</strong>.
             </p>
           </div>
           <Link href="/marketplace" className="btn-outline">Explore partners while you wait</Link>
@@ -150,7 +150,7 @@ export default async function TicketPage(props: PageProps<"/tickets/[id]">) {
       </section>
 
       {response && (
-        <section className="card flex flex-wrap items-center justify-between gap-4 bg-bcg-midnight p-6 text-white">
+        <section className="card flex flex-wrap items-center justify-between gap-4 bg-ink p-6 text-white">
           <div>
             <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Keep the momentum</div>
             <div className="font-display mt-1 text-2xl">Ready for your next goal?</div>

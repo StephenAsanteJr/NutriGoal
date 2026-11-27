@@ -7,7 +7,7 @@ type Point = { date: string; kg: number };
 const W = 680;
 const H = 270;
 const M = { top: 18, right: 92, bottom: 34, left: 48 };
-const ACTUAL = "#2251ff";
+const ACTUAL = "#0c2b15"; // ink: your actual weigh-ins
 const PATH = "#197a56"; // BCG green: the path to your goal
 const DAY = 86400_000;
 
@@ -98,35 +98,35 @@ export function ProgressChart({
           <svg width="20" height="4"><line x1="0" x2="20" y1="2" y2="2" stroke={PATH} strokeWidth="2" strokeDasharray="4 3" /></svg> Safe path to goal
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <svg width="20" height="4"><line x1="0" x2="20" y1="2" y2="2" stroke="#7b868e" strokeWidth="1" strokeDasharray="2 2" /></svg> Goal
+          <svg width="20" height="4"><line x1="0" x2="20" y1="2" y2="2" stroke="#77847b" strokeWidth="1" strokeDasharray="2 2" /></svg> Goal
         </span>
       </div>
       <div className="relative">
         <svg ref={svg} viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full" role="img" aria-label={`Weight chart: ${points.length} weigh-ins from ${conv(points[0].kg).toFixed(0)} to ${conv(points[last].kg).toFixed(0)} ${unit}; goal ${conv(goalKg).toFixed(0)} ${unit}.`}>
           {g.yTicks.map((v) => (
             <g key={v}>
-              <line x1={M.left} x2={W - M.right} y1={g.y(v)} y2={g.y(v)} stroke="#e6ebef" strokeWidth="1" />
-              <text x={M.left - 8} y={g.y(v) + 4} textAnchor="end" fontSize="11" fill="#7b868e" fontFamily="Arial">
+              <line x1={M.left} x2={W - M.right} y1={g.y(v)} y2={g.y(v)} stroke="#e6ece8" strokeWidth="1" />
+              <text x={M.left - 8} y={g.y(v) + 4} textAnchor="end" fontSize="11" fill="#77847b" fontFamily="Arial">
                 {v}
               </text>
             </g>
           ))}
           {g.months.map((m) => (
-            <text key={m.ms} x={g.x(m.ms)} y={H - 10} textAnchor="middle" fontSize="11" fill="#7b868e" fontFamily="Arial">
+            <text key={m.ms} x={g.x(m.ms)} y={H - 10} textAnchor="middle" fontSize="11" fill="#77847b" fontFamily="Arial">
               {m.label}
             </text>
           ))}
           <line x1={M.left} x2={W - M.right} y1={H - M.bottom} y2={H - M.bottom} stroke="#c9d0d5" />
 
           {/* goal reference */}
-          <line x1={M.left} x2={W - M.right} y1={g.y(g.goalV)} y2={g.y(g.goalV)} stroke="#7b868e" strokeDasharray="2 3" />
-          <text x={W - M.right + 6} y={g.y(g.goalV) + 4} fontSize="11" fill="#4a5862" fontFamily="Arial" fontWeight="700">
+          <line x1={M.left} x2={W - M.right} y1={g.y(g.goalV)} y2={g.y(g.goalV)} stroke="#77847b" strokeDasharray="2 3" />
+          <text x={W - M.right + 6} y={g.y(g.goalV) + 4} fontSize="11" fill="#4b5a51" fontFamily="Arial" fontWeight="700">
             Goal {g.goalV.toFixed(0)} {unit}
           </text>
 
           {/* safe path */}
           <line x1={g.x(g.t0)} y1={g.y(g.startV)} x2={g.x(g.tEnd)} y2={g.y(g.goalV)} stroke={PATH} strokeWidth="2" strokeDasharray="6 4" />
-          <text x={g.x(g.tEnd) - 4} y={g.y(g.goalV) + 16} textAnchor="end" fontSize="11" fill="#4a5862" fontFamily="Arial">
+          <text x={g.x(g.tEnd) - 4} y={g.y(g.goalV) + 16} textAnchor="end" fontSize="11" fill="#4b5a51" fontFamily="Arial">
             Safe path · week {weeks}
           </text>
 
@@ -135,13 +135,13 @@ export function ProgressChart({
           {points.map((p, i) => (
             <circle key={i} cx={g.x(g.t[i])} cy={g.y(conv(p.kg))} r="4" fill={ACTUAL} stroke="#ffffff" strokeWidth="2" />
           ))}
-          <text x={lastX + 8} y={lastY - 8} fontSize="11" fill="#051c2c" fontFamily="Arial" fontWeight="700">
+          <text x={lastX + 8} y={lastY - 8} fontSize="11" fill="#0c2b15" fontFamily="Arial" fontWeight="700">
             {conv(points[last].kg).toFixed(1)} {unit}
           </text>
 
           {h && (
             <g pointerEvents="none">
-              <line x1={hx} x2={hx} y1={M.top} y2={H - M.bottom} stroke="#051c2c" strokeOpacity="0.25" />
+              <line x1={hx} x2={hx} y1={M.top} y2={H - M.bottom} stroke="#0c2b15" strokeOpacity="0.25" />
               <circle cx={hx} cy={hy} r="6" fill={ACTUAL} stroke="#ffffff" strokeWidth="2" />
             </g>
           )}
@@ -160,24 +160,24 @@ export function ProgressChart({
             className="pointer-events-none absolute z-10 min-w-40 -translate-x-1/2 -translate-y-full rounded-[2px] border border-line bg-white px-3 py-2 text-xs shadow-lg"
             style={{ left: `${(hx / W) * 100}%`, top: `${(hy / H) * 100}%`, marginTop: -10 }}
           >
-            <div className="font-bold text-navy">
+            <div className="font-bold text-ink">
               {new Date(h.date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
             </div>
             <div className="mt-1 flex justify-between gap-4 text-slate">
               <span>Weight</span>
-              <span className="font-bold text-navy">
+              <span className="font-bold text-ink">
                 {conv(h.kg).toFixed(1)} {unit}
               </span>
             </div>
             <div className="flex justify-between gap-4 text-slate">
               <span>Safe path</span>
-              <span className="font-bold text-navy">
+              <span className="font-bold text-ink">
                 {onPath.toFixed(1)} {unit}
               </span>
             </div>
             <div className="flex justify-between gap-4 text-slate">
               <span>vs. path</span>
-              <span className="font-bold text-navy">
+              <span className="font-bold text-ink">
                 {conv(h.kg) - onPath > 0 ? "+" : "−"}
                 {Math.abs(conv(h.kg) - onPath).toFixed(1)} {unit}
               </span>

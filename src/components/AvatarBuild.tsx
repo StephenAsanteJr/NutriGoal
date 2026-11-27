@@ -81,10 +81,10 @@ export function AvatarBuild(p: Props) {
       {variant === "full" && (
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="inline-flex rounded-[2px] border border-line p-0.5 text-xs font-bold" role="group" aria-label="Show build">
-            <button type="button" onClick={() => animateTo(0)} aria-pressed={t === 0} className={`rounded-[2px] px-3 py-1.5 ${t === 0 ? "bg-navy text-white" : "text-slate hover:text-navy"}`}>
+            <button type="button" onClick={() => animateTo(0)} aria-pressed={t === 0} className={`rounded-[2px] px-3 py-1.5 ${t === 0 ? "bg-ink text-white" : "text-slate hover:text-ink"}`}>
               Today
             </button>
-            <button type="button" onClick={() => animateTo(1)} aria-pressed={t === 1} className={`rounded-[2px] px-3 py-1.5 ${t === 1 ? "bg-blue text-white" : "text-slate hover:text-navy"}`}>
+            <button type="button" onClick={() => animateTo(1)} aria-pressed={t === 1} className={`rounded-[2px] px-3 py-1.5 ${t === 1 ? "bg-bcg-deep text-white" : "text-slate hover:text-ink"}`}>
               Goal
             </button>
           </div>
@@ -109,18 +109,18 @@ export function AvatarBuild(p: Props) {
         aria-label={`Animated character at week ${week} of ${p.weeks}: ${formatWeight(w, p.units)}, ${bf.toFixed(0)}% body fat.`}
       >
         <Backdrop y0={y0} />
-        <line x1="22" x2="22" y1={start.topY} y2={VIEW.ground} stroke="#7b868e" strokeWidth="0.8" />
+        <line x1="22" x2="22" y1={start.topY} y2={VIEW.ground} stroke="#77847b" strokeWidth="0.8" />
         {Array.from({ length: 11 }, (_, i) => start.topY + (start.heightPx * i) / 10).map((y, i) => (
-          <line key={i} x1={i % 5 === 0 ? 14 : 18} x2="22" y1={y} y2={y} stroke="#7b868e" strokeWidth="0.8" />
+          <line key={i} x1={i % 5 === 0 ? 14 : 18} x2="22" y1={y} y2={y} stroke="#77847b" strokeWidth="0.8" />
         ))}
-        <text x="8" y={start.topY - 8} fontSize="9" fill="#4a5862" fontFamily="Arial" fontWeight="700">
+        <text x="8" y={start.topY - 8} fontSize="9" fill="#4b5a51" fontFamily="Arial" fontWeight="700">
           {p.heightLabel}
         </text>
-        <ellipse cx={VIEW.centerX} cy={VIEW.ground + 3} rx="64" ry="5" fill="#051c2c" opacity="0.1" />
+        <ellipse cx={VIEW.centerX} cy={VIEW.ground + 3} rx="64" ry="5" fill="#0c2b15" opacity="0.1" />
 
         {/* comparison outline: the goal while showing today, today while showing the goal */}
         {variant === "full" && (
-          <g fill="none" stroke={t < 0.5 ? "#00a9f4" : "#7b868e"} strokeWidth="1.6" strokeDasharray="1.5 4" strokeLinecap="round" opacity="0.9">
+          <g fill="none" stroke={t < 0.5 ? "#21bf61" : "#77847b"} strokeWidth="1.6" strokeDasharray="1.5 4" strokeLinecap="round" opacity="0.9">
             <path d={ghost.body} />
             <ellipse cx={ghost.head.cx} cy={ghost.head.cy} rx={ghost.head.rx} ry={ghost.head.ry} />
           </g>
@@ -143,7 +143,7 @@ export function AvatarBuild(p: Props) {
             />
             <div className="flex justify-between text-[11px] text-muted">
               <span>Today</span>
-              <span className="font-bold text-navy">
+              <span className="font-bold text-ink">
                 Week {week} of {p.weeks} · {formatWeight(w, p.units)} · {bf.toFixed(0)}% fat
               </span>
               <span>Goal</span>
@@ -162,7 +162,7 @@ function Backdrop({ y0 }: { y0: number }) {
     <>
       <defs>
         <pattern id={`grid-${id}`} width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M20 0H0V20" fill="none" stroke="#e6ebef" strokeWidth="0.6" />
+          <path d="M20 0H0V20" fill="none" stroke="#e6ece8" strokeWidth="0.6" />
         </pattern>
       </defs>
       <rect x="0" y={y0} width={VIEW.width} height={VIEW.height - y0} fill={`url(#grid-${id})`} />
@@ -177,7 +177,7 @@ function Comparison({ start, goal, look, sex, p }: { start: SilhouetteShape; goa
   return (
     <div className="mt-4 grid grid-cols-2 gap-3 border-t border-line pt-4">
       {[
-        { label: "Today", s: start, wt: p.weightKg, f: p.bodyFatPct, tone: "text-navy" },
+        { label: "Today", s: start, wt: p.weightKg, f: p.bodyFatPct, tone: "text-ink" },
         { label: "Goal", s: goal, wt: p.goalWeightKg, f: p.goalBodyFatPct, tone: "text-bcg-deep" },
       ].map((c) => (
         <div key={c.label} className="text-center">
@@ -211,8 +211,8 @@ export function Character({ shape, look, sex, still }: { shape: SilhouetteShape;
           <stop offset="1" stopColor={tone.shade} />
         </linearGradient>
         <linearGradient id={`top-${uid}`} x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0" stopColor="#3a66ff" />
-          <stop offset="1" stopColor="#1a3fd6" />
+          <stop offset="0" stopColor="#21bf61" />
+          <stop offset="1" stopColor="#197a56" />
         </linearGradient>
         <clipPath id={`clip-${uid}`}>
           <path d={shape.body} />
@@ -231,14 +231,14 @@ export function Character({ shape, look, sex, still }: { shape: SilhouetteShape;
       <path d={shape.body} fill={`url(#skin-${uid})`} stroke={tone.shade} strokeWidth="0.8" />
       <g clipPath={`url(#clip-${uid})`}>
         <path d={shape.top} fill={`url(#top-${uid})`} />
-        <path d={shape.shorts} fill="#051c2c" />
+        <path d={shape.shorts} fill="#0c2b15" />
         {/* small brand dot on the top */}
-        <circle cx={cx + rx * 0.9} cy={cy + ry * 2.55} r={rx * 0.16} fill="#00a9f4" opacity="0.9" />
+        <circle cx={cx + rx * 0.9} cy={cy + ry * 2.55} r={rx * 0.16} fill="#cc0000" opacity="0.9" />
       </g>
       {shape.feet.map((f, i) => (
         <g key={i}>
-          <ellipse cx={f.cx} cy={f.cy} rx={f.rx} ry={f.ry} fill="#ffffff" stroke="#051c2c" strokeWidth="0.9" />
-          <path d={`M${f.cx - f.rx * 0.8},${f.cy + f.ry * 0.35} L${f.cx + f.rx * 0.8},${f.cy + f.ry * 0.35}`} stroke="#2251ff" strokeWidth="1.2" />
+          <ellipse cx={f.cx} cy={f.cy} rx={f.rx} ry={f.ry} fill="#ffffff" stroke="#0c2b15" strokeWidth="0.9" />
+          <path d={`M${f.cx - f.rx * 0.8},${f.cy + f.ry * 0.35} L${f.cx + f.rx * 0.8},${f.cy + f.ry * 0.35}`} stroke="#cc0000" strokeWidth="1.2" />
         </g>
       ))}
 

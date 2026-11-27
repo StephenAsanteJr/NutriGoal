@@ -14,13 +14,13 @@ export function AddonCard({ addon, member, stripe = false, autoOpen = false }: {
   const unlocked = !!addon.unlocked || state?.ok;
 
   return (
-    <article id={`addon-${addon.id}`} className={`card flex scroll-mt-24 flex-col p-6 ${unlocked ? "border-good" : ""} ${autoOpen ? "ring-2 ring-blue" : ""}`}>
+    <article id={`addon-${addon.id}`} className={`card flex scroll-mt-24 flex-col p-6 ${unlocked ? "border-good" : ""} ${autoOpen ? "ring-2 ring-bcg-deep" : ""}`}>
       <div className="flex items-start justify-between gap-3">
         <h3 className="text-lg font-bold">{addon.name}</h3>
         {unlocked ? (
           <span className="pill bg-good-tint text-good">✓ Unlocked</span>
         ) : addon.included_with_membership ? (
-          <span className="pill bg-navy text-white">Included with membership</span>
+          <span className="pill bg-ink text-white">Included with membership</span>
         ) : null}
       </div>
       {addon.partner_name && <div className="text-xs font-bold text-muted">with {addon.partner_name}</div>}

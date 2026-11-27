@@ -61,7 +61,7 @@ export default function Assistant() {
         {msgs.length === 0 && (
           <>
             <View style={{ backgroundColor: C.white, borderRadius: 18, padding: 14, maxWidth: "88%" }}>
-              <Text style={{ color: C.navy }}>Hi! I can find trainers and stores, unlock add-ons, check your tickets and nudge your clinician. For health questions, send a goal ticket so a clinician can answer.</Text>
+              <Text style={{ color: C.ink }}>Hi! I can find trainers and stores, unlock add-ons, check your tickets and nudge your clinician. For health questions, send a goal ticket so a clinician can answer.</Text>
             </View>
             <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
               {SUGGEST.map((s) => (
@@ -72,8 +72,8 @@ export default function Assistant() {
         )}
         {msgs.map((m, i) => (
           <View key={i} style={{ alignItems: m.role === "user" ? "flex-end" : "flex-start" }}>
-            <View style={{ backgroundColor: m.role === "user" ? C.blue : C.white, borderRadius: 18, padding: 12, maxWidth: "88%" }}>
-              <Text style={{ color: m.role === "user" ? C.white : C.navy }}>{m.content}</Text>
+            <View style={{ backgroundColor: m.role === "user" ? C.greenDeep : C.white, borderRadius: 18, padding: 12, maxWidth: "88%" }}>
+              <Text style={{ color: m.role === "user" ? C.white : C.ink }}>{m.content}</Text>
             </View>
             {m.role === "assistant" && (
               <View style={{ marginTop: 6 }}>
@@ -101,7 +101,7 @@ export default function Assistant() {
         >
           <Ionicons name={dictation.listening ? "stop" : "mic"} size={18} color={dictation.listening ? C.white : C.red} />
         </Pressable>
-        <TextInput ref={input} onBlur={() => setHint(false)} value={text} onChangeText={setText} onSubmitEditing={() => send(text)} placeholder="Ask about trainers, stores or your tickets" placeholderTextColor={C.muted} style={{ flex: 1, borderWidth: 1, borderColor: C.line, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10, color: C.navy }} returnKeyType="send" />
+        <TextInput ref={input} onBlur={() => setHint(false)} value={text} onChangeText={setText} onSubmitEditing={() => send(text)} placeholder="Ask about trainers, stores or your tickets" placeholderTextColor={C.muted} style={{ flex: 1, borderWidth: 1, borderColor: C.line, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10, color: C.ink }} returnKeyType="send" />
         <View style={{ width: 90 }}>
           <Button label="Send" onPress={() => send(text)} disabled={!text.trim()} busy={busy} />
         </View>

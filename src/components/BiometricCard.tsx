@@ -36,7 +36,7 @@ export function BiometricCard({ name, memberId, input, build, units, medicationS
 
   return (
     <section className="card overflow-hidden" aria-label="Biometric card">
-      <header className="bg-navy px-5 py-4 text-white">
+      <header className="bg-ink px-5 py-4 text-white">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Biometric card</div>
@@ -125,7 +125,7 @@ function Metric({ label, value, sub, accent, small }: { label: string; value: st
   return (
     <div className="bg-white px-5 py-3">
       <div className="text-[11px] font-bold uppercase tracking-[0.08em] text-muted">{label}</div>
-      <div className={`${small ? "text-sm" : "text-lg"} mt-0.5 font-bold ${accent ? "text-blue" : "text-navy"}`}>{value}</div>
+      <div className={`${small ? "text-sm" : "text-lg"} mt-0.5 font-bold ${accent ? "text-bcg-deep" : "text-ink"}`}>{value}</div>
       {sub && <div className="text-xs text-slate">{sub}</div>}
     </div>
   );

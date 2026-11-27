@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   name TEXT NOT NULL,
-  role TEXT NOT NULL CHECK (role IN ('member','clinician','manager')),
+  role TEXT NOT NULL CHECK (role IN ('member','clinician','manager','org_manager')),
   clinician_type TEXT CHECK (clinician_type IN ('MD','RD') OR clinician_type IS NULL),
   credential TEXT,
   specialties TEXT,

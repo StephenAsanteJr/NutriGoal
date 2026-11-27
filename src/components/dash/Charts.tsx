@@ -1,17 +1,17 @@
 "use client";
 
 // Interactive dashboard charts: hover for exact values, click bars to filter (where enabled).
-// Colors follow one job each: categorical series use a validated blue / green / cyan set;
-// Bain red is reserved for "late / overdue" and always comes with a label.
+// Categorical series: BCG deep green, Bain red, BCG Pulse Green (validated for color-vision
+// deficiency; every chart has a legend and a table view). "Late / overdue" always comes with a label.
 
 import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { fmt, type FmtKind } from "@/lib/fmt";
 
-export const SERIES = ["#2251ff", "#197a56", "#cc0000"]; // McKinsey blue · BCG green · Bain red
+export const SERIES = ["#197a56", "#cc0000", "#21bf61"]; // BCG deep green · Bain red · BCG Pulse Green
 const LATE = "#cc0000";
-const GRID = "#e6ebef";
-const AXIS = "#7b868e";
+const GRID = "#e6ece8";
+const AXIS = "#77847b";
 
 /** Set or clear a URL filter (e.g. goal, clinician) and re-render the server page. */
 function useFilterLink() {
@@ -76,7 +76,7 @@ export function LineChart({ labels, series, format = "int", height = H }: { labe
         ))}
         {hover != null && (
           <>
-            <line x1={x(hover)} x2={x(hover)} y1={M.top} y2={M.top + ih} stroke="#051c2c" strokeOpacity="0.3" />
+            <line x1={x(hover)} x2={x(hover)} y1={M.top} y2={M.top + ih} stroke="#0c2b15" strokeOpacity="0.3" />
             {series.map((s, si) => <circle key={s.name} cx={x(hover)} cy={y(s.values[hover])} r="4.5" fill={SERIES[si]} stroke="#fff" strokeWidth="2" />)}
           </>
         )}
@@ -90,7 +90,7 @@ export function LineChart({ labels, series, format = "int", height = H }: { labe
           {series.map((s, si) => (
             <div key={s.name} className="flex items-center gap-2 text-slate">
               <span className="inline-block h-2 w-2 rounded-full" style={{ background: SERIES[si] }} />
-              {s.name}: <span className="font-bold text-navy">{fmt(s.values[hover], format)}</span>
+              {s.name}: <span className="font-bold text-ink">{fmt(s.values[hover], format)}</span>
             </div>
           ))}
         </div>
@@ -146,7 +146,7 @@ export function StackedColumns({ labels, series, format = "moneyCents", height =
           {series.map((s, si) => (
             <div key={s.name} className="flex items-center gap-2 text-slate">
               <span className="inline-block h-2 w-2 rounded-full" style={{ background: SERIES[si] }} />
-              {s.name}: <span className="font-bold text-navy">{fmt(s.values[hover], format)}</span>
+              {s.name}: <span className="font-bold text-ink">{fmt(s.values[hover], format)}</span>
             </div>
           ))}
         </div>
@@ -175,14 +175,14 @@ export function BarList({ items, format = "int", filterParam, selected, color = 
               {...(filterParam ? { type: "button" as const, onClick: () => setFilter(filterParam, it.key), "aria-pressed": active, title: active ? "Click to clear this filter" : "Click to filter the dashboard" } : {})}
               onPointerEnter={() => setHover(it.key)}
               onPointerLeave={() => setHover(null)}
-              className={`grid w-full grid-cols-[minmax(0,10rem)_1fr_auto] items-center gap-3 rounded-[2px] px-1 py-0.5 text-left text-xs ${filterParam ? "hover:bg-mist" : ""} ${active ? "bg-blue-tint" : ""}`}
+              className={`grid w-full grid-cols-[minmax(0,10rem)_1fr_auto] items-center gap-3 rounded-[2px] px-1 py-0.5 text-left text-xs ${filterParam ? "hover:bg-mist" : ""} ${active ? "bg-bcg-tint" : ""}`}
             >
-              <span className={`truncate ${active ? "font-bold text-blue" : "text-navy"}`}>{it.label}</span>
+              <span className={`truncate ${active ? "font-bold text-bcg-deep" : "text-ink"}`}>{it.label}</span>
               <span className="relative h-3 rounded-r-[4px]">
                 <span className="absolute inset-y-0 left-0 rounded-r-[4px] transition-all" style={{ width: `${(it.value / max) * 100}%`, background: it.late ? LATE : color, opacity: dim ? 0.35 : hover && hover !== it.key ? 0.6 : 1 }} />
               </span>
               <span className="w-24 text-right tabular-nums text-slate">
-                <span className="font-bold text-navy">{fmt(it.value, format)}</span>
+                <span className="font-bold text-ink">{fmt(it.value, format)}</span>
                 {showShare && total > 0 ? ` · ${Math.round((it.value / total) * 100)}%` : ""}
                 {it.late ? <span className="ml-1 font-bold text-alert">late</span> : null}
               </span>
@@ -224,8 +224,8 @@ export function Columns({ items, format = "int", reference, referenceLabel, heig
         })}
         {reference != null && (
           <>
-            <line x1={M.left} x2={W - M.right} y1={y(reference)} y2={y(reference)} stroke="#051c2c" strokeDasharray="4 3" strokeWidth="1.2" />
-            <text x={W - M.right} y={y(reference) - 4} textAnchor="end" fontSize="10" fontWeight="700" fill="#051c2c">{referenceLabel}</text>
+            <line x1={M.left} x2={W - M.right} y1={y(reference)} y2={y(reference)} stroke="#0c2b15" strokeDasharray="4 3" strokeWidth="1.2" />
+            <text x={W - M.right} y={y(reference) - 4} textAnchor="end" fontSize="10" fontWeight="700" fill="#0c2b15">{referenceLabel}</text>
           </>
         )}
       </svg>
@@ -248,10 +248,10 @@ export function Funnel({ steps }: { steps: Item[] }) {
         const fromPrev = i ? (steps[i - 1].value ? (s.value / steps[i - 1].value) * 100 : 0) : 100;
         return (
           <li key={s.key} className="grid grid-cols-[minmax(0,11rem)_1fr_auto] items-center gap-3 text-xs" title={`${fmt(fromPrev, "pct")} of the previous step`}>
-            <span className="truncate text-navy">{s.label}</span>
+            <span className="truncate text-ink">{s.label}</span>
             <span className="h-4 rounded-r-[4px]" style={{ width: `${Math.max(2, (s.value / first) * 100)}%`, background: SERIES[0], opacity: 1 - i * 0.13 }} />
             <span className="w-28 text-right tabular-nums text-slate">
-              <span className="font-bold text-navy">{fmt(s.value)}</span> · {fmt((s.value / first) * 100, "pct")}
+              <span className="font-bold text-ink">{fmt(s.value)}</span> · {fmt((s.value / first) * 100, "pct")}
             </span>
           </li>
         );

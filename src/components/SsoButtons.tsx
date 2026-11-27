@@ -37,7 +37,7 @@ export function SsoButtons({ next = "", referral = "", divider = "or use email" 
             key={p.id}
             href={qs(p.id)}
             className={`flex items-center justify-center gap-3 rounded-[3px] border px-4 py-2.5 text-sm font-bold transition ${
-              p.id === "apple" ? "border-black bg-black text-white hover:bg-[#222]" : p.id === "google" ? "border-[#dadce0] bg-white text-[#1f1f1f] hover:bg-[#f8f9fa]" : "border-navy bg-white text-navy hover:bg-mist"
+              p.id === "apple" ? "border-black bg-black text-white hover:bg-[#222]" : p.id === "google" ? "border-[#dadce0] bg-white text-[#1f1f1f] hover:bg-[#f8f9fa]" : "border-ink bg-white text-ink hover:bg-mist"
             }`}
           >
             <Icon id={p.id} />

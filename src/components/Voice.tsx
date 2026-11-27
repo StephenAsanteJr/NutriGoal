@@ -165,7 +165,7 @@ export function VoicePanel({
             <span className={`text-[11px] ${dark ? "text-white/60" : "text-muted"}`}>Check the transcript, fix anything misheard, then:</span>
             <button
               type="button"
-              className={dark ? "btn !bg-white !text-navy" : "btn-dark"}
+              className={dark ? "btn !bg-white !text-ink" : "btn-dark"}
               disabled={busy || d.listening || text.trim().length < 10}
               onClick={async () => {
                 setBusy(true);

@@ -32,7 +32,7 @@ export function Paywall() {
         </div>
         <div className="absolute inset-0 flex items-center justify-center bg-white/60 p-4">
           <div className="card max-w-md p-6 text-center shadow-xl">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-navy text-xl text-white" aria-hidden>🔒</div>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-ink text-xl text-white" aria-hidden>🔒</div>
             <h2 className="font-display mt-3 text-2xl">For members and ticket holders</h2>
             <p className="mt-2 text-sm text-slate">Send your first goal ticket ({money(PRICES.ticketOneTime)}) or join the membership to open it.</p>
             <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">

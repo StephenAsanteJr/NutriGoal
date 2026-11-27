@@ -15,7 +15,7 @@ type Props = {
 };
 
 /** The bubble button: a big round, tappable target with an icon, label and optional count badge. */
-export function Bubble({ label, icon, onPress, size = 118, color = C.blue, textColor = C.white, badge, sublabel, locked, style }: Props) {
+export function Bubble({ label, icon, onPress, size = 118, color = C.greenDeep, textColor = C.white, badge, sublabel, locked, style }: Props) {
   return (
     <Pressable
       onPress={onPress}
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 10,
     margin: 8,
-    shadowColor: C.navy,
+    shadowColor: C.ink,
     shadowOpacity: 0.18,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -73,10 +73,10 @@ const styles = StyleSheet.create({
   },
   label: { fontWeight: "700", textAlign: "center", marginTop: 4 },
   sub: { fontSize: 11, opacity: 0.85, marginTop: 2, textAlign: "center" },
-  badge: { position: "absolute", top: 6, right: 6, minWidth: 26, height: 26, borderRadius: 13, backgroundColor: C.cyan, alignItems: "center", justifyContent: "center", paddingHorizontal: 6, borderWidth: 2, borderColor: C.white },
-  badgeText: { color: C.navy, fontWeight: "800", fontSize: 12 },
+  badge: { position: "absolute", top: 6, right: 6, minWidth: 26, height: 26, borderRadius: 13, backgroundColor: C.red, alignItems: "center", justifyContent: "center", paddingHorizontal: 6, borderWidth: 2, borderColor: C.white },
+  badgeText: { color: C.ink, fontWeight: "800", fontSize: 12 },
   cluster: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", alignItems: "center", paddingVertical: 8 },
   chip: { borderRadius: 999, borderWidth: 1, borderColor: C.line, backgroundColor: C.white, paddingHorizontal: 14, paddingVertical: 9, margin: 4 },
   chipActive: { backgroundColor: C.greenDeep, borderColor: C.greenDeep },
-  chipText: { color: C.navy, fontWeight: "700", fontSize: 13 },
+  chipText: { color: C.ink, fontWeight: "700", fontSize: 13 },
 });

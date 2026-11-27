@@ -5,7 +5,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useSession } from "@/lib/session";
 import { openWeb } from "@/lib/web";
 import { C, serif } from "@/lib/theme";
-import { dueText, firstName, greeting, initials, useHome, type ClinicianHome, type ManagerHome, type MemberHome } from "@/lib/home";
+import { dueText, firstName, greeting, initials, useHome, type ClinicianHome, type ManagerHome, type MemberHome, type OrgHome } from "@/lib/home";
 import { Body, Button, Card, ErrorText, Loading, Screen } from "@/components/UI";
 import { Badge, HighlightCard, Meter, Row, RowGroup, SectionLabel } from "@/components/Rows";
 import { Character } from "@/components/Character";
@@ -25,7 +25,8 @@ export default function HomeTab() {
   if (!data) return <Screen tab><ErrorText>{error}</ErrorText><Button label="Sign out" kind="ghost" onPress={signOut} /></Screen>;
   const go: Go = (p) => router.push(p as never);
   const web = (next: string) => openWeb(call, next).catch(() => {});
-  const question = data.role === "member" ? "What are we working on today?" : data.role === "clinician" ? "Who needs a plan today?" : "How is the care team doing?";
+  const question =
+    data.role === "member" ? "What are we working on today?" : data.role === "clinician" ? "Who needs a plan today?" : data.role === "org_manager" ? "How are your people doing?" : "How is NutriGoal doing?";
 
   return (
     <Screen tab>
@@ -33,22 +34,23 @@ export default function HomeTab() {
       <View style={{ flexDirection: "row", alignItems: "center", marginTop: 4 }}>
         <Text style={{ flex: 1, color: C.muted, fontSize: 14 }}>{greeting()}, {firstName(data.name)}</Text>
         <Pressable onPress={() => go("/alerts")} accessibilityRole="button" accessibilityLabel={`Alerts${data.unread ? `, ${data.unread} unread` : ""}`} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.white, borderWidth: 1, borderColor: C.line, alignItems: "center", justifyContent: "center", marginRight: 8 }}>
-          <Ionicons name="notifications-outline" size={20} color={C.navy} />
+          <Ionicons name="notifications-outline" size={20} color={C.ink} />
           {data.unread > 0 && (
             <View style={{ position: "absolute", top: -4, right: -4 }}>
               <Badge value={data.unread} />
             </View>
           )}
         </Pressable>
-        <Pressable onPress={() => go("/account")} accessibilityRole="button" accessibilityLabel="Account" style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.navy, alignItems: "center", justifyContent: "center" }}>
+        <Pressable onPress={() => go("/account")} accessibilityRole="button" accessibilityLabel="Account" style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.ink, alignItems: "center", justifyContent: "center" }}>
           <Text style={{ color: C.white, fontWeight: "800" }}>{initials(data.name)}</Text>
         </Pressable>
       </View>
-      <Text style={{ fontFamily: serif, fontSize: 28, lineHeight: 34, color: C.navy, marginTop: 6 }}>{question}</Text>
+      <Text style={{ fontFamily: serif, fontSize: 28, lineHeight: 34, color: C.ink, marginTop: 6 }}>{question}</Text>
 
       {data.role === "member" && <Member d={data} go={go} web={web} />}
       {data.role === "clinician" && <Clinician d={data} go={go} web={web} />}
       {data.role === "manager" && <Manager d={data} go={go} web={web} />}
+      {data.role === "org_manager" && <Organization d={data} go={go} web={web} />}
     </Screen>
   );
 }
@@ -75,8 +77,8 @@ function Member({ d, go, web }: { d: MemberHome; go: Go; web: (next: string) => 
 
       <SectionLabel>Jump in</SectionLabel>
       <RowGroup>
-        <Row icon="add-circle" tone="blue" title="New goal ticket" subtitle={included ? "1 ticket included with your membership" : "$19.99 one-time, or join for $29.99/mo"} subtitleTone={included ? "green" : "muted"} onPress={() => go("/new-ticket")} />
-        <Row icon="document-text" tone="red" title="My tickets" subtitle={openCount ? `${openCount} in progress` : ready ? "Plan ready to read" : "Your plans live here"} subtitleTone={!openCount && ready ? "green" : "muted"} badge={openCount || null} badgeTone="navy" onPress={() => go("/tickets")} />
+        <Row icon="add-circle" tone="green" title="New goal ticket" subtitle={included ? "1 ticket included with your membership" : "$19.99 one-time, or join for $29.99/mo"} subtitleTone={included ? "green" : "muted"} onPress={() => go("/new-ticket")} />
+        <Row icon="document-text" tone="red" title="My tickets" subtitle={openCount ? `${openCount} in progress` : ready ? "Plan ready to read" : "Your plans live here"} subtitleTone={!openCount && ready ? "green" : "muted"} badge={openCount || null} badgeTone="ink" onPress={() => go("/tickets")} />
         <Row icon="body" tone="green" title="My build" subtitle={b ? `${w(b.weightKg)} → ${w(b.goalWeightKg)} ${unit} · ${b.weeks} weeks` : "Today vs. your goal"} onPress={() => go("/build")} />
         {d.foodGuide && (
           <Row icon="nutrition" tone="green" title="Foods that fit your targets" subtitle={`${d.foodGuide.match.overall}% match · ${d.foodGuide.rows.map((r) => `${r.servings} ${r.label.split(/[ ,&]/)[0].toLowerCase()}`).join(" · ")}`} onPress={() => go("/build")} />
@@ -95,7 +97,7 @@ function Member({ d, go, web }: { d: MemberHome; go: Go; web: (next: string) => 
               <Character sex={b.sex} heightCm={b.heightCm} weightKg={b.weightKg} bodyFatPct={b.bodyFatPct} look={d.look} height={120} ghost={{ weightKg: b.goalWeightKg, bodyFatPct: b.goalBodyFatPct }} />
               <View style={{ flex: 1 }}>
                 <Text style={{ color: C.muted, fontSize: 11, fontWeight: "800", letterSpacing: 1 }}>TODAY → GOAL</Text>
-                <Text style={{ fontFamily: serif, fontSize: 24, color: C.navy }}>{w(b.weightKg)} → {w(b.goalWeightKg)} {unit}</Text>
+                <Text style={{ fontFamily: serif, fontSize: 24, color: C.ink }}>{w(b.weightKg)} → {w(b.goalWeightKg)} {unit}</Text>
                 <Text style={{ color: C.slate, fontSize: 13 }}>{b.bodyFatPct}% → {b.goalBodyFatPct}% body fat</Text>
                 <Text style={{ color: C.greenDeep, fontWeight: "800", fontSize: 13, marginTop: 6 }}>{b.targetKcal.toLocaleString()} kcal · {b.proteinG} g protein / day</Text>
               </View>
@@ -129,12 +131,12 @@ function Clinician({ d, go, web }: { d: ClinicianHome; go: Go; web: (next: strin
       )}
       <SectionLabel>Jump in</SectionLabel>
       <RowGroup>
-        <Row icon="file-tray-full" tone="blue" title="My queue" subtitle={d.counts.open ? `${d.counts.open} waiting for your response` : "Nothing waiting"} badge={d.counts.open || null} badgeTone="navy" onPress={() => go("/tickets")} />
+        <Row icon="file-tray-full" tone="green" title="My queue" subtitle={d.counts.open ? `${d.counts.open} waiting for your response` : "Nothing waiting"} badge={d.counts.open || null} badgeTone="ink" onPress={() => go("/tickets")} />
         <Row icon="time" tone="red" title="Due within 12 hours" subtitle={d.counts.dueSoon ? "Keep the 48-hour promise" : "Nothing urgent"} subtitleTone={d.counts.dueSoon ? "red" : "muted"} badge={d.counts.dueSoon || null} onPress={() => go("/tickets")} />
         <Row icon="flag" tone="red" title="Nudged" subtitle="Members or managers asking for a look" badge={d.counts.nudged || null} onPress={() => go("/tickets")} />
         <Row icon="checkmark-circle" tone="green" title="Responded" subtitle="Plans you've written and signed" value={String(d.counts.responded)} />
         <Row icon="notifications" tone="red" title="Alerts" subtitle={d.unread ? `${d.unread} unread` : "You're all caught up"} badge={d.unread || null} onPress={() => go("/alerts")} />
-        <Row icon="globe-outline" tone="blue" title="Clinician portal" subtitle="Full ticket view, notes and labs (website)" onPress={() => web("/staff")} />
+        <Row icon="globe-outline" tone="green" title="Clinician portal" subtitle="Full ticket view, notes and labs (website)" onPress={() => web("/staff")} />
       </RowGroup>
       {d.stats && (
         <>
@@ -148,7 +150,7 @@ function Clinician({ d, go, web }: { d: ClinicianHome; go: Go; web: (next: strin
             {d.stats.referralLink && (
               <Row icon="share-social" tone="red" title="Share your referral link" subtitle={stripScheme(d.stats.referralLink)} onPress={() => Share.share({ message: `Get a written nutrition plan from me on NutriGoal: ${d.stats!.referralLink}` })} />
             )}
-            <Row icon="bar-chart" tone="blue" title="Full dashboard" subtitle="Charts, ratings and referral details (website)" onPress={() => web("/staff/dashboard")} />
+            <Row icon="bar-chart" tone="green" title="Full dashboard" subtitle="Charts, ratings and referral details (website)" onPress={() => web("/staff/dashboard")} />
           </RowGroup>
         </>
       )}
@@ -175,13 +177,14 @@ function Manager({ d, go, web }: { d: ManagerHome; go: Go; web: (next: string) =
       )}
       <SectionLabel>Jump in</SectionLabel>
       <RowGroup>
-        <Row icon="clipboard" tone="red" title="Open tickets" subtitle="Routing, reassignments and nudges" badge={d.kpis.open || null} badgeTone="navy" onPress={() => go("/tickets")} />
+        <Row icon="clipboard" tone="red" title="Open tickets" subtitle="Routing, reassignments and nudges" badge={d.kpis.open || null} badgeTone="ink" onPress={() => go("/tickets")} />
         <Row icon="time" tone="red" title="Due within 12 hours" subtitle={d.kpis.dueSoon ? "At risk of missing 48 hours" : "Nothing at risk"} subtitleTone={d.kpis.dueSoon ? "red" : "muted"} badge={d.kpis.dueSoon || null} onPress={() => go("/tickets")} />
         <Row icon="people" tone="red" title="Clinicians" subtitle={`${d.clinicians.length} on the roster · load and approvals`} onPress={() => go("/team")} />
         <Row icon="trending-up" tone="green" title="Revenue, last 30 days" value={d.kpis.revenue30} />
         <Row icon="person-circle" tone="green" title="Members" value={String(d.kpis.members)} />
         <Row icon="notifications" tone="red" title="Alerts" subtitle={d.unread ? `${d.unread} unread` : "You're all caught up"} badge={d.unread || null} onPress={() => go("/alerts")} />
-        <Row icon="globe-outline" tone="cyan" title="Operations portal" subtitle="Applications, payments and reports (website)" onPress={() => web("/staff")} />
+        <Row icon="business" tone="green" title="Organizations" subtitle="Enterprise customers, plans and the deal model (website)" onPress={() => web("/staff/organizations")} />
+        <Row icon="globe-outline" tone="ink" title="NutriGoal management portal" subtitle="Applications, payments and reports (website)" onPress={() => web("/staff")} />
       </RowGroup>
       {d.dashboards && (
         <>
@@ -190,17 +193,70 @@ function Manager({ d, go, web }: { d: ManagerHome; go: Go; web: (next: string) =
             <Row icon="document-text" tone="red" title="Tickets submitted" subtitle={`${d.dashboards.ops.responded} plans sent`} value={String(d.dashboards.ops.submitted)} />
             <Row icon="time" tone={d.dashboards.ops.overdue ? "red" : "green"} title="Within 48 hours" subtitle={`avg ${d.dashboards.ops.avgHours ?? "–"} h · ${d.dashboards.ops.overdue} overdue`} subtitleTone={d.dashboards.ops.overdue ? "red" : "muted"} value={d.dashboards.ops.sla == null ? "–" : `${d.dashboards.ops.sla}%`} />
             <Row icon="star" tone="green" title="Average rating" subtitle={`${d.dashboards.ops.clinicians} clinicians · ${d.dashboards.ops.newMembers} new members`} value={d.dashboards.ops.rating == null ? "–" : `${d.dashboards.ops.rating.toFixed(2)} ★`} />
-            <Row icon="analytics" tone="blue" title="Operations dashboard" subtitle="Filters, charts, Excel and Tableau export (website)" onPress={() => web("/staff/ops")} />
+            <Row icon="analytics" tone="green" title="Operations dashboard" subtitle="Filters, charts, Excel and Tableau export (website)" onPress={() => web("/staff/ops")} />
           </RowGroup>
           <SectionLabel>Finance · 30 days</SectionLabel>
           <RowGroup>
             <Row icon="cash" tone="green" title="Gross revenue" subtitle={`${money(d.dashboards.finance.payouts)} clinician payouts`} value={money(d.dashboards.finance.revenue)} />
             <Row icon="trending-up" tone="green" title="Gross margin" subtitle={d.dashboards.finance.marginPct == null ? undefined : `${d.dashboards.finance.marginPct}% of revenue`} value={money(d.dashboards.finance.margin)} />
             <Row icon="repeat" tone="green" title="Monthly recurring revenue" subtitle={`${d.dashboards.finance.activeSubs} active memberships · ${d.dashboards.finance.churn ?? "–"}% churn`} value={money(d.dashboards.finance.mrr)} />
-            <Row icon="pie-chart" tone="blue" title="Financial dashboard" subtitle="Revenue mix, payouts, Excel and Tableau export (website)" onPress={() => web("/staff/finance")} />
+            <Row icon="pie-chart" tone="green" title="Financial dashboard" subtitle="Revenue mix, payouts, Excel and Tableau export (website)" onPress={() => web("/staff/finance")} />
           </RowGroup>
         </>
       )}
+    </>
+  );
+}
+
+const DIRECTION_COLOR = { closer: C.greenDeep, holding: "#a3ada6", straying: C.red, no_data: "#e6ece8" } as const;
+
+/** Organizational manager: de-identified totals for members who joined with the invite link. */
+function Organization({ d, go, web }: { d: OrgHome; go: Go; web: (next: string) => void }) {
+  const o = d.org;
+  if (!o) return <Card><Body>This account isn&apos;t linked to an organization yet. Contact NutriGoal support.</Body></Card>;
+  const closer = o.directions.find((x) => x.id === "closer")?.pct;
+  const share = () => Share.share({ message: `Join ${o.name} on NutriGoal: plans for your own nutrition goals written by licensed clinicians. We only see anonymous group totals. ${o.inviteLink}` }).catch(() => {});
+  return (
+    <>
+      {o.suppressed ? (
+        <HighlightCard icon="share-social" kicker={`${o.enrolled} of ${o.eligible.toLocaleString()} joined`} title="Invite your people" subtitle="Totals appear once 5 or more have joined" action="Share" onPress={share} />
+      ) : (
+        <HighlightCard icon="pulse" kicker={`${o.enrolled.toLocaleString()} members · ${o.plan} plan`} title={`${closer ?? "–"}% getting closer to their goals`} subtitle={`Wellness index ${o.wellnessIndex ?? "–"} / 100`} action="Details" onPress={() => web("/org")} />
+      )}
+      <SectionLabel>Where your people stand</SectionLabel>
+      <Card>
+        {o.suppressed ? (
+          <Body muted>Hidden to protect privacy until at least 5 members have joined.</Body>
+        ) : (
+          <>
+            <View style={{ flexDirection: "row", height: 26, borderRadius: 6, overflow: "hidden" }}>
+              {o.directions.map((x) => (x.pct ? <View key={x.id} style={{ width: `${x.pct}%`, backgroundColor: DIRECTION_COLOR[x.id], borderRightWidth: 2, borderRightColor: C.white }} /> : null))}
+            </View>
+            {o.directions.map((x) => (
+              <View key={x.id} style={{ flexDirection: "row", alignItems: "center", marginTop: 10 }}>
+                <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: DIRECTION_COLOR[x.id], marginRight: 8, borderWidth: x.id === "no_data" ? 1 : 0, borderColor: C.line }} />
+                <Text style={{ flex: 1, color: C.slate, fontSize: 13 }}>{x.label}</Text>
+                <Text style={{ color: C.ink, fontWeight: "800" }}>{x.pct == null ? "–" : `${x.pct}%`}</Text>
+              </View>
+            ))}
+          </>
+        )}
+        <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>No names, weights, labs, tickets or plans. Groups under 5 are hidden; shares are rounded to 5%.</Text>
+      </Card>
+      <SectionLabel>Program</SectionLabel>
+      <RowGroup>
+        <Row icon="people" tone="green" title="Members enrolled" subtitle={`of ${o.eligible.toLocaleString()} eligible${o.enrollmentRate != null ? ` · ${o.enrollmentRate}%` : ""}`} value={o.enrolled.toLocaleString()} />
+        <Row icon="pulse" tone="green" title="Active in the last 30 days" value={o.activePct == null ? "–" : `${o.activePct}%`} />
+        <Row icon="document-text" tone="green" title="Clinician plans delivered" subtitle="Last 30 days" value={o.plans30 == null ? "–" : String(o.plans30)} />
+        <Row icon="cash" tone="red" title="This month's bill" subtitle={`${o.plan} plan · ${o.status}`} value={o.monthlyBill} onPress={() => web("/org/plan")} />
+      </RowGroup>
+      <SectionLabel>Invite</SectionLabel>
+      <RowGroup>
+        <Row icon="share-social" tone="red" title="Share your invite link" subtitle={`Code ${o.inviteCode}`} onPress={share} />
+        <Row icon="calculator" tone="green" title="Plan and cost rundown" subtitle="Tiers, calculator and what's included (website)" onPress={() => web("/org/plan")} />
+        <Row icon="globe-outline" tone="ink" title="Organization portal" subtitle="Month-by-month trend and settings (website)" onPress={() => web("/org")} />
+        <Row icon="notifications" tone="red" title="Alerts" subtitle={d.unread ? `${d.unread} unread` : "You're all caught up"} badge={d.unread || null} onPress={() => go("/alerts")} />
+      </RowGroup>
     </>
   );
 }

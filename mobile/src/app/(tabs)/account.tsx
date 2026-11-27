@@ -8,7 +8,7 @@ import { C, serif } from "@/lib/theme";
 import { Body, Screen } from "@/components/UI";
 import { Row, RowGroup, SectionLabel } from "@/components/Rows";
 
-const ROLE_LABEL = { member: "Member", clinician: "Clinician", manager: "Care manager" } as const;
+const ROLE_LABEL = { member: "Member", clinician: "Clinician", manager: "NutriGoal management", org_manager: "Organizational manager" } as const;
 
 export default function Account() {
   const { name, role, signOut, call } = useSession();
@@ -23,10 +23,10 @@ export default function Account() {
   return (
     <Screen tab>
       <View style={{ alignItems: "center", marginTop: 16 }}>
-        <View style={{ width: 76, height: 76, borderRadius: 38, backgroundColor: C.navy, alignItems: "center", justifyContent: "center" }}>
+        <View style={{ width: 76, height: 76, borderRadius: 38, backgroundColor: C.ink, alignItems: "center", justifyContent: "center" }}>
           <Text style={{ color: C.white, fontWeight: "800", fontSize: 26 }}>{initials(name ?? "")}</Text>
         </View>
-        <Text style={{ fontFamily: serif, fontSize: 26, color: C.navy, marginTop: 10 }}>{name}</Text>
+        <Text style={{ fontFamily: serif, fontSize: 26, color: C.ink, marginTop: 10 }}>{name}</Text>
         {sub && <Text style={{ color: C.muted, marginTop: 2 }}>{sub}</Text>}
       </View>
 
@@ -34,7 +34,7 @@ export default function Account() {
         <>
           <SectionLabel>Membership</SectionLabel>
           <RowGroup>
-            <Row icon="ribbon" tone={plan ? "green" : "navy"} title={plan ?? "No membership yet"} subtitle={plan ? `${member!.membership!.credits} ticket credit${member!.membership!.credits === 1 ? "" : "s"} left` : "$29.99/mo or $300/yr, one ticket every month"} subtitleTone={plan ? "green" : "muted"} onPress={() => web("/membership")} />
+            <Row icon="ribbon" tone={plan ? "green" : "ink"} title={plan ?? "No membership yet"} subtitle={plan ? `${member!.membership!.credits} ticket credit${member!.membership!.credits === 1 ? "" : "s"} left` : "$29.99/mo or $300/yr, one ticket every month"} subtitleTone={plan ? "green" : "muted"} onPress={() => web("/membership")} />
             <Row icon="receipt" tone="red" title="Payments and receipts" onPress={() => web("/payments")} />
             <Row icon="settings-outline" tone="red" title="Goals, units and reminders" subtitle="Your settings, like MyFitnessPal's" onPress={() => web("/membership?tab=settings")} />
           </RowGroup>
@@ -61,7 +61,7 @@ export default function Account() {
 
       <SectionLabel>More</SectionLabel>
       <RowGroup>
-        <Row icon="open-outline" tone="cyan" title="Open the full website" subtitle="Already signed in" onPress={() => web(role === "member" ? "/dashboard" : "/staff")} />
+        <Row icon="open-outline" tone="ink" title="Open the full website" subtitle="Already signed in" onPress={() => web(role === "member" ? "/dashboard" : role === "org_manager" ? "/org" : "/staff")} />
         {role === "member" && <Row icon="chatbubbles" tone="green" title="Ask NutriGoal" subtitle="Support for orders, tickets and reminders" onPress={() => router.push("/assistant")} />}
         <Row icon="log-out-outline" tone="red" title="Sign out" onPress={signOut} />
       </RowGroup>

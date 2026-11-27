@@ -14,7 +14,7 @@ export function RateCard({ clinician, rating, onRate }: { clinician: string; rat
   const [done, setDone] = useState(false);
   return (
     <View style={{ backgroundColor: C.white, borderRadius: 16, borderWidth: 1, borderColor: C.line, padding: 14, marginVertical: 8 }}>
-      <Text style={{ color: C.navy, fontWeight: "800" }}>{rating ? "Your rating" : `How useful was ${clinician}'s plan?`}</Text>
+      <Text style={{ color: C.ink, fontWeight: "800" }}>{rating ? "Your rating" : `How useful was ${clinician}'s plan?`}</Text>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 4, marginTop: 8 }}>
         {[1, 2, 3, 4, 5].map((n) => (
           <Pressable key={n} onPress={() => setStars(n)} hitSlop={4} accessibilityRole="button" accessibilityLabel={`${n} star${n === 1 ? "" : "s"}: ${LABELS[n]}`} accessibilityState={{ selected: stars === n }}>
@@ -29,7 +29,7 @@ export function RateCard({ clinician, rating, onRate }: { clinician: string; rat
         placeholder="Anything to add? (optional)"
         placeholderTextColor={C.muted}
         maxLength={300}
-        style={{ marginTop: 10, backgroundColor: C.mist, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: C.navy }}
+        style={{ marginTop: 10, backgroundColor: C.mist, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: C.ink }}
       />
       <Button
         label={done ? "Thanks for rating" : rating ? "Update rating" : "Send rating"}

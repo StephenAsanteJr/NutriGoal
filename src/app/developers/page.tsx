@@ -5,7 +5,7 @@ import { Logo } from "@/components/Logo";
 export const metadata: Metadata = { title: "NutriGoal API" };
 
 const Code = ({ children }: { children: string }) => (
-  <pre className="overflow-x-auto rounded-[2px] bg-navy p-4 text-xs leading-relaxed text-white"><code>{children}</code></pre>
+  <pre className="overflow-x-auto rounded-[2px] bg-ink p-4 text-xs leading-relaxed text-white"><code>{children}</code></pre>
 );
 
 /** Public documentation for the member-scoped integrations API. */
@@ -76,7 +76,7 @@ export default function Developers() {
         </section>
 
         <section className="space-y-2 text-sm text-slate">
-          <h2 className="text-xl font-bold text-navy">Other ways members connect</h2>
+          <h2 className="text-xl font-bold text-ink">Other ways members connect</h2>
           <ul className="list-disc space-y-1 pl-5">
             <li><strong>Epic MyChart</strong> (SMART on FHIR, read-only labs and vitals): Data → Connect sources.</li>
             <li><strong>File exports</strong>: tracker CSVs, FHIR JSON, C-CDA XML and PDF checkup reports.</li>

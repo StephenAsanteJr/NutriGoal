@@ -138,7 +138,7 @@ export function ProfileForm({
   const inputCls = (k: string) => `input ${rep(k) ? "!border-bcg !bg-bcg-tint/40" : ""}`;
   const err = (k: string) => (fe[k] ? <p className="field-error">{fe[k]}</p> : null);
   const fromBadge = (k: string) =>
-    rep(k) ? <span className="ml-2 rounded-full bg-bcg-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-navy">From report</span> : null;
+    rep(k) ? <span className="ml-2 rounded-full bg-bcg-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink">From report</span> : null;
 
   return (
     <form action={action} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]" noValidate>
@@ -152,7 +152,7 @@ export function ProfileForm({
               <span className="label">Sex {fromBadge("sex")}</span>
               <div className="flex gap-2" role="radiogroup" aria-label="Sex">
                 {(["female", "male"] as const).map((s) => (
-                  <label key={s} className={`flex flex-1 cursor-pointer items-center justify-center rounded-[2px] border px-3 py-2.5 text-sm font-bold ${v.sex === s ? "border-blue bg-blue-tint text-blue" : "border-line text-slate hover:border-navy"}`}>
+                  <label key={s} className={`flex flex-1 cursor-pointer items-center justify-center rounded-[2px] border px-3 py-2.5 text-sm font-bold ${v.sex === s ? "border-bcg-deep bg-bcg-tint text-bcg-deep" : "border-line text-slate hover:border-ink"}`}>
                     <input type="radio" name="sex" value={s} checked={v.sex === s} onChange={set("sex")} className="sr-only" />
                     {s === "female" ? "Female" : "Male"}
                   </label>
@@ -284,10 +284,10 @@ export function ProfileForm({
                 </div>
                 {live && (
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" className="pill bg-mist text-slate hover:bg-blue-tint hover:text-blue" onClick={() => setV((s) => ({ ...s, timeframe_weeks: String(live.safe.minWeeks) }))}>
+                    <button type="button" className="pill bg-mist text-slate hover:bg-bcg-tint hover:text-bcg-deep" onClick={() => setV((s) => ({ ...s, timeframe_weeks: String(live.safe.minWeeks) }))}>
                       Fastest safe · {live.safe.minWeeks} wks
                     </button>
-                    <button type="button" className="pill bg-blue-tint text-blue hover:bg-blue hover:text-white" onClick={() => setV((s) => ({ ...s, timeframe_weeks: String(live.safe.recommendedWeeks) }))}>
+                    <button type="button" className="pill bg-bcg-tint text-bcg-deep hover:bg-bcg-deep hover:text-white" onClick={() => setV((s) => ({ ...s, timeframe_weeks: String(live.safe.recommendedWeeks) }))}>
                       Recommended · {live.safe.recommendedWeeks} wks
                     </button>
                   </div>
@@ -295,7 +295,7 @@ export function ProfileForm({
               </div>
               {live ? (
                 <div className={`mt-3 rounded-[2px] border px-4 py-3 text-sm ${tooFast ? "border-warn/30 bg-warn-tint text-warn" : "border-line bg-mist text-slate"}`}>
-                  <strong className={tooFast ? "" : "text-navy"}>Platform guidance: </strong>
+                  <strong className={tooFast ? "" : "text-ink"}>Platform guidance: </strong>
                   {tooFast ? `${weeks} weeks is faster than is safe for this goal. Choose at least ${live.safe.minWeeks} weeks. ` : `Choose between ${live.safe.minWeeks} and ${live.safe.maxWeeks} weeks; ${live.safe.recommendedWeeks} is recommended. `}
                   {live.safe.explanation}
                 </div>
@@ -346,7 +346,7 @@ export function ProfileForm({
       {/* Live preview */}
       <aside className="lg:sticky lg:top-6 lg:self-start">
         <div className="card overflow-hidden">
-          <div className="bg-navy px-5 py-3 text-white">
+          <div className="bg-ink px-5 py-3 text-white">
             <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Live preview</div>
             <div className="text-sm text-white/80">Your animated build updates as you type</div>
           </div>
@@ -385,8 +385,8 @@ export function ProfileForm({
           ) : (
             <div className="flex h-[360px] flex-col items-center justify-center gap-3 p-8 text-center text-sm text-muted">
               <svg viewBox="0 0 60 120" className="h-28 opacity-30" aria-hidden>
-                <circle cx="30" cy="12" r="10" fill="#051C2C" />
-                <path d="M14 30h32l4 40h-8l-2 46h-8l-2-36-2 36h-8l-2-46h-8z" fill="#051C2C" />
+                <circle cx="30" cy="12" r="10" fill="#0c2b15" />
+                <path d="M14 30h32l4 40h-8l-2 46h-8l-2-36-2 36h-8l-2-46h-8z" fill="#0c2b15" />
               </svg>
               Add sex, age, height and weight to see your build.
             </div>
@@ -423,7 +423,7 @@ function UnitToggle({ value, onChange }: { value: "imperial" | "metric"; onChang
   return (
     <div className="inline-flex rounded-[2px] border border-line p-0.5 text-xs font-bold" role="group" aria-label="Units">
       {(["imperial", "metric"] as const).map((u) => (
-        <button key={u} type="button" onClick={() => onChange(u)} aria-pressed={value === u} className={`rounded-[2px] px-3 py-1.5 ${value === u ? "bg-navy text-white" : "text-slate hover:text-navy"}`}>
+        <button key={u} type="button" onClick={() => onChange(u)} aria-pressed={value === u} className={`rounded-[2px] px-3 py-1.5 ${value === u ? "bg-ink text-white" : "text-slate hover:text-ink"}`}>
           {u === "imperial" ? "lb · ft" : "kg · cm"}
         </button>
       ))}

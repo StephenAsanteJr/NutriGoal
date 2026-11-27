@@ -8,8 +8,8 @@ import { Row, RowGroup, SectionLabel, type IconName, type Tone } from "@/compone
 function look(t: TicketSummary): { icon: IconName; tone: Tone } {
   if (t.status === "responded") return { icon: "checkmark-circle", tone: "green" };
   if (dueText(t.dueAt)?.urgent) return { icon: "time", tone: "red" };
-  if (t.status === "in_review") return { icon: "create", tone: "blue" };
-  return { icon: "hourglass-outline", tone: "navy" };
+  if (t.status === "in_review") return { icon: "create", tone: "green" };
+  return { icon: "hourglass-outline", tone: "ink" };
 }
 
 export default function Tickets() {

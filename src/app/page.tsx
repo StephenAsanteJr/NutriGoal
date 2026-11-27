@@ -27,6 +27,7 @@ export default async function Landing() {
             <a href="#pricing" className="hidden hover:text-bcg-fresh sm:inline">Pricing</a>
             <a href="#join" className="hidden hover:text-bcg-fresh sm:inline">Join</a>
             <a href="#partners" className="hidden hover:text-bcg-fresh sm:inline">Partners</a>
+            <Link href="/enterprise" className="hidden hover:text-bcg-fresh sm:inline">For organizations</Link>
             <Link href="/login" className="hover:text-bcg-fresh">Sign in</Link>
             <Link href="/signup" className="btn-primary !py-2">Get started</Link>
           </nav>
@@ -34,13 +35,13 @@ export default async function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-navy pb-24 pt-40 text-white">
+      <section className="relative overflow-hidden bg-ink pb-24 pt-40 text-white">
         <svg className="pointer-events-none absolute -right-40 -top-24 h-[720px] w-[720px] opacity-30" viewBox="0 0 400 400" aria-hidden>
-          {/* McKinsey blue and cyan, with one BCG green and one Bain red ring */}
+          {/* Alternating BCG green and Bain red rings */}
           {[
-            [190, "#2251FF"],
-            [150, "#21BF61"],
-            [110, "#00A9F4"],
+            [190, "#21BF61"],
+            [150, "#CC0000"],
+            [110, "#96F878"],
             [70, "#CC0000"],
           ].map(([r, c]) => (
             <circle key={r} cx="200" cy="200" r={r} fill="none" stroke={c as string} strokeWidth="1" />
@@ -72,7 +73,7 @@ export default async function Landing() {
               [money(PRICES.ticketOneTime), "per ticket vs. $75–150 for a dietitian visit"],
               ["0", "AI-written plans: a credentialed person writes and signs every one"],
             ].map(([k, v]) => (
-              <div key={k} className="bg-navy/80 p-6">
+              <div key={k} className="bg-ink/80 p-6">
                 <div className="font-display text-4xl text-white">{k}</div>
                 <div className="mt-2 text-sm text-white/70">{v}</div>
               </div>
@@ -104,8 +105,8 @@ export default async function Landing() {
               ["Built for busy people who invest in themselves", "For people short on time or energy but ready to invest in their nutritional health. This is self-healthcare: expert direction without weeks of research or appointments."],
             ].map(([t, b], i) => (
               <div key={t} className="bg-white p-6">
-                <div className={`font-display text-3xl ${["text-blue", "text-bcg-deep", "text-bain"][i]}`}>0{i + 1}</div>
-                <div className="font-display mt-2 text-2xl leading-snug text-navy">{t}</div>
+                <div className={`font-display text-3xl ${["text-bcg-deep", "text-bain", "text-bcg-deep"][i]}`}>0{i + 1}</div>
+                <div className="font-display mt-2 text-2xl leading-snug text-ink">{t}</div>
                 <p className="mt-3 text-sm text-slate">{b}</p>
               </div>
             ))}
@@ -122,16 +123,20 @@ export default async function Landing() {
             {[
               ["member", "For members", "Get a written plan for one goal at a time from a physician or dietitian.", "Sign up as a member"],
               ["clinician", "For clinicians", "MDs, DOs, registered dietitians and nutritionists: answer tickets in your specialty, on your schedule.", "Apply as a clinician"],
-              ["manager", "For care managers", "Run routing, clinician load and the 48-hour promise for your team.", "Apply as a care manager"],
+              ["org", "For organizations", "Employers, health plans and schools: sponsor NutriGoal and see de-identified wellness totals, never anyone's health data.", "Set up an organization"],
             ].map(([role, title, body, cta]) => (
               <div key={role} className="card flex flex-col p-6">
                 <div className="font-bold">{title}</div>
                 <p className="mt-2 flex-1 text-sm text-slate">{body}</p>
                 <Link href={`/signup?role=${role}`} className={`mt-5 ${role === "member" ? "btn-primary" : "btn-outline"}`}>{cta}</Link>
+                {role === "org" && <Link href="/enterprise" className="link mt-3 text-center text-sm">See plans and costs →</Link>}
               </div>
             ))}
           </div>
-          <p className="mt-4 text-xs text-muted">Clinician and care manager accounts are verified and approved before they can see any member information.</p>
+          <p className="mt-4 text-xs text-muted">
+            Clinician accounts are license-checked and approved before they can see any member information. Organizations only ever see
+            group totals. Run NutriGoal itself? <Link href="/signup?role=manager" className="underline">NutriGoal management sign-up</Link>.
+          </p>
         </div>
       </section>
 
@@ -143,7 +148,7 @@ export default async function Landing() {
           <ol className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-[3px] bg-line md:grid-cols-5">
             {STEPS.map((s) => (
               <li key={s.n} className="bg-white p-6">
-                <div className={`font-display text-3xl ${["text-blue", "text-bcg-deep", "text-bain"][(Number(s.n) - 1) % 3]}`}>{s.n}</div>
+                <div className={`font-display text-3xl ${["text-bcg-deep", "text-bain"][(Number(s.n) - 1) % 2]}`}>{s.n}</div>
                 <div className="mt-3 font-bold">{s.title}</div>
                 <p className="mt-2 text-sm text-slate">{s.body}</p>
               </li>
@@ -160,12 +165,12 @@ export default async function Landing() {
             <h2 className="font-display mt-3 text-4xl leading-tight">Two ways to give your clinician the full picture</h2>
             <p className="mt-4 text-slate">
               Every member gets a physical build and biometric card: BMI, body fat, lean mass, daily energy needs, protein target and a
-              safe timeline to your goal. Doctors, dietitians and care managers see the same view when they review your ticket.
+              safe timeline to your goal. Your doctor or dietitian sees the same view when they review your ticket.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="card p-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-tint text-blue" aria-hidden>✎</div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-bcg-tint text-bcg-deep" aria-hidden>✎</div>
               <h3 className="mt-4 text-lg font-bold">Enter it yourself</h3>
               <p className="mt-2 text-sm text-slate">Age, height, weight, body fat, meals, calories, activity and the goal you want, with a timeframe the platform checks is safe.</p>
             </div>
@@ -208,7 +213,7 @@ export default async function Landing() {
       </section>
 
       {/* Partners */}
-      <section id="partners" className="bg-bcg-midnight py-20 text-white">
+      <section id="partners" className="bg-ink py-20 text-white">
         <div className="mx-auto grid grid-cols-1 max-w-7xl gap-10 px-6 lg:grid-cols-2">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">Verified partner marketplace</div>
@@ -225,7 +230,7 @@ export default async function Landing() {
               ["Pharmacies", "Refill sync and walk-in lab panels"],
               ["Trainers near you", "Certified trainers within 5–10 miles"],
             ].map(([k, v]) => (
-              <div key={k} className="bg-bcg-midnight p-6">
+              <div key={k} className="bg-ink p-6">
                 <div className="font-bold">{k}</div>
                 <div className="mt-1 text-sm text-white/70">{v}</div>
               </div>

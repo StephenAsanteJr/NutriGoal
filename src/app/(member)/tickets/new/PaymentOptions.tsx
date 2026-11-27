@@ -40,7 +40,7 @@ function OptionShell({ n, title, price, unit, children, featured }: { n: string;
     <section className={`card flex h-full flex-col p-7 ${featured ? "border-bain ring-1 ring-bain" : ""}`}>
       <div className="flex items-center justify-between">
         <span className="eyebrow">Option {n}</span>
-        {featured && <span className="pill bg-navy text-white">Best value</span>}
+        {featured && <span className="pill bg-ink text-white">Best value</span>}
       </div>
       <h2 className="font-display mt-3 text-3xl">{title}</h2>
       <div className="mt-2 flex items-baseline gap-2">
@@ -97,7 +97,7 @@ function MembershipOption({ ticketId, open, onOpen, stripe }: { ticketId: number
     <OptionShell n="2" title="Join NutriGoal Membership" price={money(price)} unit={plan === "yearly" ? "per year" : "per month"} featured>
       <div className="mt-4 inline-flex w-fit rounded-[2px] border border-line p-0.5 text-sm font-bold" role="group" aria-label="Billing period">
         {(["monthly", "yearly"] as const).map((p) => (
-          <button key={p} type="button" onClick={() => setPlan(p)} aria-pressed={plan === p} className={`rounded-[2px] px-4 py-1.5 ${plan === p ? "bg-navy text-white" : "text-slate hover:text-navy"}`}>
+          <button key={p} type="button" onClick={() => setPlan(p)} aria-pressed={plan === p} className={`rounded-[2px] px-4 py-1.5 ${plan === p ? "bg-ink text-white" : "text-slate hover:text-ink"}`}>
             {p === "monthly" ? `Monthly ${money(PRICES.subscriptionMonthly)}` : `Yearly ${money(PRICES.subscriptionYearly)}`}
           </button>
         ))}

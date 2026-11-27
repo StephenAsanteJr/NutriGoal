@@ -1,9 +1,11 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { signupClinician, signupManager, type FormState } from "@/actions/auth";
+import { signupClinician, signupManager, signupOrgManager, type FormState } from "@/actions/auth";
+import { INDUSTRIES, TIERS, fmtCents, suggestedTier } from "@/lib/enterprise";
 import { GOAL_TYPES } from "@/lib/domain";
 import { Alert, Field } from "@/components/ui";
+import { DemographicsFields } from "@/components/DemographicsFields";
 
 function Common({ fe }: { fe: Record<string, string> }) {
   return (
@@ -61,7 +63,7 @@ function NpiLookup({ onPick }: { onPick: (hit: NpiHit) => void }) {
     }
   };
   return (
-    <div className="rounded-[3px] border border-blue/30 bg-blue-tint/40 p-4">
+    <div className="rounded-[3px] border border-bcg-deep/30 bg-bcg-tint/40 p-4">
       <div className="text-sm font-bold">Start with your NPI</div>
       <p className="text-xs text-slate">We pull your record from the national NPI Registry (CMS) to fill in your license. Managers confirm it with your state board.</p>
       <div className="mt-3 flex gap-2">
@@ -83,7 +85,7 @@ function NpiLookup({ onPick }: { onPick: (hit: NpiHit) => void }) {
           {hits.map((h) => (
             <li key={h.npi}>
               <button type="button" className="w-full px-3 py-2 text-left hover:bg-mist" onClick={() => onPick(h)}>
-                <span className="font-bold text-navy">{h.name}{h.credential ? `, ${h.credential}` : ""}</span> · NPI {h.npi} · {h.city}, {h.state}
+                <span className="font-bold text-ink">{h.name}{h.credential ? `, ${h.credential}` : ""}</span> · NPI {h.npi} · {h.city}, {h.state}
                 <span className="block text-muted">{h.licenses.map((l) => `${l.desc}${l.license ? ` (${l.state} ${l.license})` : ""}`).join("; ")}</span>
               </button>
             </li>
@@ -122,6 +124,14 @@ export function ClinicianSignupForm() {
         </p>
       )}
       <Common fe={fe} />
+      <section className="border-t border-line pt-5" aria-labelledby="about-you">
+        <div id="about-you" className="eyebrow mb-1">About you</div>
+        <p className="mb-4 text-xs text-slate">Helps NutriGoal match you with members who share a language, a culture or the cuisines they cook.</p>
+        <DemographicsFields kind="clinician" fe={fe} />
+      </section>
+      <div className="border-t border-line pt-5">
+        <div className="eyebrow">Your license</div>
+      </div>
       <Field label="Profession" name="clinician_type" error={fe.clinician_type}>
         <select id="clinician_type" name="clinician_type" className="input" value={profession} onChange={(e) => setProfession(e.target.value)}>
           <option value="" disabled>Choose…</option>
@@ -171,18 +181,68 @@ export function ManagerSignupForm({ owner = false }: { owner?: boolean }) {
     <form action={action} className="mt-6 space-y-5" noValidate>
       {state?.error && <Alert>{state.error}</Alert>}
       <Common fe={fe} />
-      <Field label="Organization" name="organization" error={fe.organization}>
-        <input id="organization" name="organization" autoComplete="organization" className="input" aria-invalid={!!fe.organization} />
+      <Field label="Team" name="organization" error={fe.organization}>
+        <input id="organization" name="organization" defaultValue="NutriGoal" placeholder="e.g. Operations, Finance, Clinical quality" className="input" aria-invalid={!!fe.organization} />
       </Field>
       <Field label="Job title" name="title" error={fe.title}>
-        <input id="title" name="title" autoComplete="organization-title" placeholder="e.g. Clinical Operations Manager" className="input" aria-invalid={!!fe.title} />
+        <input id="title" name="title" autoComplete="organization-title" placeholder="e.g. Head of Operations" className="input" aria-invalid={!!fe.title} />
       </Field>
       <Consent
         fe={fe}
-        text={owner ? "I'll access member information only to run care operations." : "I'll access member information only to run care operations, and I understand an existing manager must approve my account."}
+        text={owner ? "I'll access member information only to run NutriGoal's care operations." : "I'll access member information only to run NutriGoal's care operations, and I understand existing NutriGoal management must approve my account."}
       />
       <button className="btn-primary w-full !py-3" disabled={pending}>
-        {pending ? "Submitting…" : owner ? "Create the owner account" : "Apply to join as a care manager"}
+        {pending ? "Submitting…" : owner ? "Create the owner account" : "Apply to join NutriGoal management"}
+      </button>
+    </form>
+  );
+}
+
+/** Employers, health plans, schools and other organizations that sponsor NutriGoal for their people. */
+export function OrgManagerSignupForm() {
+  const [state, action, pending] = useActionState<FormState, FormData>(signupOrgManager, undefined);
+  const [eligible, setEligible] = useState("");
+  const fe = state?.fieldErrors ?? {};
+  const n = Number(eligible);
+  const hint = n > 0 ? suggestedTier(Math.round(n * 0.35)) : null;
+  return (
+    <form action={action} className="mt-6 space-y-5" noValidate>
+      {state?.error && <Alert>{state.error}</Alert>}
+      <Common fe={fe} />
+      <Field label="Organization" name="organization" error={fe.organization}>
+        <input id="organization" name="organization" autoComplete="organization" className="input" aria-invalid={!!fe.organization} />
+      </Field>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field label="Job title" name="title" error={fe.title}>
+          <input id="title" name="title" autoComplete="organization-title" placeholder="e.g. Benefits Manager" className="input" aria-invalid={!!fe.title} />
+        </Field>
+        <Field label="Type of organization" name="industry" error={fe.industry}>
+          <select id="industry" name="industry" className="input" defaultValue="" aria-invalid={!!fe.industry}>
+            <option value="" disabled>Choose one</option>
+            {INDUSTRIES.map((i) => <option key={i}>{i}</option>)}
+          </select>
+        </Field>
+      </div>
+      <Field
+        label="People you'd offer NutriGoal to"
+        name="eligible"
+        error={fe.eligible}
+        hint={hint ? `At a typical 35% enrollment that's about ${Math.round(n * 0.35).toLocaleString()} members: the ${hint.name} plan, ${fmtCents(hint.pmpmCents)} per enrolled member per month.` : "Employees, plan members or students who'd be eligible."}
+      >
+        <input id="eligible" name="eligible" inputMode="numeric" value={eligible} onChange={(e) => setEligible(e.target.value.replace(/[^\d]/g, ""))} className="input" aria-invalid={!!fe.eligible} />
+      </Field>
+      <Field label="Plan" name="plan" hint="Every organization starts as a pilot. You can change the plan later.">
+        <select id="plan" name="plan" className="input" defaultValue="">
+          <option value="">Size it to our enrollment</option>
+          {TIERS.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+        </select>
+      </Field>
+      <Consent
+        fe={fe}
+        text="I understand our portal shows only de-identified totals for groups of 5 or more people. NutriGoal will never share a member's name, health information, tickets or plans with us."
+      />
+      <button className="btn-primary w-full !py-3" disabled={pending}>
+        {pending ? "Creating…" : "Create the organization account"}
       </button>
     </form>
   );

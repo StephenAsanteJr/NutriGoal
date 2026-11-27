@@ -16,8 +16,8 @@ export default function RootLayout() {
             screenOptions={{
               headerStyle: { backgroundColor: C.mist },
               headerShadowVisible: false,
-              headerTintColor: C.blue,
-              headerTitleStyle: { fontWeight: "800", color: C.navy },
+              headerTintColor: C.greenDeep,
+              headerTitleStyle: { fontWeight: "800", color: C.ink },
               headerBackButtonDisplayMode: "minimal",
               contentStyle: { backgroundColor: C.mist },
             }}

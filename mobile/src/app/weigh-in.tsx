@@ -19,8 +19,8 @@ export default function WeighIn() {
       <Title>Log today&apos;s weight</Title>
       <Body muted>It updates your build, progress chart and what your clinician sees.</Body>
       <View style={{ alignItems: "center", marginVertical: 28 }}>
-        <View style={{ width: 220, height: 220, borderRadius: 110, backgroundColor: C.white, alignItems: "center", justifyContent: "center", borderWidth: 6, borderColor: C.cyan }}>
-          <TextInput value={w} onChangeText={setW} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={C.line} style={{ fontFamily: serif, fontSize: 56, color: C.navy, textAlign: "center", minWidth: 140 }} accessibilityLabel={`Weight in ${unit}`} />
+        <View style={{ width: 220, height: 220, borderRadius: 110, backgroundColor: C.white, alignItems: "center", justifyContent: "center", borderWidth: 6, borderColor: C.green }}>
+          <TextInput value={w} onChangeText={setW} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={C.line} style={{ fontFamily: serif, fontSize: 56, color: C.ink, textAlign: "center", minWidth: 140 }} accessibilityLabel={`Weight in ${unit}`} />
           <Text style={{ color: C.muted, fontWeight: "800" }}>{unit}</Text>
         </View>
       </View>

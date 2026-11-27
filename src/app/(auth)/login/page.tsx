@@ -19,7 +19,7 @@ export default async function LoginPage(props: PageProps<"/login">) {
       <div className="eyebrow mb-2">Welcome back</div>
       <h1 className="font-display text-4xl">Sign in to NutriGoal</h1>
       <p className="mt-2 text-sm text-slate">
-        Members, clinicians and managers all sign in here. New to NutriGoal?{" "}
+        Members, clinicians, organizations and NutriGoal management all sign in here. New to NutriGoal?{" "}
         <Link href="/signup" className="link">
           Create an account
         </Link>
@@ -29,15 +29,16 @@ export default async function LoginPage(props: PageProps<"/login">) {
       <LoginForm next={next} />
       {!hasActiveManager() && (
         <p className="mt-4 rounded-[3px] bg-bcg-tint px-4 py-2.5 text-sm text-bcg-deep">
-          Setting up NutriGoal for the first time? <Link href="/signup?role=manager" className="font-bold underline">Sign up as a care manager</Link>: the first one is approved automatically as the owner.
+          Setting up NutriGoal for the first time? <Link href="/signup?role=manager" className="font-bold underline">Create the NutriGoal management account</Link>: the first one is approved automatically as the owner.
         </p>
       )}
       <div className="mt-8 border-t border-line pt-6">
         <div className="text-xs font-bold uppercase tracking-wider text-muted">New to NutriGoal?</div>
-        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Link href="/signup?role=member" className="btn-outline !px-3 !py-2 text-xs">Sign up as a member</Link>
           <Link href="/signup?role=clinician" className="btn-outline !px-3 !py-2 text-xs">Join as a clinician</Link>
-          <Link href="/signup?role=manager" className="btn-outline !px-3 !py-2 text-xs">Join as a care manager</Link>
+          <Link href="/signup?role=org" className="btn-outline !px-3 !py-2 text-xs">Set up an organization</Link>
+          <Link href="/signup?role=manager" className="btn-outline !px-3 !py-2 text-xs">Join NutriGoal management</Link>
         </div>
       </div>
     </>

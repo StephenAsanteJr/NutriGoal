@@ -86,7 +86,7 @@ export default async function StaffHome(props: PageProps<"/staff">) {
               ["responded", "Responded"],
               ["all", "All"],
             ].map(([k, l]) => (
-              <Link key={k} href={`/staff?status=${k}`} className={`rounded-[2px] px-3 py-1.5 ${filter === k ? "bg-navy text-white" : "text-slate hover:bg-mist"}`}>
+              <Link key={k} href={`/staff?status=${k}`} className={`rounded-[2px] px-3 py-1.5 ${filter === k ? "bg-ink text-white" : "text-slate hover:bg-mist"}`}>
                 {l}
               </Link>
             ))}

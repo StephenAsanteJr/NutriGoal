@@ -161,7 +161,7 @@ function ScanDialog({ onClose, onApply }: { onClose: () => void; onApply: (r: Sc
   const mid = estimate?.usable ? Math.round((estimate.body_fat_low + estimate.body_fat_high) / 2) : undefined;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy/60 p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Scan yourself">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Scan yourself">
       <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-xl bg-white sm:rounded-[3px]">
         <div className="flex items-center justify-between border-b border-line px-5 py-3">
           <div>
@@ -176,12 +176,12 @@ function ScanDialog({ onClose, onApply }: { onClose: () => void; onApply: (r: Sc
 
           {mode === "choose" && (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <button type="button" onClick={startCamera} className="card flex flex-col items-start gap-2 p-5 text-left hover:border-blue">
+              <button type="button" onClick={startCamera} className="card flex flex-col items-start gap-2 p-5 text-left hover:border-bcg-deep">
                 <span className="text-2xl" aria-hidden>📷</span>
                 <span className="font-bold">Use my camera</span>
                 <span className="text-xs text-slate">Stand back so your face and upper body are in frame, in even light.</span>
               </button>
-              <label className="card flex cursor-pointer flex-col items-start gap-2 p-5 hover:border-blue">
+              <label className="card flex cursor-pointer flex-col items-start gap-2 p-5 hover:border-bcg-deep">
                 <span className="text-2xl" aria-hidden>🖼️</span>
                 <span className="font-bold">Upload a photo</span>
                 <span className="text-xs text-slate">A recent, front-facing photo in good light works best.</span>
@@ -192,7 +192,7 @@ function ScanDialog({ onClose, onApply }: { onClose: () => void; onApply: (r: Sc
 
           {mode === "camera" && (
             <div className="space-y-3">
-              <video ref={video} playsInline muted className="w-full rounded-[2px] bg-navy" style={{ transform: "scaleX(-1)" }} />
+              <video ref={video} playsInline muted className="w-full rounded-[2px] bg-ink" style={{ transform: "scaleX(-1)" }} />
               <button type="button" className="btn-primary w-full" onClick={capture}>Take photo</button>
             </div>
           )}
@@ -202,7 +202,7 @@ function ScanDialog({ onClose, onApply }: { onClose: () => void; onApply: (r: Sc
               <canvas ref={canvas} onClick={onCanvasClick} className="w-full cursor-crosshair rounded-[2px] bg-mist" aria-label="Your photo. Tap your cheek or forearm to sample skin tone." />
               {sample && (
                 <span
-                  className="pointer-events-none absolute h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_2px_#2251ff]"
+                  className="pointer-events-none absolute h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_2px_#197a56]"
                   style={{ left: `${(sample.x / sample.w) * 100}%`, top: `${(sample.y / sample.h) * 100}%` }}
                 />
               )}
@@ -211,7 +211,7 @@ function ScanDialog({ onClose, onApply }: { onClose: () => void; onApply: (r: Sc
 
             {tone && (
               <div className="flex items-center gap-3 rounded-[2px] border border-line p-3">
-                <span className="h-10 w-10 rounded-full border-2 border-white shadow-[0_0_0_1px_#dfe4e8]" style={{ background: tone.hex }} />
+                <span className="h-10 w-10 rounded-full border-2 border-white shadow-[0_0_0_1px_#dfe6e1]" style={{ background: tone.hex }} />
                 <div className="text-sm">
                   <div className="font-bold">Closest character tone: {tone.label}</div>
                   <div className="text-xs text-muted">You can still change it by hand afterwards.</div>

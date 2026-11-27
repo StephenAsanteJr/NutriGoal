@@ -33,7 +33,7 @@ export default function Build() {
         <Character sex={b.sex} heightCm={b.heightCm} weightKg={now ? b.weightKg : b.goalWeightKg} bodyFatPct={now ? b.bodyFatPct : b.goalBodyFatPct} look={data.look} height={330} ghost={now ? { weightKg: b.goalWeightKg, bodyFatPct: b.goalBodyFatPct } : { weightKg: b.weightKg, bodyFatPct: b.bodyFatPct }} />
         <Body muted>Dotted outline: {now ? "your goal" : "today"}</Body>
       </View>
-      <Card tone="navy">
+      <Card tone="ink">
         <Text style={{ color: C.greenFresh, fontWeight: "800", fontSize: 11, letterSpacing: 1.5 }}>BIOMETRIC CARD</Text>
         {[
           ["Weight", `${w(b.weightKg)} → ${w(b.goalWeightKg)}`],

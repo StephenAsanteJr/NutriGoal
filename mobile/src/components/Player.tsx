@@ -34,7 +34,7 @@ export function MiniPlayer() {
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
               {SPEEDS.map((r) => (
                 <Pressable key={r} onPress={() => p.setRate(r)} accessibilityRole="button" accessibilityState={{ selected: p.prefs.rate === r }} style={[s.chip, p.prefs.rate === r && s.chipOn]}>
-                  <Text style={[s.chipText, p.prefs.rate === r && { color: C.navy }]}>{fmt(r)}</Text>
+                  <Text style={[s.chipText, p.prefs.rate === r && { color: C.ink }]}>{fmt(r)}</Text>
                 </Pressable>
               ))}
             </View>
@@ -60,7 +60,7 @@ export function MiniPlayer() {
 
         <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
           <Pressable onPress={p.toggle} accessibilityRole="button" accessibilityLabel={p.playing ? "Pause" : "Play"} style={s.play}>
-            <Ionicons name={p.playing ? "pause" : "play"} size={20} color={C.navy} />
+            <Ionicons name={p.playing ? "pause" : "play"} size={20} color={C.ink} />
           </Pressable>
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={{ color: C.white, fontWeight: "800" }} numberOfLines={1}>{p.track.title}</Text>
@@ -101,7 +101,7 @@ export function MiniPlayer() {
 const s = StyleSheet.create({
   wrap: { position: "absolute", left: 10, right: 10, alignItems: "center" },
   card: {
-    width: "100%", maxWidth: 620, backgroundColor: C.navy, borderRadius: 18, padding: 12,
+    width: "100%", maxWidth: 620, backgroundColor: C.ink, borderRadius: 18, padding: 12,
     shadowColor: "#000", shadowOpacity: 0.25, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 10,
   },
   play: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.green, alignItems: "center", justifyContent: "center" },
@@ -113,6 +113,6 @@ const s = StyleSheet.create({
   chipOn: { backgroundColor: C.green, borderColor: C.green },
   chipText: { color: C.white, fontWeight: "800", fontSize: 13 },
   voiceRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 8 },
-  badge: { color: C.navy, backgroundColor: C.greenFresh, fontSize: 10, fontWeight: "800", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999, overflow: "hidden" },
+  badge: { color: C.ink, backgroundColor: C.greenFresh, fontSize: 10, fontWeight: "800", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999, overflow: "hidden" },
   tip: { color: "rgba(255,255,255,0.6)", fontSize: 11.5, marginTop: 8, lineHeight: 16 },
 });

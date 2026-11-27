@@ -13,7 +13,7 @@ import type { ClinicianFoods } from "@/lib/home";
 const FRAMES = ["Today", "Days 1–3", "Week 1", "Weeks 1–2", "Weeks 2–4", "Month 2", "Months 2–3", "Ongoing"];
 type Step = { title: string; detail: string; timeframe: string };
 const blank = (): Step => ({ title: "", detail: "", timeframe: "" });
-type T = { ticket: { number: string; goal: string; goalType: string; member: string; typicalDiet: string; setbacks: string; target: string } };
+type T = { ticket: { number: string; goal: string; goalType: string; member: string; typicalDiet: string; setbacks: string; target: string }; memberCuisines?: string[] };
 
 /** Clinician response composer: concise recommendation + 5–6 timed steps, signed by the clinician. */
 export default function Respond() {
@@ -59,7 +59,7 @@ export default function Respond() {
             <Text style={{ color: C.muted, fontWeight: "800", fontSize: 11, letterSpacing: 1, flex: 1 }}>{t.number} · FROM {t.member.toUpperCase()}</Text>
             <ListenButton label="Listen to ticket" title={`${t.number}: ${t.goal}`} text={`${t.member}'s goal: ${t.goal}. What they eat: ${t.typicalDiet}. Setbacks: ${t.setbacks}. Target: ${t.target}.`} />
           </View>
-          <Text style={{ color: C.navy, fontWeight: "800", fontSize: 16, marginTop: 6 }}>{t.goal}</Text>
+          <Text style={{ color: C.ink, fontWeight: "800", fontSize: 16, marginTop: 6 }}>{t.goal}</Text>
           <Text style={{ color: C.slate, fontSize: 13, marginTop: 4 }} numberOfLines={3}>Target: {t.target}</Text>
         </Card>
       )}
@@ -76,10 +76,10 @@ export default function Respond() {
       </Card>
       {steps.map((s, i) => (
         <Card key={i}>
-          <Text style={{ color: C.navy, fontWeight: "800", marginBottom: 8 }}>Step {i + 1}</Text>
+          <Text style={{ color: C.ink, fontWeight: "800", marginBottom: 8 }}>Step {i + 1}</Text>
           <DictateField label="Title" value={s.title} onChangeText={(v) => upd(i, "title", v.slice(0, 80))} maxLength={80} />
           <DictateField label="What to do" value={s.detail} onChangeText={(v) => upd(i, "detail", v.slice(0, 400))} multiline maxLength={400} />
-          <Text style={{ color: C.navy, fontWeight: "700", fontSize: 13, marginBottom: 4 }}>Timeframe</Text>
+          <Text style={{ color: C.ink, fontWeight: "700", fontSize: 13, marginBottom: 4 }}>Timeframe</Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
             {(s.timeframe && !FRAMES.includes(s.timeframe) ? [...FRAMES, s.timeframe] : FRAMES).map((fr) => (
               <Chip key={fr} label={fr} active={s.timeframe === fr} onPress={() => upd(i, "timeframe", fr)} />
@@ -89,15 +89,15 @@ export default function Respond() {
       ))}
       {steps.length < 6 && <Button label="+ Add a sixth step" kind="ghost" onPress={() => setSteps((s) => [...s, blank()])} />}
       <Card>
-        <Text style={{ color: C.navy, fontWeight: "800", fontSize: 16 }}>Suggested foods (optional)</Text>
+        <Text style={{ color: C.ink, fontWeight: "800", fontSize: 16 }}>Suggested foods (optional)</Text>
         <Text style={{ color: C.muted, fontSize: 12.5, marginTop: 2, marginBottom: 12 }}>
           Pick example foods by group or add your own. The member sees them under your plan. Foods, not meals.
         </Text>
-        <FoodPicker value={foods} onChange={setFoods} />
+        <FoodPicker value={foods} onChange={setFoods} memberCuisines={data?.memberCuisines ?? []} />
       </Card>
       <Card>
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          <Text style={{ color: C.navy, fontWeight: "700", flex: 1 }}>I used an approved AI tool for wording only</Text>
+          <Text style={{ color: C.ink, fontWeight: "700", flex: 1 }}>I used an approved AI tool for wording only</Text>
           <Switch value={ai} onValueChange={setAi} />
         </View>
         <Text style={{ color: C.muted, fontSize: 12, marginTop: 8 }}>

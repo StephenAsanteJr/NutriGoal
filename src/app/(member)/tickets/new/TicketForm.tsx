@@ -78,7 +78,7 @@ export function TicketForm({ draft, onGlp1, voice = true }: { draft: Draft | nul
             {GOAL_TYPES.map((g) => (
               <label
                 key={g.id}
-                className={`flex cursor-pointer items-center gap-3 rounded-[2px] border px-4 py-3 text-sm font-bold transition ${v.goal_type === g.id ? "border-blue bg-blue-tint text-blue" : "border-line hover:border-navy"}`}
+                className={`flex cursor-pointer items-center gap-3 rounded-[2px] border px-4 py-3 text-sm font-bold transition ${v.goal_type === g.id ? "border-bcg-deep bg-bcg-tint text-bcg-deep" : "border-line hover:border-ink"}`}
               >
                 <input type="radio" name="goal_type" value={g.id} checked={v.goal_type === g.id} onChange={() => setV((s) => ({ ...s, goal_type: g.id }))} className="accent-bcg-deep" />
                 {g.label}
@@ -123,7 +123,7 @@ export function TicketForm({ draft, onGlp1, voice = true }: { draft: Draft | nul
               <li key={e.text}>
                 <button
                   type="button"
-                  className="w-full rounded-[2px] border border-line px-3 py-2 text-left text-sm hover:border-blue hover:bg-blue-tint"
+                  className="w-full rounded-[2px] border border-line px-3 py-2 text-left text-sm hover:border-bcg-deep hover:bg-bcg-tint"
                   onClick={() => setV((s) => ({ ...s, goal_type: e.goal_type, goal_statement: e.text }))}
                 >
                   “{e.text}”
@@ -132,7 +132,7 @@ export function TicketForm({ draft, onGlp1, voice = true }: { draft: Draft | nul
             ))}
           </ul>
         </div>
-        <div className="card bg-navy p-5 text-white">
+        <div className="card bg-ink p-5 text-white">
           <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-bcg-fresh">What you&apos;ll get back</div>
           <ul className="mt-3 space-y-2 text-sm text-white/85">
             <li>— A concise recommendation at the top</li>

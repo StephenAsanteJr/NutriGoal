@@ -8,7 +8,24 @@ import crypto from "node:crypto";
 import { cache } from "react";
 import { db, DATA_DIR } from "./db";
 
-export type Role = "member" | "clinician" | "manager";
+/**
+ * member       — consumers who send goal tickets
+ * clinician    — physicians, dietitians and nutritionists who write plans
+ * manager      — NutriGoal management (internal operations: tickets, clinicians, finance, marketplace)
+ * org_manager  — organizational managers (employers, health plans, schools) who sponsor members and see
+ *                de-identified group totals only; never member names, tickets, plans or health data
+ */
+export type Role = "member" | "clinician" | "manager" | "org_manager";
+
+/** Roles that may see member health information (tickets, plans, builds, reports). */
+export const isCareTeam = (role: Role | string) => role === "clinician" || role === "manager";
+
+export const ROLE_LABEL: Record<Role, string> = {
+  member: "Member",
+  clinician: "Clinician",
+  manager: "NutriGoal management",
+  org_manager: "Organizational manager",
+};
 
 export type User = {
   id: string;
@@ -83,21 +100,32 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
 export async function requireMember(opts: { allowIncompleteOnboarding?: boolean } = {}) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.role !== "member") redirect("/staff");
+  if (user.role !== "member") redirect(homeFor(user));
   if (!opts.allowIncompleteOnboarding && !user.onboarding_complete) redirect("/onboarding");
   return user;
 }
 
-/** For staff pages: clinicians and managers. */
-export async function requireStaff(roles: Role[] = ["clinician", "manager"]) {
+/** For care-team pages: clinicians and NutriGoal management (never organizational managers). */
+export async function requireStaff(roles: ("clinician" | "manager")[] = ["clinician", "manager"]) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.role !== "member" && user.staff_status !== "active") redirect("/pending");
-  if (!roles.includes(user.role)) redirect(user.role === "member" ? "/dashboard" : "/staff");
+  if (!isCareTeam(user.role)) redirect(homeFor(user));
+  if (user.staff_status !== "active") redirect("/pending");
+  if (!(roles as Role[]).includes(user.role)) redirect("/staff");
+  return user;
+}
+
+/** For the organization portal: organizational managers only. */
+export async function requireOrgManager() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  if (user.role !== "org_manager") redirect(homeFor(user));
+  if (user.staff_status !== "active") redirect("/pending");
   return user;
 }
 
 export function homeFor(user: Pick<User, "role" | "onboarding_complete"> & { staff_status?: string }) {
-  if (user.role !== "member") return user.staff_status && user.staff_status !== "active" ? "/pending" : "/staff";
-  return user.onboarding_complete ? "/dashboard" : "/onboarding";
+  if (user.role === "member") return user.onboarding_complete ? "/dashboard" : "/onboarding";
+  if (user.staff_status && user.staff_status !== "active") return "/pending";
+  return user.role === "org_manager" ? "/org" : "/staff";
 }

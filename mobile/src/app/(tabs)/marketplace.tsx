@@ -65,14 +65,14 @@ export default function Marketplace() {
       <SectionLabel>Track your food</SectionLabel>
       <RowGroup>
         {data.apps.map((a, i) => (
-          <Row key={a.id} icon={i === 0 ? "star" : "nutrition"} tone={i === 0 ? "green" : "cyan"} title={a.name} subtitle={a.bestFor} onPress={() => Linking.openURL(a.url)} />
+          <Row key={a.id} icon={i === 0 ? "star" : "nutrition"} tone={i === 0 ? "green" : "red"} title={a.name} subtitle={a.bestFor} onPress={() => Linking.openURL(a.url)} />
         ))}
       </RowGroup>
 
       <SectionLabel>Biggest names across the U.S.</SectionLabel>
       <RowGroup>
         {data.national.map((n) => (
-          <Row key={n.category} icon={NATIONAL[n.category]?.icon ?? "storefront"} tone="navy" title={NATIONAL[n.category]?.label ?? n.category} subtitle={n.names.join(" · ")} />
+          <Row key={n.category} icon={NATIONAL[n.category]?.icon ?? "storefront"} tone="ink" title={NATIONAL[n.category]?.label ?? n.category} subtitle={n.names.join(" · ")} />
         ))}
       </RowGroup>
       <Body muted>Public listings, not NutriGoal partners.</Body>

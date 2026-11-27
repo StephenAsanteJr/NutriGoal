@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { FOOD_GROUPS, examplesFor, type ClinicianFoods, type FoodGroupId } from "@/lib/foods";
 import { MicButton } from "./Voice";
+import { cuisineById, cuisineExamples, findCuisineFood } from "@/lib/cuisines";
+import { CuisineSelect } from "./CuisineSelect";
 
 const MAX = 6;
 
 /**
- * Optional "Suggested foods" picker for clinicians writing a response: tap catalog foods
- * (each an 80%+ match for its group) or type your own, per food group. No meals.
+ * Optional "Suggested foods" picker for clinicians writing a response: tap catalog ingredients
+ * (each an 80%+ match for its group) from any culture's cuisine, or type your own. No meals.
+ * Starts on the member's own cuisines when they've shared them.
  */
-export function FoodPicker({ value, onChange }: { value: ClinicianFoods; onChange: (v: ClinicianFoods) => void }) {
+export function FoodPicker({ value, onChange, memberCuisines = [] }: { value: ClinicianFoods; onChange: (v: ClinicianFoods) => void; memberCuisines?: string[] }) {
   const [drafts, setDrafts] = useState<Partial<Record<FoodGroupId, string>>>({});
+  const [cuisine, setCuisine] = useState(memberCuisines.find((c) => cuisineById(c)) ?? "everyday");
   const count = Object.values(value).reduce((n, list) => n + (list?.length ?? 0), 0);
 
   const toggle = (g: FoodGroupId, name: string) => {
@@ -34,10 +38,13 @@ export function FoodPicker({ value, onChange }: { value: ClinicianFoods; onChang
         Pick example foods by group, or add your own. Members see them under your plan, with servings and nutrition facts for the ones from our
         list. Keep it to foods, not meals. {count > 0 && <strong className="text-bcg-deep">{count} selected.</strong>}
       </p>
+      <div className="mb-4">
+        <CuisineSelect value={cuisine} onChange={setCuisine} quick={memberCuisines} id="picker-cuisine" label={memberCuisines.length ? "Member's cuisines" : "Cuisine"} />
+      </div>
       <div className="space-y-4">
         {FOOD_GROUPS.map((g) => {
           const chosen = value[g.id] ?? [];
-          const catalog = examplesFor(g);
+          const catalog = cuisine === "everyday" ? examplesFor(g) : cuisineExamples(cuisine, g.id);
           const custom = chosen.filter((c) => !catalog.some((x) => x.name === c));
           return (
             <div key={g.id}>
@@ -54,7 +61,7 @@ export function FoodPicker({ value, onChange }: { value: ClinicianFoods; onChang
                       aria-pressed={on}
                       onClick={() => toggle(g.id, f.name)}
                       title={`${f.serving} · ${f.kcal} kcal · ${f.protein} g protein · ${Math.round(f.match * 100)}% match`}
-                      className={`rounded-full border px-2.5 py-1 text-xs font-bold transition ${on ? "border-bcg-deep bg-bcg-tint text-bcg-deep" : "border-line text-navy hover:border-navy"}`}
+                      className={`rounded-full border px-2.5 py-1 text-xs font-bold transition ${on ? "border-bcg-deep bg-bcg-tint text-bcg-deep" : "border-line text-ink hover:border-ink"}`}
                     >
                       {on ? "✓ " : ""}
                       {f.name}
@@ -62,7 +69,7 @@ export function FoodPicker({ value, onChange }: { value: ClinicianFoods; onChang
                   );
                 })}
                 {custom.map((c) => (
-                  <button key={c} type="button" onClick={() => toggle(g.id, c)} className="rounded-full border border-bcg-deep bg-bcg-tint px-2.5 py-1 text-xs font-bold text-bcg-deep" aria-label={`Remove ${c}`}>
+                  <button key={c} type="button" onClick={() => toggle(g.id, c)} className="rounded-full border border-bcg-deep bg-bcg-tint px-2.5 py-1 text-xs font-bold text-bcg-deep" aria-label={`Remove ${c}`} title={findCuisineFood(g.id, c)?.cuisine}>
                     ✓ {c} ×
                   </button>
                 ))}

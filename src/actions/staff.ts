@@ -84,7 +84,7 @@ export async function managerNudge(fd: FormData) {
   revalidatePath("/staff");
 }
 
-/** Managers approve or decline clinician / care-manager applications. */
+/** NutriGoal management approves or declines clinician and management applications. */
 export async function reviewApplication(fd: FormData) {
   const manager = await requireStaff(["manager"]);
   const id = String(fd.get("user_id") ?? "");

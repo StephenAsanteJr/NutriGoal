@@ -3,11 +3,11 @@
 import { useState } from "react";
 
 /** Read-only link with a copy button (clinician referral link). */
-export function CopyLink({ url }: { url: string }) {
+export function CopyLink({ url, label = "Your referral link" }: { url: string; label?: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <input readOnly value={url} className="input min-w-0 !py-1.5 font-mono text-xs" aria-label="Your referral link" onFocus={(e) => e.currentTarget.select()} />
+      <input readOnly value={url} className="input min-w-0 !py-1.5 font-mono text-xs" aria-label={label} onFocus={(e) => e.currentTarget.select()} />
       <button
         type="button"
         className="btn-dark !px-3 !py-1.5 text-xs"

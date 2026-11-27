@@ -14,10 +14,10 @@ export function NavLinks({ links, tone }: { links: { href: string; label: string
         const cls =
           tone === "dark"
             ? active
-              ? "border-bain text-navy"
-              : "border-transparent text-slate hover:text-navy"
+              ? "border-bain text-ink"
+              : "border-transparent text-slate hover:text-ink"
             : active
-              ? "border-cyan text-white"
+              ? "border-bain text-white"
               : "border-transparent text-white/70 hover:text-white";
         return (
           <Link key={l.href} href={l.href} className={`${base} ${cls}`} aria-current={active ? "page" : undefined}>

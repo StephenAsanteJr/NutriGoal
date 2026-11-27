@@ -131,9 +131,9 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
         {shown.map((p) => {
           const match = p.goal_types.filter((g) => myGoals.has(g));
           return (
-            <article key={p.id} id={p.id} className={`card flex scroll-mt-24 flex-col p-6 ${p.connected ? "border-blue" : ""}`}>
+            <article key={p.id} id={p.id} className={`card flex scroll-mt-24 flex-col p-6 ${p.connected ? "border-bcg-deep" : ""}`}>
               <div className="flex items-start justify-between gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-navy font-display text-lg text-white" aria-hidden>
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-ink font-display text-lg text-white" aria-hidden>
                   {p.name.replace(/[^A-Za-z ]/g, "").split(" ").filter(Boolean).map((w) => w[0]).join("").slice(0, 2)}
                 </div>
                 <span className="pill bg-good-tint text-good" title={`${p.verification} on ${p.verified_on}`}>✓ Verified</span>
@@ -155,7 +155,7 @@ export default async function Marketplace(props: PageProps<"/marketplace">) {
                 {p.rating ? ` · ★ ${p.rating.toFixed(1)}` : ""}
               </div>
               <div className="mt-4 flex items-center justify-between gap-3">
-                {p.offer ? <span className="text-sm font-bold text-navy">{p.offer}</span> : <span />}
+                {p.offer ? <span className="text-sm font-bold text-ink">{p.offer}</span> : <span />}
                 <form action={togglePartner}>
                   <input type="hidden" name="partner_id" value={p.id} />
                   <SubmitButton className={p.connected ? "btn-outline !px-4 !py-2" : "btn-primary !px-4 !py-2"} pendingText="…">

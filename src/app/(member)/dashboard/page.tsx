@@ -43,7 +43,7 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
 
       {sp.built && (
         <Alert tone="good">
-          <strong>Your build is ready.</strong> Next, open a goal ticket to tell a clinician what you want to achieve. Step 3 of 3.
+          <strong>Your build is ready.</strong> Next, open a goal ticket to tell a clinician what you want to achieve. Step 4 of 4.
         </Alert>
       )}
       {sp.updated && <Alert tone="good">Your build has been updated.</Alert>}
@@ -110,7 +110,7 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
         </section>
 
         <div className="space-y-6">
-          <section className={`card p-6 ${sub ? "" : "border-navy"}`}>
+          <section className={`card p-6 ${sub ? "" : "border-ink"}`}>
             <div className="eyebrow">Membership</div>
             {sub ? (
               <>

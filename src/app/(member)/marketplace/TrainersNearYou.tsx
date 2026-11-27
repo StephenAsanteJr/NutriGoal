@@ -23,7 +23,7 @@ export async function TrainersNearYou({ userId }: { userId: string }) {
               {[5, 10].map((r) => (
                 <form key={r} action={changeTrainerRadius}>
                   <input type="hidden" name="radius" value={r} />
-                  <button aria-pressed={loc.radius === r} className={`rounded-[2px] px-3 py-1.5 ${loc.radius === r ? "bg-navy text-white" : "text-slate hover:text-navy"}`}>
+                  <button aria-pressed={loc.radius === r} className={`rounded-[2px] px-3 py-1.5 ${loc.radius === r ? "bg-ink text-white" : "text-slate hover:text-ink"}`}>
                     {r} miles
                   </button>
                 </form>
@@ -82,7 +82,7 @@ function TrainerCard({ t }: { t: NearbyTrainer }) {
     <article className="card flex flex-col p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-display text-lg text-white ${google ? "bg-slate" : "bg-navy"}`} aria-hidden>
+          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-display text-lg text-white ${google ? "bg-slate" : "bg-ink"}`} aria-hidden>
             {t.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
           </div>
           <div>
@@ -92,7 +92,7 @@ function TrainerCard({ t }: { t: NearbyTrainer }) {
         </div>
         <span className="pill whitespace-nowrap bg-bcg-tint text-bcg-deep">{t.miles < 1 ? "<1" : t.miles.toFixed(1)} mi</span>
       </div>
-      <p className="mt-3 text-sm font-bold text-navy">{t.specialty}</p>
+      <p className="mt-3 text-sm font-bold text-ink">{t.specialty}</p>
       <p className="text-xs text-muted">{t.studio}</p>
       {t.goal_types.length > 0 && <p className="mt-2 text-xs text-bcg-deep">Good for: {t.goal_types.slice(0, 2).map((g) => goalLabel(g).toLowerCase()).join(", ")}</p>}
       <div className="mt-auto flex items-center justify-between gap-3 border-t border-line pt-3 text-xs">

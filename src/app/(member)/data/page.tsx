@@ -46,7 +46,7 @@ export default async function DataPage(props: PageProps<"/data">) {
       </PageHeader>
       <nav className="flex gap-1 overflow-x-auto border-b border-line" aria-label="Data sections">
         {TABS.map((t) => (
-          <Link key={t.id} href={`/data?tab=${t.id}`} aria-current={tab === t.id ? "page" : undefined} className={`-mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-bold ${tab === t.id ? "border-blue text-navy" : "border-transparent text-slate hover:text-navy"}`}>
+          <Link key={t.id} href={`/data?tab=${t.id}`} aria-current={tab === t.id ? "page" : undefined} className={`-mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-bold ${tab === t.id ? "border-bcg-deep text-ink" : "border-transparent text-slate hover:text-ink"}`}>
             {t.label}
           </Link>
         ))}
@@ -147,7 +147,7 @@ function Trends({ userId, days, hasSources }: { userId: string; days: number; ha
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="inline-flex rounded-[2px] border border-line bg-white p-0.5 text-xs font-bold">
           {[14, 30, 90].map((d) => (
-            <Link key={d} href={`/data?tab=trends&days=${d}`} className={`rounded-[2px] px-3 py-1.5 ${days === d ? "bg-navy text-white" : "text-slate hover:text-navy"}`}>
+            <Link key={d} href={`/data?tab=trends&days=${d}`} className={`rounded-[2px] px-3 py-1.5 ${days === d ? "bg-ink text-white" : "text-slate hover:text-ink"}`}>
               {d} days
             </Link>
           ))}

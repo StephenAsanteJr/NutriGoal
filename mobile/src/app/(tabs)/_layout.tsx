@@ -7,17 +7,17 @@ import { HomeContext, type Home } from "@/lib/home";
 import { C } from "@/lib/theme";
 import type { IconName } from "@/components/Rows";
 
-type Role = "member" | "clinician" | "manager";
+type Role = "member" | "clinician" | "manager" | "org_manager";
 
 /** Which tabs each role sees; the rest stay reachable by link (e.g. the bell opens Alerts) but get no tab. */
 const TABS: Record<string, { title: string; icon: IconName; roles: Role[] }> = {
-  home: { title: "Home", icon: "home", roles: ["member", "clinician", "manager"] },
+  home: { title: "Home", icon: "home", roles: ["member", "clinician", "manager", "org_manager"] },
   tickets: { title: "Tickets", icon: "document-text", roles: ["member", "clinician", "manager"] },
   build: { title: "Build", icon: "body", roles: ["member"] },
   marketplace: { title: "Market", icon: "storefront", roles: ["member"] },
-  alerts: { title: "Alerts", icon: "notifications", roles: ["clinician"] },
+  alerts: { title: "Alerts", icon: "notifications", roles: ["clinician", "org_manager"] },
   team: { title: "Team", icon: "people", roles: ["manager"] },
-  account: { title: "Account", icon: "person-circle", roles: ["member", "clinician", "manager"] },
+  account: { title: "Account", icon: "person-circle", roles: ["member", "clinician", "manager", "org_manager"] },
 };
 
 function TabIcon({ name, focused, color }: { name: IconName; focused: boolean; color: string }) {

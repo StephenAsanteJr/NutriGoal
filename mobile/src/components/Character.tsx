@@ -35,7 +35,7 @@ export function Character({ sex, heightCm, weightKg, bodyFatPct, look, height = 
       </Defs>
       {g && (
         <G opacity={0.9}>
-          <Path d={g.body} fill="none" stroke="#00a9f4" strokeWidth={2} strokeDasharray="1.5 4" strokeLinecap="round" />
+          <Path d={g.body} fill="none" stroke="#21bf61" strokeWidth={2} strokeDasharray="1.5 4" strokeLinecap="round" />
         </G>
       )}
       {look.hairStyle === "long" && (
@@ -43,11 +43,11 @@ export function Character({ sex, heightCm, weightKg, bodyFatPct, look, height = 
       )}
       <Path d={s.body} fill="url(#skin)" stroke={look.skinShade} strokeWidth={0.8} />
       <G clipPath="url(#body)">
-        <Path d={s.top} fill="#2251ff" />
-        <Path d={s.shorts} fill="#051c2c" />
+        <Path d={s.top} fill="#197a56" />
+        <Path d={s.shorts} fill="#0c2b15" />
       </G>
       {s.feet.map((f, i) => (
-        <Ellipse key={i} cx={f.cx} cy={f.cy} rx={f.rx} ry={f.ry} fill="#ffffff" stroke="#051c2c" strokeWidth={0.9} />
+        <Ellipse key={i} cx={f.cx} cy={f.cy} rx={f.rx} ry={f.ry} fill="#ffffff" stroke="#0c2b15" strokeWidth={0.9} />
       ))}
       <Ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={look.skin} stroke={look.skinShade} strokeWidth={0.8} />
       {[-1, 1].map((d) => (

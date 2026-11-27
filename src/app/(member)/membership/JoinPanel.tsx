@@ -19,7 +19,7 @@ export function JoinPanel({ stripe = false }: { stripe?: boolean }) {
             type="button"
             onClick={() => setPlan(p)}
             aria-pressed={plan === p}
-            className={`card p-6 text-left transition ${plan === p ? "border-blue ring-1 ring-blue" : "hover:border-bain"}`}
+            className={`card p-6 text-left transition ${plan === p ? "border-bcg-deep ring-1 ring-bcg-deep" : "hover:border-bain"}`}
           >
             <div className="eyebrow">{p === "monthly" ? "Monthly" : "Annual"}</div>
             <div className="font-display mt-2 text-4xl">{money(p === "monthly" ? PRICES.subscriptionMonthly : PRICES.subscriptionYearly)}</div>

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, homeFor } from "@/lib/auth";
 import { getSettings } from "@/lib/data";
 import { TopNav } from "@/components/TopNav";
 import { MobileNav } from "@/components/MobileNav";
@@ -8,7 +8,7 @@ import { Assistant } from "@/components/Assistant";
 export default async function MemberLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.role !== "member") redirect("/staff");
+  if (user.role !== "member") redirect(homeFor(user));
   const settings = getSettings(user.id);
   return (
     <div className="flex min-h-screen flex-col bg-mist/60">

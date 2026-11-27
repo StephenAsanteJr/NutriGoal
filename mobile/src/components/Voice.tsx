@@ -22,7 +22,7 @@ export function ListenButton({ text, label = "Listen", title }: { text: string; 
       onPress={() => (mine ? p.toggle() : p.play(name, text))}
       accessibilityRole="button"
       accessibilityLabel={playing ? "Pause reading aloud" : `${label}: read aloud`}
-      style={({ pressed }) => [s.listen, playing && { backgroundColor: C.navy, borderColor: C.navy }, pressed && { opacity: 0.85 }]}
+      style={({ pressed }) => [s.listen, playing && { backgroundColor: C.ink, borderColor: C.ink }, pressed && { opacity: 0.85 }]}
     >
       <Ionicons name={playing ? "pause" : "volume-high"} size={15} color={playing ? C.white : C.greenDeep} />
       <Text style={[s.listenText, playing && { color: C.white }]}>{playing ? "Pause" : mine ? "Resume" : label}</Text>
@@ -100,7 +100,7 @@ export function VoicePanel({ title, hint, action, onTranscript }: { title: strin
     <View style={s.panel}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <Ionicons name="mic-circle" size={22} color={C.red} />
-        <Text style={{ color: C.navy, fontWeight: "800", fontSize: 15, flex: 1 }}>{title}</Text>
+        <Text style={{ color: C.ink, fontWeight: "800", fontSize: 15, flex: 1 }}>{title}</Text>
       </View>
       <Text style={{ color: C.slate, fontSize: 13, marginTop: 4, marginBottom: 10 }}>{hint}</Text>
       <DictateField label="What you said" value={text} onChangeText={setText} multiline placeholder="Tap the mic and talk it through…" />
@@ -130,8 +130,8 @@ const s = StyleSheet.create({
   listen: { flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start", borderWidth: 1, borderColor: C.greenTint, backgroundColor: C.greenTint, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   listenText: { color: C.greenDeep, fontWeight: "800", fontSize: 13 },
   mic: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: C.line, backgroundColor: C.white, alignItems: "center", justifyContent: "center" },
-  label: { color: C.navy, fontWeight: "700", fontSize: 13, flex: 1 },
-  input: { backgroundColor: C.white, borderWidth: 1, borderColor: C.line, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, color: C.navy },
+  label: { color: C.ink, fontWeight: "700", fontSize: 13, flex: 1 },
+  input: { backgroundColor: C.white, borderWidth: 1, borderColor: C.line, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, color: C.ink },
   live: { color: C.red, fontWeight: "700", fontSize: 12.5, marginTop: 6 },
   hint: { color: C.red, fontWeight: "600", fontSize: 12.5, marginTop: 6 },
   error: { color: C.red, fontWeight: "700", fontSize: 12.5, marginTop: 6 },

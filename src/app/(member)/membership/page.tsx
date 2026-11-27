@@ -14,6 +14,10 @@ import { JoinPanel } from "./JoinPanel";
 import { stripeEnabled } from "@/lib/stripe";
 import { WeighInForm } from "./WeighInForm";
 import { SettingsPanel } from "./SettingsPanel";
+import { memberOrg } from "@/lib/org-wellness";
+import { demographicsSummary, getDemographics } from "@/lib/demographics";
+import { leaveOrganization } from "@/actions/org";
+import { JoinOrgForm } from "@/app/join/[code]/JoinForm";
 
 export const metadata: Metadata = { title: "Membership" };
 
@@ -51,7 +55,7 @@ export default async function MembershipPage(props: PageProps<"/membership">) {
             key={t.id}
             href={`/membership?tab=${t.id}`}
             aria-current={tab === t.id ? "page" : undefined}
-            className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-bold ${tab === t.id ? "border-bain text-navy" : "border-transparent text-slate hover:text-navy"}`}
+            className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-bold ${tab === t.id ? "border-bain text-ink" : "border-transparent text-slate hover:text-ink"}`}
           >
             {t.label}
           </Link>
@@ -84,7 +88,64 @@ export default async function MembershipPage(props: PageProps<"/membership">) {
           }}
         />
       )}
+      {tab === "settings" && <AboutSection userId={user.id} />}
+      {tab === "settings" && <OrganizationSection userId={user.id} />}
     </div>
+  );
+}
+
+/** Demographics summary with a link to edit them. */
+function AboutSection({ userId }: { userId: string }) {
+  const rows = demographicsSummary(getDemographics(userId));
+  return (
+    <section id="about" className="card scroll-mt-24 p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="eyebrow">About you</div>
+          <h2 className="font-display mt-1 text-2xl">{rows.length ? "Your details" : "Tell your clinician a little about you"}</h2>
+        </div>
+        <Link href="/onboarding/about" className="btn-outline !py-2 text-sm">{rows.length ? "Edit" : "Add details"}</Link>
+      </div>
+      {rows.length ? (
+        <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
+          {rows.map(([k, v]) => (
+            <div key={k} className="flex gap-3 border-b border-line py-1.5">
+              <dt className="w-36 shrink-0 text-muted">{k}</dt>
+              <dd className="text-ink">{v}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : (
+        <p className="mt-2 text-sm text-slate">Where you live, your work, household and the cuisines you eat. Your food guide uses your cuisines.</p>
+      )}
+    </section>
+  );
+}
+
+/** Join or leave a sponsoring organization. Only the member sees which one they're in. */
+function OrganizationSection({ userId }: { userId: string }) {
+  const org = memberOrg(userId);
+  return (
+    <section id="organization" className="card scroll-mt-24 p-6">
+      <div className="eyebrow">Organization</div>
+      <h2 className="font-display mt-1 text-2xl">{org ? org.name : "Joined through work, a health plan or school?"}</h2>
+      {org ? (
+        <>
+          <p className="mt-2 max-w-2xl text-sm text-slate">
+            You joined on {shortDate(org.joined_at)}. {org.name} sees only de-identified totals for groups of 5 or more people, never your name,
+            weight, labs, tickets or plans, and your clinician isn&apos;t told who sponsors you.
+          </p>
+          <form action={leaveOrganization} className="mt-4">
+            <button className="btn-outline !py-2 text-sm">Leave {org.name}</button>
+          </form>
+        </>
+      ) : (
+        <div className="mt-3 max-w-md">
+          <p className="mb-3 text-sm text-slate">Enter the invite code your organization gave you.</p>
+          <JoinOrgForm compact />
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -147,9 +208,9 @@ function Overview({ userId, name }: { userId: string; name: string }) {
         </div>
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
-            ["Carbohydrates", grams.carbs, s.macro_carbs, "#2251ff"],
-            ["Protein", grams.protein, s.macro_protein, "#197a56"],
-            ["Fat", grams.fat, s.macro_fat, "#0284c7"],
+            ["Carbohydrates", grams.carbs, s.macro_carbs, "#197a56"],
+            ["Protein", grams.protein, s.macro_protein, "#cc0000"],
+            ["Fat", grams.fat, s.macro_fat, "#21bf61"],
           ].map(([label, g, pct, color]) => (
             <div key={label as string} className="rounded-[2px] border border-line p-4">
               <div className="flex justify-between text-sm">
@@ -168,7 +229,7 @@ function Overview({ userId, name }: { userId: string; name: string }) {
         </p>
       </section>
 
-      <FoodGuide guide={foodGuide({ kcal: Math.round(kcal), ...grams })} />
+      <FoodGuide guide={foodGuide({ kcal: Math.round(kcal), ...grams })} preferred={getDemographics(userId)?.cuisines ?? []} />
 
       <section className="card">
         <h2 className="border-b border-line px-6 py-3 text-sm font-bold">Payments & receipts</h2>

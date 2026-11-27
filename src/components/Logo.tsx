@@ -21,8 +21,8 @@ export function Logo({
     <Link href={href} className="group inline-flex items-center gap-2.5" aria-label="NutriGoal home">
       <Image src="/brand/nutrigoal-mark.png" alt="" width={mark} height={mark} priority className="shrink-0" />
       <span className={`font-brand font-extrabold leading-none tracking-[0.02em] ${size === "lg" ? "text-[28px]" : "text-[19px]"}`}>
-        <span className={tone === "dark" ? "text-navy" : "text-white"}>NUTRI</span>{" "}
-        <span className={tone === "dark" ? "text-blue" : "text-[#5B83FF]"}>GOAL</span>
+        <span className={tone === "dark" ? "text-ink" : "text-white"}>NUTRI</span>{" "}
+        <span className={tone === "dark" ? "text-bcg-deep" : "text-bcg"}>GOAL</span>
       </span>
       {suffix && (
         <span className={`ml-1 hidden text-[11px] font-bold uppercase tracking-[0.14em] sm:inline ${tone === "dark" ? "text-muted" : "text-bcg-fresh"}`}>

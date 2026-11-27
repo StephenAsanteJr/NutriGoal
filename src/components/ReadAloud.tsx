@@ -151,7 +151,7 @@ export function ReadAloudBar() {
   const other = voices.filter((v) => !v.natural);
 
   return (
-    <div className="fixed inset-x-3 bottom-[84px] z-50 mx-auto max-w-2xl lg:bottom-4 rounded-2xl bg-navy p-3 text-white shadow-2xl sm:inset-x-6" role="region" aria-label="Read-aloud player">
+    <div className="fixed inset-x-3 bottom-[84px] z-50 mx-auto max-w-2xl lg:bottom-4 rounded-2xl bg-ink p-3 text-white shadow-2xl sm:inset-x-6" role="region" aria-label="Read-aloud player">
       {open && (
         <div className="mb-3 grid gap-4 border-b border-white/15 pb-3 sm:grid-cols-[auto_1fr]">
           <div>
@@ -163,7 +163,7 @@ export function ReadAloudBar() {
                   type="button"
                   onClick={() => player.setRate(r)}
                   aria-pressed={s.rate === r}
-                  className={`rounded-full border px-2.5 py-1 text-xs font-bold ${s.rate === r ? "border-bcg bg-bcg text-navy" : "border-white/30 hover:bg-white/10"}`}
+                  className={`rounded-full border px-2.5 py-1 text-xs font-bold ${s.rate === r ? "border-bcg bg-bcg text-ink" : "border-white/30 hover:bg-white/10"}`}
                 >
                   {r}×
                 </button>
@@ -175,7 +175,7 @@ export function ReadAloudBar() {
             <select
               value={s.voiceURI ?? ""}
               onChange={(e) => player.setVoice(e.target.value || null)}
-              className="w-full rounded-lg border border-white/25 bg-navy-soft px-2.5 py-2 text-sm text-white"
+              className="w-full rounded-lg border border-white/25 bg-ink-soft px-2.5 py-2 text-sm text-white"
             >
               <option value="">Browser default</option>
               {natural.length > 0 && (
@@ -200,7 +200,7 @@ export function ReadAloudBar() {
         </div>
       )}
       <div className="flex items-center gap-3">
-        <button type="button" onClick={player.toggle} aria-label={s.playing ? "Pause" : "Play"} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bcg text-navy">
+        <button type="button" onClick={player.toggle} aria-label={s.playing ? "Pause" : "Play"} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bcg text-ink">
           {s.playing ? (
             <svg viewBox="0 0 16 16" className="h-4 w-4" fill="currentColor" aria-hidden><rect x="3" y="2" width="3.5" height="12" rx="1" /><rect x="9.5" y="2" width="3.5" height="12" rx="1" /></svg>
           ) : (

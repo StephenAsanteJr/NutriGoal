@@ -7,7 +7,7 @@ import * as WebBrowser from "expo-web-browser";
 import { api, apiBase, ApiError } from "./api";
 
 const KEY = "nutrigoal_token";
-type Role = "member" | "clinician" | "manager";
+type Role = "member" | "clinician" | "manager" | "org_manager";
 type Session = {
   token: string | null;
   role: Role | null;

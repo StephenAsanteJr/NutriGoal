@@ -35,7 +35,7 @@ export function LicenseCheck({ userId, v }: { userId: string; v: Verification | 
         {v.checks.map((c) => (
           <li key={c.label} className="flex gap-2">
             <span className={`w-3 shrink-0 text-center font-bold ${MARK_CLS[c.status]}`} aria-label={c.status}>{MARK[c.status]}</span>
-            <span><strong className="text-navy">{c.label}:</strong> <span className="text-slate">{c.detail}</span></span>
+            <span><strong className="text-ink">{c.label}:</strong> <span className="text-slate">{c.detail}</span></span>
           </li>
         ))}
         {v.manual?.map((m, i) => (

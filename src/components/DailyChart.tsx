@@ -8,7 +8,7 @@ const H = 200;
 const M = { top: 14, right: 70, bottom: 28, left: 44 };
 
 /** One measure per chart: daily bars against a target line, with hover tooltip. */
-export function DailyChart({ points, target, unit, label, color = "#2251ff" }: { points: Point[]; target: number | null; unit: string; label: string; color?: string }) {
+export function DailyChart({ points, target, unit, label, color = "#197a56" }: { points: Point[]; target: number | null; unit: string; label: string; color?: string }) {
   const [hover, setHover] = useState<number | null>(null);
   if (!points.length) return null;
   const vals = points.map((p) => p.value ?? 0);
@@ -24,8 +24,8 @@ export function DailyChart({ points, target, unit, label, color = "#2251ff" }: {
       <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full" role="img" aria-label={`${label}: ${points.length} days${target ? `, target ${fmt(target)} ${unit}` : ""}`} onPointerLeave={() => setHover(null)}>
         {ticks.map((t) => (
           <g key={t}>
-            <line x1={M.left} x2={W - M.right} y1={y(t)} y2={y(t)} stroke="#e6ebef" />
-            <text x={M.left - 6} y={y(t) + 4} textAnchor="end" fontSize="10" fill="#7b868e" fontFamily="Arial">{fmt(t)}</text>
+            <line x1={M.left} x2={W - M.right} y1={y(t)} y2={y(t)} stroke="#e6ece8" />
+            <text x={M.left - 6} y={y(t) + 4} textAnchor="end" fontSize="10" fill="#77847b" fontFamily="Arial">{fmt(t)}</text>
           </g>
         ))}
         {points.map((p, i) => {
@@ -37,19 +37,19 @@ export function DailyChart({ points, target, unit, label, color = "#2251ff" }: {
               {v != null ? (
                 <rect x={x + 1} y={y(v)} width={Math.max(1, step - 2)} height={Math.max(0, y(0) - y(v))} rx={Math.min(4, step / 3)} fill={color} opacity={hover == null || hover === i ? 1 : 0.55} />
               ) : (
-                <rect x={x + 1} y={y(0) - 2} width={Math.max(1, step - 2)} height={2} fill="#dfe4e8" />
+                <rect x={x + 1} y={y(0) - 2} width={Math.max(1, step - 2)} height={2} fill="#dfe6e1" />
               )}
             </g>
           );
         })}
         {target != null && (
           <>
-            <line x1={M.left} x2={W - M.right} y1={y(target)} y2={y(target)} stroke="#051c2c" strokeDasharray="4 3" strokeWidth="1.2" />
-            <text x={W - M.right + 6} y={y(target) + 4} fontSize="10" fill="#051c2c" fontFamily="Arial" fontWeight="700">Target {fmt(target)}</text>
+            <line x1={M.left} x2={W - M.right} y1={y(target)} y2={y(target)} stroke="#0c2b15" strokeDasharray="4 3" strokeWidth="1.2" />
+            <text x={W - M.right + 6} y={y(target) + 4} fontSize="10" fill="#0c2b15" fontFamily="Arial" fontWeight="700">Target {fmt(target)}</text>
           </>
         )}
         {[0, Math.floor(points.length / 2), points.length - 1].map((i) => (
-          <text key={i} x={M.left + i * step + step / 2} y={H - 8} textAnchor="middle" fontSize="10" fill="#7b868e" fontFamily="Arial">
+          <text key={i} x={M.left + i * step + step / 2} y={H - 8} textAnchor="middle" fontSize="10" fill="#77847b" fontFamily="Arial">
             {new Date(points[i].day + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
           </text>
         ))}

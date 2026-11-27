@@ -71,7 +71,7 @@ export function Assistant({ firstName }: { firstName: string }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-20 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-navy py-2 pl-2 pr-4 text-sm font-bold text-white shadow-[0_8px_30px_rgba(5,28,44,0.35)] hover:bg-navy-soft md:bottom-6 md:right-6 print:hidden"
+        className="fixed bottom-20 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-ink py-2 pl-2 pr-4 text-sm font-bold text-white shadow-[0_8px_30px_rgba(5,28,44,0.35)] hover:bg-ink-soft md:bottom-6 md:right-6 print:hidden"
         aria-expanded={open}
         aria-controls="ng-assistant"
       >
@@ -87,7 +87,7 @@ export function Assistant({ firstName }: { firstName: string }) {
           className="fixed inset-x-0 bottom-0 z-50 flex h-[80vh] flex-col overflow-hidden rounded-t-2xl border border-line bg-white shadow-2xl md:inset-x-auto md:bottom-20 md:right-6 md:h-[600px] md:w-[400px] md:rounded-[4px]"
           aria-label="NutriGoal Assistant"
         >
-          <header className="flex items-center justify-between bg-navy px-4 py-3 text-white">
+          <header className="flex items-center justify-between bg-ink px-4 py-3 text-white">
             <div className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
                 <Image src="/brand/nutrigoal-mark.png" alt="" width={24} height={24} />
@@ -120,7 +120,7 @@ export function Assistant({ firstName }: { firstName: string }) {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {SUGGESTIONS.map((s) => (
-                    <button key={s} type="button" onClick={() => send(s)} className="rounded-full border border-blue/30 bg-white px-3 py-1.5 text-xs font-bold text-blue hover:bg-blue-tint">
+                    <button key={s} type="button" onClick={() => send(s)} className="rounded-full border border-bcg-deep/30 bg-white px-3 py-1.5 text-xs font-bold text-bcg-deep hover:bg-bcg-tint">
                       {s}
                     </button>
                   ))}
@@ -131,7 +131,7 @@ export function Assistant({ firstName }: { firstName: string }) {
               <div key={i} className={m.role === "user" ? "flex justify-end" : ""}>
                 <div
                   className={`max-w-[85%] whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-sm shadow-sm ${
-                    m.role === "user" ? "rounded-tr-sm bg-blue text-white" : "rounded-tl-sm bg-white text-navy"
+                    m.role === "user" ? "rounded-tr-sm bg-bcg-deep text-white" : "rounded-tl-sm bg-white text-ink"
                   }`}
                 >
                   {m.content}
@@ -144,7 +144,7 @@ export function Assistant({ firstName }: { firstName: string }) {
                 {m.actions && m.actions.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {m.actions.map((a) => (
-                      <Link key={a.href} href={a.href} onClick={() => setOpen(false)} className="rounded-full bg-navy px-3 py-1.5 text-xs font-bold text-white hover:bg-navy-soft">
+                      <Link key={a.href} href={a.href} onClick={() => setOpen(false)} className="rounded-full bg-ink px-3 py-1.5 text-xs font-bold text-white hover:bg-ink-soft">
                         {a.label} →
                       </Link>
                     ))}
